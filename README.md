@@ -13,3 +13,16 @@ Some example use cases:
 - Creating a model for monitoring
 - Logging inferences for analysis
 - Triggering model analysis
+
+
+# 🔨 Development
+
+## 🤖 API code generation
+
+The API interface to interact with NannyML Cloud is generated from a GraphQL schema.
+
+To extend or update the API interface:
+
+1. Ensure the schema in [graphql/schema.graphql](graphql/schema.graphql) is up to date.
+2. Add (or updates) queries in [graphql/queries/](graphql/queries/).
+3. Run `make graphql-cg` to regenerate the API interface.

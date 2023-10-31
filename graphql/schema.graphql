@@ -1,0 +1,722 @@
+input AddDataSourceToModelInput {
+  modelId: ID!
+  dataSource: CreateDataSourceInput!
+}
+
+enum AnalysisType {
+  REALIZED_PERFORMANCE
+  ESTIMATED_PERFORMANCE
+  FEATURE_DRIFT
+  DATA_QUALITY
+  CONCEPT_SHIFT
+}
+
+type ApplicationSettings {
+  usageStatistics: Boolean!
+}
+
+input AzureBlobStorageInput {
+  accountName: String!
+  container: String!
+  path: String!
+  isPublic: Boolean! = false
+  accountKey: String = null
+  sasToken: String = null
+}
+
+type BusinessValueMetricConfig implements PerformanceMetricConfigInterface {
+  metric: PerformanceMetric!
+  enabled: Boolean!
+  enabledEstimated: Boolean!
+  enabledRealized: Boolean!
+  threshold: Threshold
+  truePositiveWeight: Float!
+  falsePositiveWeight: Float!
+  trueNegativeWeight: Float!
+  falseNegativeWeight: Float!
+}
+
+input BusinessValueMetricConfigInput {
+  truePositiveWeight: Float!
+  falsePositiveWeight: Float!
+  trueNegativeWeight: Float!
+  falseNegativeWeight: Float!
+}
+
+input CacheStorageInput {
+  id: String!
+}
+
+enum CalculatorType {
+  CBPE
+  DLE
+  PERFORMANCE_CALCULATION
+  UNIVARIATE_DRIFT
+  MULTIVARIATE_DRIFT
+  MISSING_VALUES
+  UNSEEN_VALUES
+  RCS
+}
+
+enum ChangeDirection {
+  INCREASE
+  DECREASE
+  UNCHANGED
+}
+
+enum Chunking {
+  YEARLY
+  QUARTERLY
+  MONTHLY
+  WEEKLY
+  DAILY
+  HOURLY
+}
+
+type ChunkingConfig {
+  chunking: Chunking!
+  enabled: Boolean!
+  count: Int
+}
+
+input ChunkingConfigInput {
+  chunking: Chunking!
+  enabled: Boolean!
+  count: Int = null
+}
+
+type Column {
+  name: String!
+  columnType: ColumnType!
+  dataType: String!
+  className: String
+}
+
+input ColumnInput {
+  name: String!
+  columnType: ColumnType!
+  dataType: String!
+  className: String = null
+}
+
+enum ColumnType {
+  TARGET
+  PREDICTION_SCORE
+  PREDICTION
+  TIMESTAMP
+  CATEGORICAL_FEATURE
+  CONTINUOUS_FEATURE
+  IGNORED
+  JOIN
+}
+
+enum ConceptShiftMetric {
+  ROC_AUC
+  F1
+  PRECISION
+  RECALL
+  SPECIFICITY
+  ACCURACY
+  MAGNITUDE
+}
+
+type ConceptShiftMetricConfig {
+  metric: ConceptShiftMetric!
+  enabled: Boolean!
+  threshold: Threshold
+}
+
+input ConceptShiftMetricConfigInput {
+  metric: ConceptShiftMetric!
+  enabled: Boolean!
+  threshold: ThresholdRefInput
+}
+
+type ConstantThreshold implements Thresholdbase & Threshold & ThresholdBase {
+  name: String!
+  id: ID!
+  type: ThresholdType!
+  lower: Float
+  upper: Float
+}
+
+input ConstantThresholdInput {
+  lower: Float
+  upper: Float
+}
+
+input CreateDataSourceInput {
+  name: String!
+  hasReferenceData: Boolean!
+  hasAnalysisData: Boolean!
+  columns: [ColumnInput!]!
+  storageInfo: StorageInput
+}
+
+input CreateModelInput {
+  name: String!
+  problemType: ProblemType!
+  chunkAggregation: Chunking!
+  referenceStartTimestamp: DateTime = null
+  referenceEndTimestamp: DateTime = null
+  dataSources: [CreateDataSourceInput!]! = []
+  mainPerformanceMetric: PerformanceMetric = null
+  mainPerformanceComponent: String = null
+}
+
+input CreateTagInput {
+  name: String!
+}
+
+input CreateThresholdInput {
+  name: String!
+  constant: ConstantThresholdInput = null
+  standardDeviation: StandardDeviationThresholdInput = null
+}
+
+enum DataQualityMetric {
+  MISSING_VALUES
+  UNSEEN_VALUES
+}
+
+type DataQualityMetricConfig {
+  metric: DataQualityMetric!
+  enabled: Boolean!
+  normalize: Boolean!
+  threshold: Threshold
+}
+
+input DataQualityMetricConfigInput {
+  metric: DataQualityMetric!
+  enabled: Boolean!
+  normalize: Boolean!
+  threshold: ThresholdRefInput
+}
+
+type DataSource {
+  id: ID!
+  name: String!
+  hasReferenceData: Boolean!
+  hasAnalysisData: Boolean!
+  columns: [Column!]!
+  nrRows: Int
+}
+
+input DataSourceDataInput {
+  id: ID!
+  storageInfo: StorageInput!
+}
+
+type DataSourceInspectData {
+  columns: [Column!]!
+  head: JSON!
+}
+
+type DatasetCacheRef {
+  id: String!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+input DeleteDataSourceInput {
+  id: ID!
+}
+
+input EditApplicationSettingsInput {
+  usageStatistics: Boolean!
+}
+
+input EditModelInput {
+  modelId: ID!
+  allowInvalidatingResults: Boolean! = false
+  name: String = null
+  referenceStartTimestamp: DateTime = null
+  referenceEndTimestamp: DateTime = null
+  runtimeConfig: EditRuntimeConfigInput = null
+  schedules: [EditScheduleInput!] = null
+}
+
+input EditRuntimeConfigInput {
+  dataChunking: [ChunkingConfigInput!] = null
+  performanceTypes: [PerformanceTypeConfigInput!] = null
+  performanceMetrics: [PerformanceMetricConfigInput!] = null
+  univariateDriftMethods: [UnivariateDriftMethodConfigInput!] = null
+  multivariateDriftMethods: [MultivariateDriftMethodConfigInput!] = null
+  dataQualityMetrics: [DataQualityMetricConfigInput!] = null
+  conceptShiftMetrics: [ConceptShiftMetricConfigInput!] = null
+}
+
+input EditScheduleInput {
+  frequency: ScheduleFrequency!
+  multiplier: Int!
+  time: Time!
+  offsetDays: Int = null
+  dayOfWeek: DayOfWeek = null
+}
+
+input EditTagInput {
+  originalName: String!
+  name: String!
+}
+
+input EditUserNotificationSettingsInput {
+  userId: ID = null
+  emailEnabled: Boolean!
+  emailRecipient: String = null
+}
+
+input InspectDataSourceInput {
+  problemType: ProblemType!
+  storageInfo: StorageInput!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON @specifiedBy(url: "http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf")
+
+type KeyIndicator {
+  analysisType: AnalysisType!
+  metricName: String!
+  componentName: String
+  columnName: String
+  columnNames: [String!]
+  value: Float
+  change: ChangeDirection
+}
+
+type MetricConfigPerformance implements PerformanceMetricConfigInterface {
+  metric: PerformanceMetric!
+  enabled: Boolean!
+  enabledEstimated: Boolean!
+  enabledRealized: Boolean!
+  threshold: Threshold
+}
+
+type Model {
+  id: ID!
+  name: String!
+  problemType: ProblemType!
+  createdAt: DateTime!
+  latestRun: Run
+  nextRun: Run
+  referenceStartTimestamp: DateTime
+  referenceEndTimestamp: DateTime
+  dataSources: [DataSource!]!
+  runs: [Run!]!
+  results(analysisType: AnalysisType = null, metricNames: [String!] = null, componentNames: [String!] = null, columnNames: [String!] = null, tags: [String!] = null, includeDisabled: Boolean! = false): [TimeSeriesResult!]!
+  runtimeConfig: RuntimeConfig!
+  runnerConfig: JSON!
+  schedules: [Schedule!]!
+  keyIndicators: [KeyIndicator!]!
+  nrPerformanceAlerts: Int!
+  nrTargetDriftAlerts: Int
+  nrModelOutputDriftAlerts: Int!
+  nrOtherDriftAlerts: Int!
+}
+
+union ModelResultInvalidationRequired = Model | ResultInvalidationRequired
+
+enum MultivariateDriftMethod {
+  PCA_RECONSTRUCTION_ERROR
+}
+
+type MultivariateDriftMethodConfig {
+  method: MultivariateDriftMethod!
+  enabled: Boolean!
+  threshold: Threshold
+}
+
+input MultivariateDriftMethodConfigInput {
+  method: MultivariateDriftMethod!
+  enabled: Boolean!
+  threshold: ThresholdRefInput
+}
+
+type Mutation {
+  create_model(model: CreateModelInput!): Model!
+  delete_model(modelId: Int!): Model!
+  start_model_run(modelId: Int!): Run!
+  stop_model_run(modelId: Int!): Run!
+  edit_model(input: EditModelInput!): ModelResultInvalidationRequired!
+  create_threshold(input: CreateThresholdInput!): ThresholdBase!
+  create_tag(input: CreateTagInput!): TagTagAlreadyExists!
+  edit_tag(input: EditTagInput!): TagTagAlreadyExistsTagNotFound!
+  tag_result(input: TagResultInput!): TagTagNotFoundResultNotFoundTagAlreadyExists!
+  untag_result(input: TagResultInput!): TagTagNotFoundResultNotFound!
+  add_model_data_source(input: AddDataSourceToModelInput!): DataSource!
+  delete_data_source(input: DeleteDataSourceInput!): DataSource!
+  add_data_to_data_source(input: DataSourceDataInput!): DataSource!
+  update_data_in_data_source(input: DataSourceDataInput!): DataSource!
+  edit_user_notification_settings(settings: EditUserNotificationSettingsInput!): UserNotificationSettingsUserNotFound!
+  edit_application_settings(settings: EditApplicationSettingsInput!): ApplicationSettings!
+  upload_dataset(file: Upload!): DatasetCacheRef!
+  create_user_api_token(input: UserApiTokenCreateInput!): UserApiTokenCreateResponse!
+  delete_user_api_token(tokenId: ID!): UserApiTokenTokenNotFound!
+}
+
+enum PerformanceMetric {
+  ROC_AUC
+  F1
+  PRECISION
+  RECALL
+  SPECIFICITY
+  ACCURACY
+  CONFUSION_MATRIX
+  BUSINESS_VALUE
+  MAE
+  MAPE
+  MSE
+  RMSE
+  MSLE
+  RMSLE
+}
+
+input PerformanceMetricConfigInput {
+  metric: PerformanceMetric!
+  enabled: Boolean!
+  enabledEstimated: Boolean!
+  enabledRealized: Boolean!
+  threshold: ThresholdRefInput
+  businessValue: BusinessValueMetricConfigInput = null
+}
+
+interface PerformanceMetricConfigInterface {
+  metric: PerformanceMetric!
+  enabled: Boolean!
+  enabledEstimated: Boolean!
+  enabledRealized: Boolean!
+  threshold: Threshold
+}
+
+enum PerformanceType {
+  ESTIMATED
+  REALIZED
+}
+
+type PerformanceTypeConfig {
+  type: PerformanceType!
+  enabled: Boolean!
+}
+
+input PerformanceTypeConfigInput {
+  type: PerformanceType!
+  enabled: Boolean!
+}
+
+enum ProblemType {
+  BINARY_CLASSIFICATION
+  MULTICLASS_CLASSIFICATION
+  REGRESSION
+}
+
+type Query {
+  models: [Model!]!
+  model(id: Int!): Model
+  inspect_dataset(input: InspectDataSourceInput!): DataSourceInspectData!
+  results(modelId: ID!, analysisType: AnalysisType = null, metricNames: [String!] = null, componentNames: [String!] = null, columnNames: [String!] = null, tags: [String!] = null, includeDisabled: Boolean! = false): [TimeSeriesResult!]!
+  thresholds: [Threshold!]!
+  current_user: User!
+  tags(names: [String!] = null): [Tag!]!
+  application_settings: ApplicationSettings
+}
+
+input RawStorageInput {
+  connectionString: String!
+  options: JSON = null
+}
+
+type ResultInvalidationRequired {
+  modelId: ID!
+  all: Boolean!
+  metrics: [ResultRef!]!
+}
+
+type ResultNotFound {
+  analysisType: AnalysisType!
+  metricName: String!
+  componentName: String
+  columnName: String
+  columnNames: [String!]
+  modelId: Int!
+}
+
+type ResultRef {
+  analysisType: AnalysisType!
+  metricName: String!
+  componentName: String
+  columnName: String
+  columnNames: [String!]
+}
+
+type Run {
+  id: ID!
+  state: RunState!
+  scheduledFor: DateTime
+  startedAt: DateTime
+  completedAt: DateTime
+  log: String
+  ranSuccessfully: Boolean
+  events(eventType: RunEventType = null): [RunEvent!]!
+}
+
+type RunEvent {
+  eventType: RunEventType!
+  calculator: CalculatorType
+  ranSuccessfully: Boolean
+  scheduledFor: DateTime
+  currentStep: Int
+  nrSteps: Int
+  description: String
+  timestamp: DateTime!
+  causedBy: User
+}
+
+enum RunEventType {
+  SCHEDULED
+  STARTED
+  COMPLETED
+  CANCELLED
+  PROGRESS
+  WARNING
+  ERROR
+  TIMEOUT
+}
+
+enum RunState {
+  SCHEDULED
+  RUNNING
+  CANCELLING
+  COMPLETED
+}
+
+type RuntimeConfig {
+  dataChunking: [ChunkingConfig!]!
+  performanceTypes: [PerformanceTypeConfig!]!
+  performanceMetrics: [PerformanceMetricConfigInterface!]!
+  univariateDriftMethods: [UnivariateDriftMethodConfig!]!
+  multivariateDriftMethods: [MultivariateDriftMethodConfig!]!
+  dataQualityMetrics: [DataQualityMetricConfig!]!
+  conceptShiftMetrics: [ConceptShiftMetricConfig!]!
+}
+
+enum S3AuthenticationMode {
+  ANONYMOUS
+  INTEGRATED
+  ACCESS_KEY
+}
+
+input S3StorageInput {
+  uri: String!
+  authenticationMode: S3AuthenticationMode!
+  awsAccessKeyId: String = null
+  awsSecretAccessKey: String = null
+}
+
+type Schedule {
+  frequency: ScheduleFrequency!
+  multiplier: Int!
+  offsetDays: Int
+  time: Time!
+  dayOfWeek: DayOfWeek
+}
+
+enum ScheduleFrequency {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+type StandardDeviationThreshold implements Thresholdbase & Threshold & ThresholdBase {
+  name: String!
+  id: ID!
+  type: ThresholdType!
+  stdLowerMultiplier: Float
+  stdUpperMultiplier: Float
+}
+
+input StandardDeviationThresholdInput {
+  stdLowerMultiplier: Float
+  stdUpperMultiplier: Float
+}
+
+input StorageInput {
+  raw: RawStorageInput = null
+  azureBlob: AzureBlobStorageInput = null
+  s3: S3StorageInput = null
+  cache: CacheStorageInput = null
+}
+
+type Tag {
+  name: String!
+}
+
+type TagAlreadyExists {
+  name: String!
+}
+
+type TagNotFound {
+  name: String!
+}
+
+input TagResultInput {
+  analysisType: AnalysisType!
+  metricName: String!
+  componentName: String = null
+  columnName: String = null
+  columnNames: [String!] = null
+  modelId: Int!
+  tagName: String!
+}
+
+union TagTagAlreadyExists = Tag | TagAlreadyExists
+
+union TagTagAlreadyExistsTagNotFound = Tag | TagAlreadyExists | TagNotFound
+
+union TagTagNotFoundResultNotFound = Tag | TagNotFound | ResultNotFound
+
+union TagTagNotFoundResultNotFoundTagAlreadyExists = Tag | TagNotFound | ResultNotFound | TagAlreadyExists
+
+interface Threshold implements ThresholdBase {
+  name: String!
+  id: ID!
+  type: ThresholdType!
+}
+
+type ThresholdAlreadyExists implements ThresholdBase {
+  name: String!
+}
+
+interface ThresholdBase {
+  name: String!
+}
+
+input ThresholdRefInput {
+  id: ID!
+}
+
+enum ThresholdType {
+  CONSTANT
+  STANDARD_DEVIATION
+}
+
+interface Thresholdbase implements Threshold & ThresholdBase {
+  name: String!
+  id: ID!
+  type: ThresholdType!
+}
+
+"""Time (isoformat)"""
+scalar Time
+
+type TimeSeriesDataPoint {
+  value: Float!
+  hasAlert: Boolean!
+  startTimestamp: DateTime!
+  endTimestamp: DateTime!
+  nrDataPoints: Int!
+  samplingError: Float
+  lowerConfidenceBound: Float
+  upperConfidenceBound: Float
+}
+
+type TimeSeriesResult {
+  analysisType: AnalysisType!
+  metricName: String!
+  componentName: String
+  columnName: String
+  columnNames: [String!]
+  lowerThreshold: Float
+  upperThreshold: Float
+  tags: [String!]!
+  testData: [TimeSeriesDataPoint!]!
+  analysisData: [TimeSeriesDataPoint!]!
+  lastDataPoint: TimeSeriesDataPoint
+  nrAlerts: Int!
+}
+
+type TokenNotFound {
+  id: ID!
+}
+
+enum UnivariateDriftMethod {
+  KOLMOGOROV_SMIRNOV
+  JENSEN_SHANNON
+  WASSERSTEIN
+  HELLINGER
+  L_INFINITY
+  CHI2
+}
+
+type UnivariateDriftMethodConfig {
+  method: UnivariateDriftMethod!
+  enabled: Boolean!
+  enabledCategorical: Boolean!
+  enabledContinuous: Boolean!
+  threshold: Threshold
+}
+
+input UnivariateDriftMethodConfigInput {
+  method: UnivariateDriftMethod!
+  enabled: Boolean!
+  enabledCategorical: Boolean!
+  enabledContinuous: Boolean!
+  threshold: ThresholdRefInput
+}
+
+scalar Upload
+
+type User {
+  id: ID!
+  businessKey: String!
+  email: String
+  firstName: String
+  familyName: String
+  name: String
+  notificationSettings: UserNotificationSettings!
+  apiTokens: [UserApiToken!]!
+}
+
+type UserApiToken {
+  id: ID!
+  createdAt: DateTime!
+  description: String
+}
+
+input UserApiTokenCreateInput {
+  description: String = null
+}
+
+type UserApiTokenCreateResponse {
+  id: ID!
+  createdAt: DateTime!
+  description: String
+  token: String!
+}
+
+union UserApiTokenTokenNotFound = UserApiToken | TokenNotFound
+
+type UserNotFound {
+  id: ID!
+}
+
+type UserNotificationSettings {
+  emailEnabled: Boolean!
+  emailRecipient: String
+}
+
+union UserNotificationSettingsUserNotFound = UserNotificationSettings | UserNotFound

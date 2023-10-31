@@ -1,25 +1,6 @@
 SOURCES = nannyml_cloud_sdk
 TESTS = tests
 
-lint:
-	poetry run flake8 $(SOURCES) $(TESTS)
-	poetry run mypy $(SOURCES)
-
-run:
-	docker-compose up -d
-	open http://localhost/graphql
-
-run-dev:
-	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
-	open http://localhost/graphql
-
-run-db:
-	docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d db
-
-run-python: run-db
-	DB_URL=postgresql+asyncpg://nml:C43pPMZrWZha2u5i86aF@localhost poetry run python -m server
-
-
 clean:
 	rm -fR dist/
 
@@ -37,4 +18,8 @@ test: src-build src-test
 
 build: clean src-build
 
-all: build publish
+graphql-codegen:
+	rm -r nannyml_cloud_sdk/graphql_client
+	poetry run ariadne-codegen
+
+all: build

@@ -17,7 +17,15 @@ requests = "^2.31.0"
 flake8 = "^6.1.0"
 mypy = "^1.6.1"
 pytest = "^7.4.3"
+ariadne-codegen = "^0.9.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ariadne-codegen]
+queries_path = "graphql/queries"
+schema_path = "graphql/schema.graphql"
+target_package_path = "nannyml_cloud_sdk"
+async_client = false
+opentelemetry_client = true
