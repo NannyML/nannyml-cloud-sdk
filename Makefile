@@ -18,7 +18,7 @@ test: src-build src-test
 
 build: clean src-build
 
-graphql-codegen:
+graphql-cg:
 	rm -r nannyml_cloud_sdk/graphql_client
 	poetry run ariadne-codegen
 
