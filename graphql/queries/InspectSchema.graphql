@@ -1,0 +1,10 @@
+query InspectSchema($input: InspectDataSourceInput!) {
+    inspect_dataset(input: $input) {
+        columns {
+            name
+            columnType
+            dataType
+            className
+        }
+    }
+}

@@ -1,0 +1,5 @@
+mutation UploadDataset($file: Upload!) {
+    upload_dataset(file: $file) {
+        id
+    }
+}
