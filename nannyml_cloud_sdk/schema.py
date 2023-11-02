@@ -1,5 +1,5 @@
-from collections.abc import Collection, Iterable
-from typing import Literal, Optional
+from collections.abc import Collection
+from typing import Literal, Optional, Union
 import io
 
 import pandas as pd
@@ -36,7 +36,7 @@ class Schema:
         target_column_name: Optional[str] = None,
         identifier_column_name: Optional[str] = None,
         feature_columns: dict[str, Literal['CONTINUOUS', 'CATEGORY']] = {},
-        ignore_column_names: Iterable[str] = (),
+        ignore_column_names: Union[str, Collection[str]] = (),
     ) -> 'Schema':
         """Create a schema from a pandas dataframe and apply overrides"""
         upload_id = cls._upload_data_frame(df.head(cls.INSPECT_DATA_FRAME_NR_ROWS))
@@ -52,8 +52,7 @@ class Schema:
             schema.set_identifier(identifier_column_name)
         for column_name, feature_type in feature_columns.items():
             schema.set_feature(column_name, feature_type)
-        for column_name in ignore_column_names:
-            schema.set_ignored(column_name)
+        schema.set_ignored(ignore_column_names)
         return schema
 
     def set_target(self, column_name: str):
@@ -70,11 +69,15 @@ class Schema:
             if column.name == column_name:
                 column.column_type = \
                     ColumnType.CATEGORICAL_FEATURE if feature_type == 'CATEGORY' else ColumnType.CONTINUOUS_FEATURE
+                break
 
-    def set_ignored(self, column_name: str):
-        """Set a column to be ignored"""
+    def set_ignored(self, column_names: Union[str, Collection[str]]):
+        """Set one or more columns to be ignored"""
+        if isinstance(column_names, str):
+            column_names = (column_names,)
+
         for column in self._columns:
-            if column.name == column_name:
+            if column.name in column_names:
                 column.column_type = ColumnType.IGNORED
 
     def set_identifier(self, column_name: str):
