@@ -1,8 +1,0 @@
-query ListModels {
-  models {
-    id
-    name
-    problemType
-    createdAt
-  }
-}

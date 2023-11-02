@@ -1,11 +1,30 @@
-from typing import List
+from typing import List, TypedDict
+
+from gql import gql
 
 from .client import get_client
-from .graphql_client import ListModelsModels
+
+_LIST_QUERY = gql("""
+    query listModels {
+        models {
+            id
+            name
+            problemType
+            createdAt
+        }
+    }
+""")
+
+
+class ModelListResponse(TypedDict):
+    id: str
+    name: str
+    problemType: str
+    createdAt: str
 
 
 class Model:
     @classmethod
-    def list(cls) -> List[ListModelsModels]:
+    def list(cls) -> List[ModelListResponse]:
         """List defined models"""
-        return get_client().list_models().models
+        return get_client().execute(_LIST_QUERY)['models']
