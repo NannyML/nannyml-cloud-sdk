@@ -17,5 +17,5 @@ ColumnType = Literal[
   'CATEGORICAL_FEATURE',
   'CONTINUOUS_FEATURE',
   'IGNORED',
-  'JOIN',
+  'IDENTIFIER',
 ]

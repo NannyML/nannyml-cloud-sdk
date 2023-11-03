@@ -117,8 +117,8 @@ class Schema:
         """Set the identifier column in a schema"""
         for column in schema['columns']:
             if column['name'] == column_name:
-                column['columnType'] = 'JOIN'
-            elif column['columnType'] == 'JOIN':
+                column['columnType'] = 'IDENTIFIER'
+            elif column['columnType'] == 'IDENTIFIER':
                 column['columnType'] = cls._guess_feature_type(column)
 
         return schema
