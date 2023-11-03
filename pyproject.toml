@@ -12,7 +12,7 @@ packages = [{include = "nannyml_cloud_sdk"}]
 [tool.poetry.dependencies]
 python = "^3.8.1"
 requests = "^2.31.0"
-gql = {extras = ["requests"], version = "^3.4.1"}
+gql = {extras = ["requests"], version = "^3.5.0b1", allow-prereleases = true}
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.1.0"
