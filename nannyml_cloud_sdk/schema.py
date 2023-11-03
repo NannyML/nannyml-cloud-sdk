@@ -1,5 +1,5 @@
 from collections.abc import Collection
-from typing import List, Optional, TypedDict, Union
+from typing import Dict, List, Literal, Optional, TypedDict, Union, cast, overload
 
 from gql import gql
 import pandas as pd
@@ -41,15 +41,50 @@ class Schema:
     INSPECT_DATA_FRAME_NR_ROWS = 100
     CATEGORICAL_DTYPES = ('object', 'str', 'category', 'bool')
 
+    @overload
     @classmethod
     def from_df(
         cls,
-        problem_type: ProblemType,
+        problem_type: Literal['BINARY_CLASSIFICATION', 'REGRESSION'],
         df: pd.DataFrame,
-        target_column_name: Optional[str] = None,
-        identifier_column_name: Optional[str] = None,
-        feature_columns: dict[str, FeatureType] = {},
-        ignore_column_names: Union[str, Collection[str]] = (),
+        target_column_name: Optional[str] = ...,
+        timestamp_column_name: Optional[str] = ...,
+        prediction_column_name: Optional[str] = ...,
+        prediction_score_column_name_or_mapping: Optional[str] = ...,
+        identifier_column_name: Optional[str] = ...,
+        feature_columns: Dict[str, FeatureType] = ...,
+        ignore_column_names: Union[str, Collection[str]] = ...,
+    ) -> ModelSchema:
+        pass
+
+    @overload
+    @classmethod
+    def from_df(
+        cls,
+        problem_type: Literal['MULTICLASS_CLASSIFICATION'],
+        df: pd.DataFrame,
+        target_column_name: Optional[str] = ...,
+        timestamp_column_name: Optional[str] = ...,
+        prediction_column_name: Optional[str] = ...,
+        prediction_score_column_name_or_mapping: Dict[str, str] = ...,
+        identifier_column_name: Optional[str] = ...,
+        feature_columns: Dict[str, FeatureType] = ...,
+        ignore_column_names: Union[str, Collection[str]] = ...,
+    ) -> ModelSchema:
+        pass
+
+    @classmethod
+    def from_df(
+        cls,
+        problem_type,
+        df,
+        target_column_name=None,
+        timestamp_column_name=None,
+        prediction_column_name=None,
+        prediction_score_column_name_or_mapping=None,
+        identifier_column_name=None,
+        feature_columns={},
+        ignore_column_names=(),
     ) -> ModelSchema:
         """Create a schema from a pandas dataframe"""
         # Upload head of dataset than use API to inspect schema
@@ -71,6 +106,12 @@ class Schema:
         # Apply overrides
         if target_column_name is not None:
             schema = cls.set_target(schema, target_column_name)
+        if timestamp_column_name is not None:
+            schema = cls.set_timestamp(schema, timestamp_column_name)
+        if prediction_column_name is not None:
+            schema = cls.set_prediction(schema, prediction_column_name)
+        if prediction_score_column_name_or_mapping is not None:
+            schema = cls.set_prediction_score(schema, prediction_score_column_name_or_mapping)
         if identifier_column_name is not None:
             schema = cls.set_identifier(schema, identifier_column_name)
         for column_name, feature_type in feature_columns.items():
@@ -87,6 +128,56 @@ class Schema:
                 column['columnType'] = 'TARGET'
             elif column['columnType'] == 'TARGET':
                 column['columnType'] = cls._guess_feature_type(column)
+
+        return schema
+
+    @classmethod
+    def set_timestamp(cls, schema: ModelSchema, column_name: str) -> ModelSchema:
+        """Set the timestamp column in a schema"""
+        for column in schema['columns']:
+            if column['name'] == column_name:
+                column['columnType'] = 'TIMESTAMP'
+            elif column['columnType'] == 'TIMESTAMP':
+                column['columnType'] = cls._guess_feature_type(column)
+
+        return schema
+
+    @classmethod
+    def set_prediction(cls, schema: ModelSchema, column_name: str) -> ModelSchema:
+        """Set the prediction column in a schema"""
+        for column in schema['columns']:
+            if column['name'] == column_name:
+                column['columnType'] = 'PREDICTION'
+            elif column['columnType'] == 'PREDICTION':
+                column['columnType'] = cls._guess_feature_type(column)
+
+        return schema
+
+    @classmethod
+    def set_prediction_score(
+        cls, schema: ModelSchema, column_name_or_mapping: Union[str, Dict[str, str]]
+    ) -> ModelSchema:
+        """Set the prediction score column(s) in a schema
+
+        Binary classification and regression problems require a single prediction score column.
+        Multiclass classification problems require a dictionary mapping prediction score columns to class names.
+        """
+        if isinstance(column_name_or_mapping, str):
+            if schema['problemType'] == 'MULTICLASS_CLASSIFICATION':
+                raise ValueError('Must specify a dictionary of prediction score columns for multiclass classification')
+            column_name_or_mapping = {column_name_or_mapping: cast(str, None)}
+        elif schema['problemType'] != 'MULTICLASS_CLASSIFICATION':
+            raise ValueError(
+                'Must specify a single prediction score column name for binary classification and regression'
+            )
+
+        for column in schema['columns']:
+            if column['name'] in column_name_or_mapping:
+                column['columnType'] = 'PREDICTION_SCORE'
+                column['className'] = column_name_or_mapping[column['name']]
+            elif column['columnType'] == 'PREDICTION_SCORE':
+                column['columnType'] = cls._guess_feature_type(column)
+                column['className'] = None
 
         return schema
 
