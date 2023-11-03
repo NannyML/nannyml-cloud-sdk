@@ -31,7 +31,7 @@ class Data:
 
             # Set the content type so the server knows how to handle the file
             # This is the way gql expects to receive the `content-type` header, but it's not part of IOBase. Mypy
-            # doesn't like the use of an unknown attribute, so we ignore the type here.
+            # doesn't like the use of an unknown attribute, so we suppress mypy here.
             buffer.content_type = 'application/vnd.apache.parquet'  # type: ignore
 
             # Finally upload the data in parquet format

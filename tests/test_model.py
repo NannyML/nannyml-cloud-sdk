@@ -1,9 +1,5 @@
-import pytest
-from gql.transport.exceptions import TransportQueryError
-from nannyml_cloud_sdk import Model
+from nannyml_cloud_sdk import model
 
 
-def test_model_list(gql_client):
-    # Validate query raises transport error, i.e. it passes schema validation
-    with pytest.raises(TransportQueryError):
-        Model.list()
+def test_model_list_query_metches_api_schema(gql_client):
+    gql_client.validate(model._LIST_QUERY)
