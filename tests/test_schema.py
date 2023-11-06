@@ -38,14 +38,15 @@ def test_schema_set_timestamp_sets_column_type() -> None:
     schema: ModelSchema = {
         'problemType': 'BINARY_CLASSIFICATION',
         'columns': [
-            {'name': 'a', 'columnType': 'CONTINUOUS_FEATURE', 'dataType': 'float64', 'className': None},
-            {'name': 'b', 'columnType': 'CONTINUOUS_FEATURE', 'dataType': 'float64', 'className': None},
+            {'name': 'a', 'columnType': 'CONTINUOUS_FEATURE', 'dataType': 'object', 'className': None},
+            {'name': 'b', 'columnType': 'CONTINUOUS_FEATURE', 'dataType': 'object', 'className': None},
         ]
     }
     new_schema = Schema.set_timestamp(schema, 'a')
 
     assert new_schema is schema
     assert schema['columns'][0]['columnType'] == 'TIMESTAMP'
+    assert schema['columns'][0]['dataType'] == 'datetime64[ns]'
 
 
 def test_schema_set_timestamp_unsets_existing_timestamp() -> None:

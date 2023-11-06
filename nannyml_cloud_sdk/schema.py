@@ -133,6 +133,10 @@ class Schema:
         for column in schema['columns']:
             if column['name'] == column_name:
                 column['columnType'] = 'TIMESTAMP'
+
+                # Set appropriate datetime data type if not already set
+                if 'datetime' not in column['dataType']:
+                    column['dataType'] = 'datetime64[ns]'
             elif column['columnType'] == 'TIMESTAMP':
                 column['columnType'] = cls._guess_feature_type(column)
 
