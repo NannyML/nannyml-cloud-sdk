@@ -9,7 +9,7 @@ from .data import Data
 from .enums import ColumnType, FeatureType, ProblemType
 
 _INSPECT_SCHEMA = gql("""
-    query InspectSchema($input: InspectDataSourceInput!) {
+    query inspectSchema($input: InspectDataSourceInput!) {
         inspect_dataset(input: $input) {
             columns {
                 name

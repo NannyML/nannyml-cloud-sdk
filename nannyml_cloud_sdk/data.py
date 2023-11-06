@@ -8,7 +8,7 @@ from .client import get_client
 from .enums import S3AuthenticationMode
 
 _UPLOAD_DATASET = gql("""
-    mutation UploadDataset($file: Upload!) {
+    mutation uploadDataset($file: Upload!) {
         upload_dataset(file: $file) {
             id
         }
