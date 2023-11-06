@@ -10,8 +10,8 @@ from .enums import ChunkPeriod, PerformanceMetric, ProblemType
 from .schema import ModelSchema, ModelSchemaColumn
 
 _LIST_QUERY = gql("""
-    query listModels {
-        models {
+    query listModels($filter: ModelsFilter) {
+        models(filter: $filter) {
             id
             name
             problemType
@@ -48,9 +48,14 @@ class Model:
     """Operations for working with machine learning models"""
 
     @classmethod
-    def list(cls) -> List[ModelSummary]:
+    def list(cls, name: Optional[str] = None, problem_type: Optional[ProblemType] = None) -> List[ModelSummary]:
         """List defined models"""
-        return get_client().execute(_LIST_QUERY)['models']
+        return get_client().execute(_LIST_QUERY, {
+            'filter': {
+                'name': name,
+                'problemType': problem_type,
+            }
+        })['models']
 
     @classmethod
     def create(
