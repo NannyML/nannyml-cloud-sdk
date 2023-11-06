@@ -1,6 +1,7 @@
 from typing import Optional
 
-from .graphql_client import Client
+from gql import Client
+from gql.transport.requests import RequestsHTTPTransport
 
 import nannyml_cloud_sdk
 
@@ -20,5 +21,6 @@ def get_client() -> Client:
     if nannyml_cloud_sdk.api_token:
         headers['Authorization'] = f"ApiToken {nannyml_cloud_sdk.api_token}"
 
-    _active_client = Client(url=f"{nannyml_cloud_sdk.url}/api/graphql", headers=headers)
+    transport = RequestsHTTPTransport(url=f"{nannyml_cloud_sdk.url}/api/graphql", headers=headers)
+    _active_client = Client(transport=transport, fetch_schema_from_transport=True)
     return _active_client
