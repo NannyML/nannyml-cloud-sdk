@@ -19,3 +19,5 @@ ColumnType = Literal[
   'IGNORED',
   'IDENTIFIER',
 ]
+
+S3AuthenticationMode = Literal['ANONYMOUS', 'INTEGRATED', 'ACCESS_KEY']

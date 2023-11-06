@@ -88,15 +88,11 @@ class Schema:
     ) -> ModelSchema:
         """Create a schema from a pandas dataframe"""
         # Upload head of dataset than use API to inspect schema
-        upload_id = Data.upload(df.head(cls.INSPECT_DATA_FRAME_NR_ROWS))
+        upload = Data.upload(df.head(cls.INSPECT_DATA_FRAME_NR_ROWS))
         schema = get_client().execute(_INSPECT_SCHEMA, variable_values={
             "input": {
                 "problemType": problem_type,
-                "storageInfo": {
-                    "cache": {
-                        "id": upload_id
-                    },
-                },
+                "storageInfo": upload,
             },
         })['inspect_dataset']
 
