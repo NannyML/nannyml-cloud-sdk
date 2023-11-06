@@ -1,3 +1,4 @@
+import datetime
 from typing import Container, Iterable, List, Optional, TypedDict
 
 import pandas as pd
@@ -40,7 +41,7 @@ class ModelSummary(TypedDict):
     id: str
     name: str
     problemType: ProblemType
-    createdAt: str
+    createdAt: datetime.datetime
 
 
 class Model:
