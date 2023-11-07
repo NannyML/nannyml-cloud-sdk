@@ -4,7 +4,7 @@ from typing import Dict, List, Literal, Optional, TypedDict, Union, cast, overlo
 from gql import gql
 import pandas as pd
 
-from .client import get_client
+from .client import execute
 from .data import Data
 from .enums import ColumnType, FeatureType, ProblemType
 
@@ -89,7 +89,7 @@ class Schema:
         """Create a schema from a pandas dataframe"""
         # Upload head of dataset than use API to inspect schema
         upload = Data.upload(df.head(cls.INSPECT_DATA_FRAME_NR_ROWS))
-        schema = get_client().execute(_INSPECT_SCHEMA, variable_values={
+        schema = execute(_INSPECT_SCHEMA, variable_values={
             "input": {
                 "problemType": problem_type,
                 "storageInfo": upload,

@@ -4,7 +4,7 @@ from typing import Container, Iterable, List, Optional
 import pandas as pd
 from gql import gql
 
-from .client import get_client
+from .client import execute
 from .data import Data
 from .enums import ChunkPeriod, PerformanceMetric, ProblemType
 from .run import RUN_SUMMARY_FRAGMENT, RunSummary
@@ -75,7 +75,7 @@ class Model:
     @classmethod
     def list(cls, name: Optional[str] = None, problem_type: Optional[ProblemType] = None) -> List[ModelSummary]:
         """List defined models"""
-        return get_client().execute(_LIST_QUERY, {
+        return execute(_LIST_QUERY, {
             'filter': {
                 'name': name,
                 'problemType': problem_type,
@@ -85,7 +85,7 @@ class Model:
     @classmethod
     def get(cls, model_id: str) -> ModelDetails:
         """Get details for a model"""
-        return get_client().execute(_READ_QUERY, {'id': int(model_id)})['model']
+        return execute(_READ_QUERY, {'id': int(model_id)})['model']
 
     @classmethod
     def create(
@@ -124,7 +124,7 @@ class Model:
                 'storageInfo': Data.upload(target_data),
             })
 
-        return get_client().execute(_CREATE_MODEL, {
+        return execute(_CREATE_MODEL, {
             'input': {
                 'name': name,
                 'problemType': schema['problemType'],
@@ -137,7 +137,7 @@ class Model:
     @classmethod
     def delete(cls, model_id: str):
         """Delete a model"""
-        return get_client().execute(_DELETE_MODEL, {'id': int(model_id)})
+        return execute(_DELETE_MODEL, {'id': int(model_id)})
 
     @staticmethod
     def __select_schema_subset(

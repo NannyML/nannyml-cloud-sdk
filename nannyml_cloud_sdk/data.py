@@ -4,7 +4,7 @@ from typing import Any, Optional, TypedDict
 import pandas as pd
 from gql import gql
 
-from .client import get_client
+from .client import execute
 from .enums import S3AuthenticationMode
 
 _UPLOAD_DATASET = gql("""
@@ -74,7 +74,7 @@ class Data:
             buffer.content_type = 'application/vnd.apache.parquet'  # type: ignore
 
             # Finally upload the data in parquet format
-            upload = get_client().execute(_UPLOAD_DATASET, upload_files=True, variable_values={
+            upload = execute(_UPLOAD_DATASET, upload_files=True, variable_values={
                 'file': buffer,
             })['upload_dataset']
 

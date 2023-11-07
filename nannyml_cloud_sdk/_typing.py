@@ -6,6 +6,15 @@ if sys.version_info >= (3, 9):
 else:
     from typing_extensions import TypedDict
 
+
+if sys.version_info >= (3, 10):
+    from typing import Concatenate, ParamSpec
+else:
+    from typing_extensions import Concatenate, ParamSpec
+
+
 __all__ = [
-    'TypedDict'
+    'Concatenate',
+    'ParamSpec',
+    'TypedDict',
 ]

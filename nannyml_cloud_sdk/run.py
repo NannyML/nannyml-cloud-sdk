@@ -2,7 +2,7 @@ import datetime
 
 from gql import gql
 
-from .client import get_client
+from .client import execute
 from ._typing import TypedDict
 
 
@@ -36,4 +36,4 @@ class Run:
     @classmethod
     def trigger(cls, model_id: str) -> str:
         """Trigger analysis of new data for a model"""
-        return get_client().execute(_START_RUN, {"modelId": int(model_id)})["start_model_run"]["id"]
+        return execute(_START_RUN, {"modelId": int(model_id)})["start_model_run"]["id"]
