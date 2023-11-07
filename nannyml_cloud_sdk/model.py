@@ -7,18 +7,39 @@ from gql import gql
 from .client import get_client
 from .data import Data
 from .enums import ChunkPeriod, PerformanceMetric, ProblemType
+from .run import RUN_SUMMARY_FRAGMENT, RunSummary
 from .schema import ModelSchema, ModelSchemaColumn
+
+_MODEL_SUMMARY_FRAGMENT = """
+    fragment ModelSummary on Model {
+        id
+        name
+        problemType
+        createdAt
+    }
+"""
 
 _LIST_QUERY = gql("""
     query listModels($filter: ModelsFilter) {
         models(filter: $filter) {
-            id
-            name
-            problemType
-            createdAt
+            ...ModelSummary
         }
     }
-""")
+""" + _MODEL_SUMMARY_FRAGMENT)
+
+_READ_QUERY = gql("""
+    query readModel($id: Int!) {
+        model(id: $id) {
+            ...ModelSummary
+            latestRun {
+                ...RunSummary
+            }
+            nextRun {
+                ...RunSummary
+            }
+        }
+    }
+""" + _MODEL_SUMMARY_FRAGMENT + RUN_SUMMARY_FRAGMENT)
 
 _CREATE_MODEL = gql("""
     mutation createModel($input: CreateModelInput!) {
@@ -44,6 +65,11 @@ class ModelSummary(TypedDict):
     createdAt: datetime.datetime
 
 
+class ModelDetails(ModelSummary):
+    latestRun: Optional[RunSummary]
+    nextRun: Optional[RunSummary]
+
+
 class Model:
     """Operations for working with machine learning models"""
 
@@ -56,6 +82,11 @@ class Model:
                 'problemType': problem_type,
             }
         })['models']
+
+    @classmethod
+    def get(cls, model_id: str) -> ModelDetails:
+        """Get details for a model"""
+        return get_client().execute(_READ_QUERY, {'id': int(model_id)})['model']
 
     @classmethod
     def create(
