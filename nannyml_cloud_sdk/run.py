@@ -1,29 +1,9 @@
 import datetime
-from typing import TypedDict
 
 from gql import gql
 
 from .client import get_client
-
-
-RUN_SUMMARY_FRAGMENT = """
-    fragment RunSummary on Run {
-        id
-        state
-        scheduledFor
-        startedAt
-        completedAt
-        ranSuccessfully
-    }
-"""
-
-_START_RUN = gql("""
-    mutation startRun($modelId: Int!) {
-        start_model_run(modelId: $modelId) {
-            id
-        }
-    }
-""")
+from ._typing import TypedDict
 
 
 class RunSummary(TypedDict):
@@ -33,6 +13,21 @@ class RunSummary(TypedDict):
     startedAt: datetime.datetime
     completedAt: datetime.datetime
     ranSuccessfully: bool
+
+
+RUN_SUMMARY_FRAGMENT = f"""
+    fragment RunSummary on Run {{
+        {' '.join(RunSummary.__required_keys__)}
+    }}
+"""
+
+_START_RUN = gql("""
+    mutation startRun($modelId: Int!) {
+        start_model_run(modelId: $modelId) {
+            id
+        }
+    }
+""")
 
 
 class Run:

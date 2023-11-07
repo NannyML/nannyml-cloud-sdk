@@ -1,5 +1,5 @@
 import datetime
-from typing import Container, Iterable, List, Optional, TypedDict
+from typing import Container, Iterable, List, Optional
 
 import pandas as pd
 from gql import gql
@@ -9,14 +9,25 @@ from .data import Data
 from .enums import ChunkPeriod, PerformanceMetric, ProblemType
 from .run import RUN_SUMMARY_FRAGMENT, RunSummary
 from .schema import ModelSchema, ModelSchemaColumn
+from ._typing import TypedDict
 
-_MODEL_SUMMARY_FRAGMENT = """
-    fragment ModelSummary on Model {
-        id
-        name
-        problemType
-        createdAt
-    }
+
+class ModelSummary(TypedDict):
+    id: str
+    name: str
+    problemType: ProblemType
+    createdAt: datetime.datetime
+
+
+class ModelDetails(ModelSummary):
+    latestRun: Optional[RunSummary]
+    nextRun: Optional[RunSummary]
+
+
+_MODEL_SUMMARY_FRAGMENT = f"""
+    fragment ModelSummary on Model {{
+        {' '.join(ModelSummary.__required_keys__)}
+    }}
 """
 
 _LIST_QUERY = gql("""
@@ -56,18 +67,6 @@ _DELETE_MODEL = gql("""
         }
     }
 """)
-
-
-class ModelSummary(TypedDict):
-    id: str
-    name: str
-    problemType: ProblemType
-    createdAt: datetime.datetime
-
-
-class ModelDetails(ModelSummary):
-    latestRun: Optional[RunSummary]
-    nextRun: Optional[RunSummary]
 
 
 class Model:
