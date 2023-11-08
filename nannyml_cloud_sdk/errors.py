@@ -1,3 +1,10 @@
-class ApiError(Exception):
+class SdkError(Exception):
+    """Base class for all exceptions raised from the NannyML Cloud SDK"""
+
+
+class ApiError(SdkError):
     """Raised when the NannyML Cloud API returns an error"""
-    pass
+
+
+class InvalidOperationError(SdkError):
+    """Raised when attempting an invalid operation"""

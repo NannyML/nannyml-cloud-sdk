@@ -8,21 +8,8 @@ from .client import execute
 from .data import Data
 from .enums import ColumnType, FeatureType, ProblemType
 
-_INSPECT_SCHEMA = gql("""
-    query inspectSchema($input: InspectDataSourceInput!) {
-        inspect_dataset(input: $input) {
-            columns {
-                name
-                columnType
-                dataType
-                className
-            }
-        }
-    }
-""")
 
-
-class ModelSchemaColumn(TypedDict):
+class ColumnDetails(TypedDict):
     name: str
     columnType: ColumnType
     dataType: str
@@ -32,7 +19,24 @@ class ModelSchemaColumn(TypedDict):
 
 class ModelSchema(TypedDict):
     problemType: ProblemType
-    columns: List[ModelSchemaColumn]
+    columns: List[ColumnDetails]
+
+
+COLUMN_DETAILS_FRAGMENT = f"""
+    fragment ColumnDetails on Column {{
+        {' '.join(ColumnDetails.__required_keys__)}
+    }}
+"""
+
+_INSPECT_SCHEMA = gql("""
+    query inspectSchema($input: InspectDataSourceInput!) {
+        inspect_dataset(input: $input) {
+            columns {
+                ...ColumnDetails
+            }
+        }
+    }
+""" + COLUMN_DETAILS_FRAGMENT)
 
 
 class Schema:
@@ -215,7 +219,7 @@ class Schema:
         return schema
 
     @classmethod
-    def _guess_feature_type(cls, column: ModelSchemaColumn) -> ColumnType:
+    def _guess_feature_type(cls, column: ColumnDetails) -> ColumnType:
         return (
             'CATEGORICAL_FEATURE' if column['dataType'] in cls.CATEGORICAL_DTYPES
             else 'CONTINUOUS_FEATURE'

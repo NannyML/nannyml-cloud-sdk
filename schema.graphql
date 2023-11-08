@@ -104,7 +104,7 @@ type Model {
   nextRun: Run
   referenceStartTimestamp: DateTime
   referenceEndTimestamp: DateTime
-  dataSources: [DataSource!]!
+  dataSources(filter: DataSourcesFilter = null): [DataSource!]!
   runs: [Run!]!
   results(analysisType: AnalysisType = null, metricNames: [String!] = null, componentNames: [String!] = null, columnNames: [String!] = null, tags: [String!] = null, includeDisabled: Boolean! = false): [TimeSeriesResult!]!
   runtimeConfig: RuntimeConfig!
@@ -225,6 +225,12 @@ enum ColumnType {
   CONTINUOUS_FEATURE
   IGNORED
   IDENTIFIER
+}
+
+input DataSourcesFilter {
+  name: String = null
+  hasReferenceData: Boolean = null
+  hasAnalysisData: Boolean = null
 }
 
 type TimeSeriesResult {
