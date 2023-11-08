@@ -4,25 +4,12 @@ from typing import Dict, List, Literal, Optional, TypedDict, Union, cast, overlo
 from gql import gql
 import pandas as pd
 
-from .client import get_client
+from .client import execute
 from .data import Data
 from .enums import ColumnType, FeatureType, ProblemType
 
-_INSPECT_SCHEMA = gql("""
-    query InspectSchema($input: InspectDataSourceInput!) {
-        inspect_dataset(input: $input) {
-            columns {
-                name
-                columnType
-                dataType
-                className
-            }
-        }
-    }
-""")
 
-
-class ModelSchemaColumn(TypedDict):
+class ColumnDetails(TypedDict):
     name: str
     columnType: ColumnType
     dataType: str
@@ -32,7 +19,24 @@ class ModelSchemaColumn(TypedDict):
 
 class ModelSchema(TypedDict):
     problemType: ProblemType
-    columns: List[ModelSchemaColumn]
+    columns: List[ColumnDetails]
+
+
+COLUMN_DETAILS_FRAGMENT = f"""
+    fragment ColumnDetails on Column {{
+        {' '.join(ColumnDetails.__required_keys__)}
+    }}
+"""
+
+_INSPECT_SCHEMA = gql("""
+    query inspectSchema($input: InspectDataSourceInput!) {
+        inspect_dataset(input: $input) {
+            columns {
+                ...ColumnDetails
+            }
+        }
+    }
+""" + COLUMN_DETAILS_FRAGMENT)
 
 
 class Schema:
@@ -88,15 +92,11 @@ class Schema:
     ) -> ModelSchema:
         """Create a schema from a pandas dataframe"""
         # Upload head of dataset than use API to inspect schema
-        upload_id = Data.upload(df.head(cls.INSPECT_DATA_FRAME_NR_ROWS))
-        schema = get_client().execute(_INSPECT_SCHEMA, variable_values={
+        upload = Data.upload(df.head(cls.INSPECT_DATA_FRAME_NR_ROWS))
+        schema = execute(_INSPECT_SCHEMA, variable_values={
             "input": {
                 "problemType": problem_type,
-                "storageInfo": {
-                    "cache": {
-                        "id": upload_id
-                    },
-                },
+                "storageInfo": upload,
             },
         })['inspect_dataset']
 
@@ -137,6 +137,10 @@ class Schema:
         for column in schema['columns']:
             if column['name'] == column_name:
                 column['columnType'] = 'TIMESTAMP'
+
+                # Set appropriate datetime data type if not already set
+                if 'datetime' not in column['dataType']:
+                    column['dataType'] = 'datetime64[ns]'
             elif column['columnType'] == 'TIMESTAMP':
                 column['columnType'] = cls._guess_feature_type(column)
 
@@ -215,7 +219,7 @@ class Schema:
         return schema
 
     @classmethod
-    def _guess_feature_type(cls, column: ModelSchemaColumn) -> ColumnType:
+    def _guess_feature_type(cls, column: ColumnDetails) -> ColumnType:
         return (
             'CATEGORICAL_FEATURE' if column['dataType'] in cls.CATEGORICAL_DTYPES
             else 'CONTINUOUS_FEATURE'

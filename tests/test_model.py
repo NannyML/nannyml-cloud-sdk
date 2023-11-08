@@ -1,5 +1,29 @@
 from nannyml_cloud_sdk import model
 
 
-def test_model_list_query_metches_api_schema(gql_client):
-    gql_client.validate(model._LIST_QUERY)
+def test_model_list_query_matches_api_schema(gql_client):
+    gql_client.validate(model._LIST_MODELS)
+
+
+def test_model_read_query_matches_api_schema(gql_client):
+    gql_client.validate(model._READ_MODEL)
+
+
+def test_model_create_query_matches_api_schema(gql_client):
+    gql_client.validate(model._CREATE_MODEL)
+
+
+def test_model_delete_query_matches_api_schema(gql_client):
+    gql_client.validate(model._DELETE_MODEL)
+
+
+def test_model_get_model_data_sources_query_matches_api_schema(gql_client):
+    gql_client.validate(model._GET_MODEL_DATA_SOURCES)
+
+
+def test_model_add_data_to_data_source_query_matches_api_schema(gql_client):
+    gql_client.validate(model._ADD_DATA_TO_DATA_SOURCE)
+
+
+def test_model_update_data_in_data_source_query_matches_api_schema(gql_client):
+    gql_client.validate(model._UPDATE_DATA_IN_DATA_SOURCE)

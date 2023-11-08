@@ -1,12 +1,14 @@
 import io
+from typing import Any, Optional, TypedDict
 
 import pandas as pd
 from gql import gql
 
-from .client import get_client
+from .client import execute
+from .enums import S3AuthenticationMode
 
 _UPLOAD_DATASET = gql("""
-    mutation UploadDataset($file: Upload!) {
+    mutation uploadDataset($file: Upload!) {
         upload_dataset(file: $file) {
             id
         }
@@ -14,9 +16,46 @@ _UPLOAD_DATASET = gql("""
 """)
 
 
+class StorageInfoRaw(TypedDict):
+    """Storage info for `fsspec` compatible input, e.g. public link"""
+    connectionString: str
+    options: dict[str, Any]
+
+
+class StorageInfoAzureBlob(TypedDict):
+    """Storage info for Azure Blob Storage"""
+    accountName: str
+    container: str
+    path: str
+    isPublic: bool
+    accountKey: Optional[str]
+    sasToken: Optional[str]
+
+
+class StorageInfoS3(TypedDict):
+    """Storage info for S3"""
+    uri: str
+    authenticationMode: S3AuthenticationMode
+    awsAccessKeyId: Optional[str]
+    awsSecretAccessKey: Optional[str]
+
+
+class StorageInfoCache(TypedDict):
+    """Storage info for cached data"""
+    id: str
+
+
+class StorageInfo(TypedDict, total=False):
+    """Storage info for data"""
+    raw: Optional[StorageInfoRaw]
+    azure: Optional[StorageInfoAzureBlob]
+    s3: Optional[StorageInfoS3]
+    cache: Optional[StorageInfoCache]
+
+
 class Data:
     @classmethod
-    def upload(cls, df: pd.DataFrame) -> str:
+    def upload(cls, df: pd.DataFrame) -> StorageInfo:
         """Upload a pandas dataframe to NannyML Cloud
 
         Returns:
@@ -35,6 +74,8 @@ class Data:
             buffer.content_type = 'application/vnd.apache.parquet'  # type: ignore
 
             # Finally upload the data in parquet format
-            return get_client().execute(_UPLOAD_DATASET, upload_files=True, variable_values={
+            upload = execute(_UPLOAD_DATASET, upload_files=True, variable_values={
                 'file': buffer,
-            })['upload_dataset']['id']
+            })['upload_dataset']
+
+            return {'cache': upload}
