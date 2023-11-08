@@ -1,6 +1,6 @@
 import datetime
 import functools
-from typing import Collection, Container, Iterable, List, Optional
+from typing import Container, Iterable, List, Optional
 
 import pandas as pd
 from frozendict import frozendict
@@ -209,15 +209,13 @@ class Model:
             This method does not update existing data. It only adds new data. If you want to update existing data,
             use :meth:`update_analysis_data` instead.
         """
-        data_sources = cls.__get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
-        upload_dict = cls.__allocate_data_to_data_sources(data_sources, data)
-        for data_source_id, column_names in upload_dict.items():
-            execute(_ADD_DATA_TO_DATA_SOURCE, {
-                'input': {
-                    'id': int(data_source_id),
-                    'storageInfo': Data.upload(data[column_names]),
-                },
-            })
+        analysis_data_source, = cls.__get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
+        execute(_ADD_DATA_TO_DATA_SOURCE, {
+            'input': {
+                'id': int(analysis_data_source['id']),
+                'storageInfo': Data.upload(data),
+            },
+        })
 
     @classmethod
     def add_analysis_target_data(cls, model_id: str, data: pd.DataFrame) -> None:
@@ -232,20 +230,20 @@ class Model:
             use :meth:`update_analysis_target_data` instead.
         """
         data_sources = cls.__get_model_data_sources(model_id, frozendict({'name': 'target'}))
-        if not data_sources:
+        try:
+            target_data_source = data_sources[0]
+        except IndexError:
             raise InvalidOperationError(
                 f"Model '{model_id}' has no target data source. If targets are present, they are stored in the "
                 "analysis data source. Use `add_analysis_data` instead."
             )
 
-        upload_dict = cls.__allocate_data_to_data_sources(data_sources, data)
-        for data_source_id, column_names in upload_dict.items():
-            execute(_ADD_DATA_TO_DATA_SOURCE, {
-                'input': {
-                    'id': int(data_source_id),
-                    'storageInfo': Data.upload(data[column_names]),
-                },
-            })
+        execute(_ADD_DATA_TO_DATA_SOURCE, {
+            'input': {
+                'id': int(target_data_source['id']),
+                'storageInfo': Data.upload(data),
+            },
+        })
 
     @classmethod
     def update_analysis_data(cls, model_id: str, data: pd.DataFrame) -> None:
@@ -256,15 +254,13 @@ class Model:
             If you are certain you are only adding new data, it is recommended to use :meth:`add_analysis_data` instead
             for better performance.
         """
-        data_sources = cls.__get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
-        upload_dict = cls.__allocate_data_to_data_sources(data_sources, data)
-        for data_source_id, column_names in upload_dict.items():
-            execute(_UPDATE_DATA_IN_DATA_SOURCE, {
-                'input': {
-                    'id': int(data_source_id),
-                    'storageInfo': Data.upload(data[column_names]),
-                },
-            })
+        analysis_data_source, = cls.__get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
+        execute(_UPDATE_DATA_IN_DATA_SOURCE, {
+            'input': {
+                'id': int(analysis_data_source['id']),
+                'storageInfo': Data.upload(data),
+            },
+        })
 
     @classmethod
     def update_analysis_target_data(cls, model_id: str, data: pd.DataFrame) -> None:
@@ -280,59 +276,20 @@ class Model:
             instead for better performance.
         """
         data_sources = cls.__get_model_data_sources(model_id, frozendict({'name': 'target'}))
-        if not data_sources:
+        try:
+            target_data_source = data_sources[0]
+        except IndexError:
             raise InvalidOperationError(
                 f"Model '{model_id}' has no target data source. If targets are present, they are stored in the "
                 "analysis data source. Use `update_analysis_data` instead."
             )
 
-        upload_dict = cls.__allocate_data_to_data_sources(data_sources, data)
-        for data_source_id, column_names in upload_dict.items():
-            execute(_UPDATE_DATA_IN_DATA_SOURCE, {
-                'input': {
-                    'id': int(data_source_id),
-                    'storageInfo': Data.upload(data[column_names]),
-                },
-            })
-
-    @classmethod
-    def __allocate_data_to_data_sources(
-        cls, data_sources: Collection[DataSourceDetails], data: pd.DataFrame,
-    ) -> dict[str, List[str]]:
-        """Allocate data columns to model data sources based on schema
-
-        A model supports multiple data sources, e.g. analysis and targets. This method allocates columns in the data
-        to the data sources based on the schema. If there is a mismatch, i.e. columns for which there is no schema
-        defined, we generate an error.
-
-        Returns:
-            A dictionary mapping data source IDs to column names
-
-        Raises:
-            ValueError: If there is a mismatch between the schema and the columns present in the data
-        """
-        remaining_columns, upload_dict = set(data.columns), {}
-        for data_source in data_sources:
-            # Find columns in the data source that are also in the data
-            columns = cls.__select_schema_subset(data_source['columns'], data.columns)
-            if all(col['columnType'] in ('IDENTIFIER', 'TIMESTAMP') for col in columns):
-                # Identifier and timestamp columns are shared across data sources. If there's no other columns, we can
-                # skip this data source.
-                continue
-
-            # Store column information per data source for upload
-            column_names = [column['name'] for column in columns]
-            upload_dict[data_source['id']] = column_names
-
-            # Remove uploaded columns from the list of columns to process
-            remaining_columns.difference_update(column_names)
-            if not remaining_columns:
-                return upload_dict
-        else:
-            raise InvalidOperationError(
-                f"Data source(s) {', '.join(repr(ds['name']) for ds in data_sources)} has no schema defined for "
-                f"columns: {remaining_columns}."
-            )
+        execute(_UPDATE_DATA_IN_DATA_SOURCE, {
+            'input': {
+                'id': int(target_data_source['id']),
+                'storageInfo': Data.upload(data),
+            },
+        })
 
     @functools.lru_cache(maxsize=128)
     @staticmethod
