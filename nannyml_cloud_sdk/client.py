@@ -61,6 +61,11 @@ def _translate_gql_errors(fn: Callable[Concatenate[Client, _P], _T]) -> Callable
 
 
 execute = _translate_gql_errors(Client.execute)
+"""Execute query against the configured NannyML Cloud GraphQL API.
+
+Raises:
+    ApiError: If the GraphQL query fails.
+"""
 
 
 # Extension of the native GraphQL scalar types
