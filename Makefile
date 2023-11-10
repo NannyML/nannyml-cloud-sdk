@@ -2,7 +2,7 @@ SOURCES = nannyml_cloud_sdk
 TESTS = tests
 
 clean:
-	rm -fR dist/
+	rm -fR dist/ site/
 
 src-build:
 	poetry run flake8 $(SOURCES) $(TESTS)
@@ -17,5 +17,11 @@ src: src-build src-test
 test: src-build src-test
 
 build: clean src-build
+
+build-docs:
+	poetry run mkdocs build
+
+serve-docs:
+	poetry run mkdocs serve
 
 all: build
