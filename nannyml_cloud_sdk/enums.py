@@ -6,8 +6,10 @@ ProblemType = Literal[
     'MULTICLASS_CLASSIFICATION',
     'REGRESSION',
 ]
+"""Problem types supported by NannyML Cloud."""
 
 FeatureType = Literal['CONTINUOUS', 'CATEGORY']
+"""Feature types supported by NannyML Cloud."""
 
 ColumnType = Literal[
     'TARGET',
@@ -19,6 +21,7 @@ ColumnType = Literal[
     'IGNORED',
     'IDENTIFIER',
 ]
+"""Schema column types defined by NannyML Cloud."""
 
 ChunkPeriod = Literal[
     'YEARLY',
@@ -28,6 +31,7 @@ ChunkPeriod = Literal[
     'DAILY',
     'HOURLY',
 ]
+"""Time periods for chunking supported by NannyML Cloud."""
 
 PerformanceMetric = Literal[
     'ROC_AUC',
@@ -45,5 +49,21 @@ PerformanceMetric = Literal[
     'MSLE',
     'RMSLE',
 ]
+"""Performance metrics supported by NannyML Cloud."""
 
 S3AuthenticationMode = Literal['ANONYMOUS', 'INTEGRATED', 'ACCESS_KEY']
+"""Authentication modes for S3 access supported by NannyML Cloud.
+
+ANONYMOUS: No authentication required.
+INTEGRATED: Use the service account permissions the NannyML Cloud server has to access S3.
+ACCESS_KEY: Provide access key ID and secret to access S3.
+"""
+
+RunState = Literal['SCHEDULED', 'RUNNING', 'CANCELLING', 'COMPLETED']
+"""States a NannyML run can be in.
+
+SCHEDULED: The run is scheduled to start at a later time.
+RUNNING: The run is currently active.
+CANCELLING: The run is currently being cancelled.
+COMPLETED: The run has completed (successfully or unsuccessfully).
+"""

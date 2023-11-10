@@ -1,0 +1,26 @@
+site_name: NannyML Cloud SDK - API Reference
+theme: material
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - docs/gen_api_reference_pages.py
+  - literate-nav:
+      nav_file: summary.md
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            separate_signature: true
+            show_signature_annotations: true
+            show_source: false
+            line_length: 80
+nav:
+  - Introduction: index.md
+  # Link to files generated via gen-files plugin
+  - API Reference: api_reference/
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+watch:
+  - nannyml_cloud_sdk
