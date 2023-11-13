@@ -24,4 +24,7 @@ build-docs:
 serve-docs:
 	poetry run mkdocs serve
 
+publish-docs:
+	poetry run mkdocs gh-deploy
+
 all: build
