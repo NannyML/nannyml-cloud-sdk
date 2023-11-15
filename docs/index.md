@@ -2,6 +2,42 @@
 
 This page provides an [API reference](api_reference/model.md) for the NannyML Cloud SDK, generated directly from the code. For tutorials and guides, please refer to [our gitbook pages](https://nannyml.gitbook.io/).
 
+## Installing
+
+Currently the package is private, which means you cannot install it via the regular python channels. Instead, you'll have to clone the [repository](https://github.com/NannyML/nannyml-cloud-sdk) and install it from your local copy.
+
+```bash
+git clone https://github.com/NannyML/nannyml-cloud-sdk.git
+cd nannyml-cloud-sdk
+pip install .
+```
+
+## Authentication
+
+To use the NannyML Cloud SDK you need to provide the URL of your NannyML Cloud instance and an API token to authenticate. You can obtain an API token on the settings page of your NannyML Cloud instance.
+
+In code:
+
+``` python
+import nannyml_cloud_sdk as nml_sdk
+
+nml_sdk.url = "https://beta.app.nannyml.com"
+nml_sdk.api_token = r"api token goes here"
+```
+
+Using environment variables:
+
+``` python
+import nannyml_cloud_sdk as nml_sdk
+import os
+
+nml_sdk.url = os.environ['NML_SDK_URL']
+nml_sdk.api_token = os.environ['NML_SDK_API_TOKEN']
+```
+
+> [!NOTE]
+> We recommend using an environment variable for the API token. This prevents accidentally leaking any token associated with your personal account when sharing code.
+
 ## Examples
 
 This snippet provides an example of how you can create a model in NannyML Cloud to start monitoring it.
