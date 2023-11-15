@@ -207,6 +207,7 @@ type DataSource {
   hasAnalysisData: Boolean!
   columns: [Column!]!
   nrRows: Int
+  events(filter: DataSourceEventsFilter = null): [DataSourceEvent!]!
 }
 
 type Column {
@@ -225,6 +226,26 @@ enum ColumnType {
   CONTINUOUS_FEATURE
   IGNORED
   IDENTIFIER
+}
+
+type DataSourceEvent {
+  id: ID!
+  eventType: DataSourceEventType!
+  timestamp: DateTime!
+  causedBy: User!
+  nrRows: Int
+}
+
+enum DataSourceEventType {
+  CREATED
+  DATA_ADDED
+  DATA_REMOVED
+  DATA_UPDATED
+}
+
+input DataSourceEventsFilter {
+  eventType: DataSourceEventType = null
+  causedByUserId: ID = null
 }
 
 input DataSourcesFilter {

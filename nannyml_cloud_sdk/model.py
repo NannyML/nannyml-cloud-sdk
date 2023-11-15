@@ -7,11 +7,13 @@ from frozendict import frozendict
 from gql import gql
 
 from .client import execute
-from .data import Data
+from .data import (
+    DATA_SOURCE_EVENT_FRAGMENT, DATA_SOURCE_SUMMARY_FRAGMENT, Data, DataSourceEvent, DataSourceFilter, DataSourceSummary
+)
 from .enums import ChunkPeriod, PerformanceMetric, ProblemType
 from .errors import InvalidOperationError
 from .run import RUN_SUMMARY_FRAGMENT, RunSummary
-from .schema import COLUMN_DETAILS_FRAGMENT, ColumnDetails, ModelSchema
+from .schema import ModelSchema
 from ._typing import TypedDict
 
 
@@ -41,24 +43,6 @@ class ModelDetails(ModelSummary):
 
     latestRun: Optional[RunSummary]
     nextRun: Optional[RunSummary]
-
-
-class DataSourceSummary(TypedDict):
-    id: str
-    name: str
-    hasReferenceData: bool
-    hasAnalysisData: bool
-    nrRows: int
-
-
-class DataSourceDetails(DataSourceSummary):
-    columns: list[ColumnDetails]
-
-
-class DataSourceFilter(TypedDict, total=False):
-    name: str
-    hasReferenceData: bool
-    hasAnalysisData: bool
 
 
 _MODEL_SUMMARY_FRAGMENT = f"""
@@ -95,24 +79,28 @@ _READ_MODEL = gql("""
     }
 """ + _MODEL_DETAILS_FRAGMENT)
 
-_DATA_SOURCE_SUMMARY_FRAGMENT = f"""
-    fragment DataSourceSummary on DataSource {{
-        {' '.join(DataSourceSummary.__required_keys__)}
-    }}
-"""
-
 _GET_MODEL_DATA_SOURCES = gql("""
     query getModelDataSources($modelId: Int!, $filter: DataSourcesFilter) {
         model(id: $modelId) {
             dataSources(filter: $filter) {
                 ...DataSourceSummary
-                columns {
-                    ...ColumnDetails
-                }
             }
         }
     }
-""" + _DATA_SOURCE_SUMMARY_FRAGMENT + COLUMN_DETAILS_FRAGMENT)
+""" + DATA_SOURCE_SUMMARY_FRAGMENT)
+
+_GET_MODEL_DATA_HISTORY = gql("""
+    query getModelDataHistory($modelId: Int!, $dataSourceFilter: DataSourcesFilter) {
+        model(id: $modelId) {
+            dataSources(filter: $dataSourceFilter) {
+                events {
+                    ...DataSourceEvent
+                }
+                ...DataSourceSummary
+            }
+        }
+    }
+""" + DATA_SOURCE_SUMMARY_FRAGMENT + DATA_SOURCE_EVENT_FRAGMENT)
 
 _CREATE_MODEL = gql("""
     mutation createModel($input: CreateModelInput!) {
@@ -359,13 +347,56 @@ class Model:
             },
         })
 
+    @classmethod
+    def get_reference_data_history(cls, model_id: str) -> List[DataSourceEvent]:
+        """Get reference data history for a model.
+
+        Args:
+            model_id: ID of the model.
+
+        Returns:
+            List of events related to reference data for the model.
+        """
+        return execute(_GET_MODEL_DATA_HISTORY, {
+            'modelId': int(model_id),
+            'dataSourceFilter': {'name': 'reference'},
+        })['model']['dataSources'][0]['events']
+
+    @classmethod
+    def get_analysis_data_history(cls, model_id: str) -> List[DataSourceEvent]:
+        """Get analysis data history for a model.
+
+        Args:
+            model_id: ID of the model.
+
+        Returns:
+            List of events related to analysis data for the model.
+        """
+        return execute(_GET_MODEL_DATA_HISTORY, {
+            'modelId': int(model_id),
+            'dataSourceFilter': {'name': 'analysis'},
+        })['model']['dataSources'][0]['events']
+
+    @classmethod
+    def get_analysis_target_data_history(cls, model_id: str) -> List[DataSourceEvent]:
+        """Get target data history for a model.
+
+        Args:
+            model_id: ID of the model.
+
+        Returns:
+            List of events related to target data for the model.
+        """
+        return execute(_GET_MODEL_DATA_HISTORY, {
+            'modelId': int(model_id),
+            'dataSourceFilter': {'name': 'target'},
+        })['model']['dataSources'][0]['events']
+
     @functools.lru_cache(maxsize=128)
     @staticmethod
-    def _get_model_data_sources(model_id: str, filter: Optional[DataSourceFilter] = None) -> List[DataSourceDetails]:
+    def _get_model_data_sources(model_id: str, filter: Optional[DataSourceFilter] = None) -> List[DataSourceSummary]:
         """Get data sources for a model"""
-        # There is a bug in gql that prevents correctly parsing results. Working around it here by disabling result
-        # parsing. There are no custom scalars in the response payload, so this is safe (for now).
         return execute(_GET_MODEL_DATA_SOURCES, {
             'modelId': int(model_id),
             'filter': filter,
-        }, parse_result=False)['model']['dataSources']
+        })['model']['dataSources']

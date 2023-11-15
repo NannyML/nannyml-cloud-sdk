@@ -67,3 +67,6 @@ RunState = Literal['SCHEDULED', 'RUNNING', 'CANCELLING', 'COMPLETED']
 - `CANCELLING`: The run is currently being cancelled.
 - `COMPLETED`: The run has completed (successfully or unsuccessfully).
 """
+
+DataSourceEventType = Literal['CREATED', 'DATA_ADDED', 'DATA_REMOVED', 'DATA_UPDATED']
+"""Events recorded for model data sources."""
