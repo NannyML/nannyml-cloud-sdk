@@ -414,8 +414,43 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.delete_analysis_data" class="md-nav__link">
+    delete_analysis_data()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.delete_analysis_target_data" class="md-nav__link">
+    delete_analysis_target_data()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#nannyml_cloud_sdk.model.Model.get" class="md-nav__link">
     get()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.get_analysis_data_history" class="md-nav__link">
+    get_analysis_data_history()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.get_analysis_target_data_history" class="md-nav__link">
+    get_analysis_target_data_history()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.get_reference_data_history" class="md-nav__link">
+    get_reference_data_history()
   </a>
   
 </li>
@@ -428,15 +463,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#nannyml_cloud_sdk.model.Model.update_analysis_data" class="md-nav__link">
-    update_analysis_data()
+  <a href="#nannyml_cloud_sdk.model.Model.upsert_analysis_data" class="md-nav__link">
+    upsert_analysis_data()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#nannyml_cloud_sdk.model.Model.update_analysis_target_data" class="md-nav__link">
-    update_analysis_target_data()
+  <a href="#nannyml_cloud_sdk.model.Model.upsert_analysis_target_data" class="md-nav__link">
+    upsert_analysis_target_data()
   </a>
   
 </li>
@@ -584,8 +619,43 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.delete_analysis_data" class="md-nav__link">
+    delete_analysis_data()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.delete_analysis_target_data" class="md-nav__link">
+    delete_analysis_target_data()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#nannyml_cloud_sdk.model.Model.get" class="md-nav__link">
     get()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.get_analysis_data_history" class="md-nav__link">
+    get_analysis_data_history()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.get_analysis_target_data_history" class="md-nav__link">
+    get_analysis_target_data_history()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model.Model.get_reference_data_history" class="md-nav__link">
+    get_reference_data_history()
   </a>
   
 </li>
@@ -598,15 +668,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#nannyml_cloud_sdk.model.Model.update_analysis_data" class="md-nav__link">
-    update_analysis_data()
+  <a href="#nannyml_cloud_sdk.model.Model.upsert_analysis_data" class="md-nav__link">
+    upsert_analysis_data()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#nannyml_cloud_sdk.model.Model.update_analysis_target_data" class="md-nav__link">
-    update_analysis_target_data()
+  <a href="#nannyml_cloud_sdk.model.Model.upsert_analysis_target_data" class="md-nav__link">
+    upsert_analysis_target_data()
   </a>
   
 </li>
@@ -764,7 +834,7 @@
 <details class="note" open>
   <summary>Note</summary>
   <p>This method does not update existing data. It only adds new data. If you want to update existing data,
-use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.model.Model.update_analysis_data">update_analysis_data</a> instead.</p>
+use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.model.Model.upsert_analysis_data">upsert_analysis_data</a> instead.</p>
 </details>
   </div>
 
@@ -845,7 +915,7 @@ instead.</p>
 <details class="note" open>
   <summary>Note</summary>
   <p>This method does not update existing data. It only adds new data. If you want to update existing data,
-use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.model.Model.update_analysis_target_data">update_analysis_target_data</a> instead.</p>
+use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.model.Model.upsert_analysis_target_data">upsert_analysis_target_data</a> instead.</p>
 </details>
   </div>
 
@@ -1087,6 +1157,144 @@ metric will be tagged as main.</p>
 
 
 
+<h3 id="nannyml_cloud_sdk.model.Model.delete_analysis_data" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">delete_analysis_data</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">delete_analysis_data</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_ids</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Delete analysis data from a model.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>model_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>ID of the model.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>data</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>ID's for the data to be deleted.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="nannyml_cloud_sdk.model.Model.delete_analysis_target_data" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">delete_analysis_target_data</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">delete_analysis_target_data</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data_ids</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Delete target data from a model.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>model_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>ID of the model.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>data</code></td>
+          <td>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>ID's for the data to be deleted.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
 <h3 id="nannyml_cloud_sdk.model.Model.get" class="doc doc-heading">
           <span class="doc doc-object-name doc-function-name">get</span>
 
@@ -1151,6 +1359,246 @@ metric will be tagged as main.</p>
           <td>
             <div class="doc-md-description">
               <p>Detailed information about the model.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="nannyml_cloud_sdk.model.Model.get_analysis_data_history" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">get_analysis_data_history</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">get_analysis_data_history</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DataSourceEvent</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Get analysis data history for a model.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>model_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>ID of the model.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.List">List</span>[<span title="nannyml_cloud_sdk.data.DataSourceEvent">DataSourceEvent</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of events related to analysis data for the model.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="nannyml_cloud_sdk.model.Model.get_analysis_target_data_history" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">get_analysis_target_data_history</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">get_analysis_target_data_history</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DataSourceEvent</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Get target data history for a model.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>model_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>ID of the model.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.List">List</span>[<span title="nannyml_cloud_sdk.data.DataSourceEvent">DataSourceEvent</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of events related to target data for the model.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="nannyml_cloud_sdk.model.Model.get_reference_data_history" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">get_reference_data_history</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">get_reference_data_history</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">DataSourceEvent</span><span class="p">]</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Get reference data history for a model.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>model_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>ID of the model.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="typing.List">List</span>[<span title="nannyml_cloud_sdk.data.DataSourceEvent">DataSourceEvent</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>List of events related to reference data for the model.</p>
             </div>
           </td>
         </tr>
@@ -1263,8 +1711,8 @@ metric will be tagged as main.</p>
 
 
 
-<h3 id="nannyml_cloud_sdk.model.Model.update_analysis_data" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">update_analysis_data</span>
+<h3 id="nannyml_cloud_sdk.model.Model.upsert_analysis_data" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">upsert_analysis_data</span>
 
   
   <span class="doc doc-labels">
@@ -1272,7 +1720,7 @@ metric will be tagged as main.</p>
   </span>
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">update_analysis_data</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">upsert_analysis_data</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1339,8 +1787,8 @@ If you are certain you are only adding new data, it is recommended to use
 
 
 
-<h3 id="nannyml_cloud_sdk.model.Model.update_analysis_target_data" class="doc doc-heading">
-          <span class="doc doc-object-name doc-function-name">update_analysis_target_data</span>
+<h3 id="nannyml_cloud_sdk.model.Model.upsert_analysis_target_data" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">upsert_analysis_target_data</span>
 
   
   <span class="doc doc-labels">
@@ -1348,7 +1796,7 @@ If you are certain you are only adding new data, it is recommended to use
   </span>
 
 </h3>
-<div class="doc-signature highlight"><pre><span></span><code><span class="n">update_analysis_target_data</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">upsert_analysis_target_data</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
   <div class="doc doc-contents ">
@@ -1402,7 +1850,7 @@ If you are certain you are only adding new data, it is recommended to use
 <details class="note" open>
   <summary>Note</summary>
   <p>This method can only be used if the model has a target data source. If you want to update analysis data in a
-model without a target data source, use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.model.Model.update_analysis_data">update_analysis_data</a>
+model without a target data source, use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.model.Model.upsert_analysis_data">upsert_analysis_data</a>
 instead.</p>
 </details>
 <details class="note" open>
