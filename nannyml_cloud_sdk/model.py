@@ -345,7 +345,7 @@ class Model:
 
         Args:
             model_id: ID of the model.
-            data: ID's for the data to be deleted.
+            data_ids: ID's for the data to be deleted.
         """
         analysis_data_source, = cls._get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
         execute(_REMOVE_DATA_FROM_DATA_SOURCE, {
@@ -361,7 +361,7 @@ class Model:
 
         Args:
             model_id: ID of the model.
-            data: ID's for the data to be deleted.
+            data_ids: ID's for the data to be deleted.
         """
         target_data_source = cls._get_target_data_source(model_id)
         execute(_REMOVE_DATA_FROM_DATA_SOURCE, {
