@@ -126,9 +126,9 @@ _ADD_DATA_TO_DATA_SOURCE = gql("""
     }
 """)
 
-_UPDATE_DATA_IN_DATA_SOURCE = gql("""
+_UPSERT_DATA_IN_DATA_SOURCE = gql("""
     mutation updateDataInDataSource($input: DataSourceDataInput!) {
-        update_data_in_data_source(input: $input) {
+        upsert_data_in_data_source(input: $input) {
             id
         }
     }
@@ -257,7 +257,7 @@ class Model:
 
         Note:
             This method does not update existing data. It only adds new data. If you want to update existing data,
-            use [update_analysis_data][nannyml_cloud_sdk.Model.update_analysis_data] instead.
+            use [upsert_analysis_data][nannyml_cloud_sdk.Model.upsert_analysis_data] instead.
         """
         analysis_data_source, = cls._get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
         execute(_ADD_DATA_TO_DATA_SOURCE, {
@@ -282,7 +282,7 @@ class Model:
 
         Note:
             This method does not update existing data. It only adds new data. If you want to update existing data,
-            use [update_analysis_target_data][nannyml_cloud_sdk.Model.update_analysis_target_data] instead.
+            use [upsert_analysis_target_data][nannyml_cloud_sdk.Model.upsert_analysis_target_data] instead.
         """
         target_data_source = cls._get_target_data_source(model_id)
         execute(_ADD_DATA_TO_DATA_SOURCE, {
@@ -293,7 +293,7 @@ class Model:
         })
 
     @classmethod
-    def update_analysis_data(cls, model_id: str, data: pd.DataFrame) -> None:
+    def upsert_analysis_data(cls, model_id: str, data: pd.DataFrame) -> None:
         """Add or update analysis data for a model.
 
         Args:
@@ -306,7 +306,7 @@ class Model:
             [add_analysis_data][nannyml_cloud_sdk.Model.add_analysis_data] instead for better performance.
         """
         analysis_data_source, = cls._get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
-        execute(_UPDATE_DATA_IN_DATA_SOURCE, {
+        execute(_UPSERT_DATA_IN_DATA_SOURCE, {
             'input': {
                 'id': int(analysis_data_source['id']),
                 'storageInfo': Data.upload(data),
@@ -314,7 +314,7 @@ class Model:
         })
 
     @classmethod
-    def update_analysis_target_data(cls, model_id: str, data: pd.DataFrame) -> None:
+    def upsert_analysis_target_data(cls, model_id: str, data: pd.DataFrame) -> None:
         """Add or update (delayed) target data for a model.
 
         Args:
@@ -323,7 +323,7 @@ class Model:
 
         Note:
             This method can only be used if the model has a target data source. If you want to update analysis data in a
-            model without a target data source, use [update_analysis_data][nannyml_cloud_sdk.Model.update_analysis_data]
+            model without a target data source, use [upsert_analysis_data][nannyml_cloud_sdk.Model.upsert_analysis_data]
             instead.
 
         Note:
@@ -332,7 +332,7 @@ class Model:
             [add_analysis_target_data][nannyml_cloud_sdk.Model.add_analysis_target_data] instead for better performance.
         """
         target_data_source = cls._get_target_data_source(model_id)
-        execute(_UPDATE_DATA_IN_DATA_SOURCE, {
+        execute(_UPSERT_DATA_IN_DATA_SOURCE, {
             'input': {
                 'id': int(target_data_source['id']),
                 'storageInfo': Data.upload(data),

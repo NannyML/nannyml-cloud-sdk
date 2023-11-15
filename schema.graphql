@@ -504,7 +504,7 @@ type Mutation {
   add_model_data_source(input: AddDataSourceToModelInput!): DataSource!
   delete_data_source(input: DeleteDataSourceInput!): DataSource!
   add_data_to_data_source(input: DataSourceDataInput!): DataSource!
-  update_data_in_data_source(input: DataSourceDataInput!): DataSource!
+  upsert_data_in_data_source(input: DataSourceDataInput!): DataSource!
   delete_data_from_data_source(input: DataSourceDeleteInput!): DataSource!
   edit_user_notification_settings(settings: EditUserNotificationSettingsInput!): UserNotificationSettingsUserNotFound!
   edit_application_settings(settings: EditApplicationSettingsInput!): ApplicationSettings!
