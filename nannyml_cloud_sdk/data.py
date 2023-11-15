@@ -1,3 +1,4 @@
+import datetime
 import io
 from typing import Any, Optional, TypedDict
 
@@ -5,15 +6,7 @@ import pandas as pd
 from gql import gql
 
 from .client import execute
-from .enums import S3AuthenticationMode
-
-_UPLOAD_DATASET = gql("""
-    mutation uploadDataset($file: Upload!) {
-        upload_dataset(file: $file) {
-            id
-        }
-    }
-""")
+from .enums import ColumnType, DataSourceEventType, S3AuthenticationMode
 
 
 class StorageInfoRaw(TypedDict):
@@ -89,6 +82,87 @@ class StorageInfo(TypedDict, total=False):
     azure: Optional[StorageInfoAzureBlob]
     s3: Optional[StorageInfoS3]
     cache: Optional[StorageInfoCache]
+
+
+class ColumnDetails(TypedDict):
+    """Details about a column in a model schema.
+
+    Attributes:
+        name: The name of the column.
+        columnType: The type of the column.
+        dataType: The data type of the column.
+        className: Class name for prediction columns in a multiclass classification problem.
+    """
+
+    name: str
+    columnType: ColumnType
+    dataType: str
+    className: Optional[str]
+
+
+class DataSourceSummary(TypedDict):
+    id: str
+    name: str
+    hasReferenceData: bool
+    hasAnalysisData: bool
+    nrRows: int
+
+
+class DataSourceDetails(DataSourceSummary):
+    columns: list[ColumnDetails]
+
+
+class DataSourceFilter(TypedDict, total=False):
+    name: str
+    hasReferenceData: bool
+    hasAnalysisData: bool
+
+
+class DataSourceEvent(TypedDict):
+    id: str
+    eventType: DataSourceEventType
+    timestamp: datetime.datetime
+    nrRows: int
+
+
+class DataSourceEventFilter(TypedDict, total=False):
+    event_type: DataSourceEventType
+
+
+COLUMN_DETAILS_FRAGMENT = f"""
+    fragment ColumnDetails on Column {{
+        {' '.join(ColumnDetails.__required_keys__)}
+    }}
+"""
+
+DATA_SOURCE_SUMMARY_FRAGMENT = f"""
+    fragment DataSourceSummary on DataSource {{
+        {' '.join(DataSourceSummary.__required_keys__)}
+    }}
+"""
+
+DATA_SOURCE_DETAILS_FRAGMENT = """
+    fragment DataSourceDetails on DataSource {
+        ...DataSourceSummary
+        columns {
+            ...ColumnDetails
+        }
+    }
+""" + COLUMN_DETAILS_FRAGMENT + DATA_SOURCE_SUMMARY_FRAGMENT
+
+DATA_SOURCE_EVENT_FRAGMENT = f"""
+    fragment DataSourceEvent on DataSourceEvent {{
+        {' '.join(DataSourceEvent.__required_keys__)}
+    }}
+"""
+
+_UPLOAD_DATASET = gql("""
+    mutation uploadDataset($file: Upload!) {
+        upload_dataset(file: $file) {
+            id
+        }
+    }
+""")
 
 
 class Data:

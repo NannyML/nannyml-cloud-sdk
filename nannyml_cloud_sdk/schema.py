@@ -5,24 +5,8 @@ from gql import gql
 import pandas as pd
 
 from .client import execute
-from .data import Data
+from .data import COLUMN_DETAILS_FRAGMENT, ColumnDetails, Data
 from .enums import ColumnType, FeatureType, ProblemType
-
-
-class ColumnDetails(TypedDict):
-    """Details about a column in a model schema.
-
-    Attributes:
-        name: The name of the column.
-        columnType: The type of the column.
-        dataType: The data type of the column.
-        className: Class name for prediction columns in a multiclass classification problem.
-    """
-
-    name: str
-    columnType: ColumnType
-    dataType: str
-    className: Optional[str]
 
 
 class ModelSchema(TypedDict):
@@ -30,12 +14,6 @@ class ModelSchema(TypedDict):
     problemType: ProblemType
     columns: List[ColumnDetails]
 
-
-COLUMN_DETAILS_FRAGMENT = f"""
-    fragment ColumnDetails on Column {{
-        {' '.join(ColumnDetails.__required_keys__)}
-    }}
-"""
 
 _INSPECT_SCHEMA = gql("""
     query inspectSchema($input: InspectDataSourceInput!) {

@@ -207,6 +207,7 @@ type DataSource {
   hasAnalysisData: Boolean!
   columns: [Column!]!
   nrRows: Int
+  events(filter: DataSourceEventsFilter = null): [DataSourceEvent!]!
 }
 
 type Column {
@@ -225,6 +226,26 @@ enum ColumnType {
   CONTINUOUS_FEATURE
   IGNORED
   IDENTIFIER
+}
+
+type DataSourceEvent {
+  id: ID!
+  eventType: DataSourceEventType!
+  timestamp: DateTime!
+  causedBy: User!
+  nrRows: Int
+}
+
+enum DataSourceEventType {
+  CREATED
+  DATA_ADDED
+  DATA_REMOVED
+  DATA_UPDATED
+}
+
+input DataSourceEventsFilter {
+  eventType: DataSourceEventType = null
+  causedByUserId: ID = null
 }
 
 input DataSourcesFilter {
@@ -483,7 +504,8 @@ type Mutation {
   add_model_data_source(input: AddDataSourceToModelInput!): DataSource!
   delete_data_source(input: DeleteDataSourceInput!): DataSource!
   add_data_to_data_source(input: DataSourceDataInput!): DataSource!
-  update_data_in_data_source(input: DataSourceDataInput!): DataSource!
+  upsert_data_in_data_source(input: DataSourceDataInput!): DataSource!
+  delete_data_from_data_source(input: DataSourceDeleteInput!): DataSource!
   edit_user_notification_settings(settings: EditUserNotificationSettingsInput!): UserNotificationSettingsUserNotFound!
   edit_application_settings(settings: EditApplicationSettingsInput!): ApplicationSettings!
   upload_dataset(file: Upload!): DatasetCacheRef!
@@ -691,6 +713,11 @@ input DeleteDataSourceInput {
 input DataSourceDataInput {
   id: ID!
   storageInfo: StorageInput!
+}
+
+input DataSourceDeleteInput {
+  id: ID!
+  dataIds: StorageInput!
 }
 
 union UserNotificationSettingsUserNotFound = UserNotificationSettings | UserNotFound
