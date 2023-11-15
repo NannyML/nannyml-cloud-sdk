@@ -19,12 +19,12 @@ test: src-build src-test
 build: clean src-build
 
 build-docs:
-	poetry run mkdocs build
+	poetry run mkdocs build --strict
 
 serve-docs:
 	poetry run mkdocs serve
 
 publish-docs:
-	poetry run mkdocs gh-deploy
+	poetry run mkdocs gh-deploy --strict
 
 all: build
