@@ -134,6 +134,14 @@ _UPDATE_DATA_IN_DATA_SOURCE = gql("""
     }
 """)
 
+_REMOVE_DATA_FROM_DATA_SOURCE = gql("""
+    mutation removeDataFromDataSource($input: DataSourceDeleteInput!) {
+        delete_data_from_data_source(input: $input) {
+            id
+        }
+    }
+""")
+
 
 class Model:
     """Operations for working with machine learning models."""
@@ -276,15 +284,7 @@ class Model:
             This method does not update existing data. It only adds new data. If you want to update existing data,
             use [update_analysis_target_data][nannyml_cloud_sdk.Model.update_analysis_target_data] instead.
         """
-        data_sources = cls._get_model_data_sources(model_id, frozendict({'name': 'target'}))
-        try:
-            target_data_source = data_sources[0]
-        except IndexError:
-            raise InvalidOperationError(
-                f"Model '{model_id}' has no target data source. If targets are present, they are stored in the "
-                "analysis data source. Use `add_analysis_data` instead."
-            )
-
+        target_data_source = cls._get_target_data_source(model_id)
         execute(_ADD_DATA_TO_DATA_SOURCE, {
             'input': {
                 'id': int(target_data_source['id']),
@@ -331,19 +331,43 @@ class Model:
             If you are certain you are only adding new data, it is recommended to use
             [add_analysis_target_data][nannyml_cloud_sdk.Model.add_analysis_target_data] instead for better performance.
         """
-        data_sources = cls._get_model_data_sources(model_id, frozendict({'name': 'target'}))
-        try:
-            target_data_source = data_sources[0]
-        except IndexError:
-            raise InvalidOperationError(
-                f"Model '{model_id}' has no target data source. If targets are present, they are stored in the "
-                "analysis data source. Use `update_analysis_data` instead."
-            )
-
+        target_data_source = cls._get_target_data_source(model_id)
         execute(_UPDATE_DATA_IN_DATA_SOURCE, {
             'input': {
                 'id': int(target_data_source['id']),
                 'storageInfo': Data.upload(data),
+            },
+        })
+
+    @classmethod
+    def delete_analysis_data(cls, model_id: str, data_ids: pd.DataFrame) -> None:
+        """Delete analysis data from a model.
+
+        Args:
+            model_id: ID of the model.
+            data: ID's for the data to be deleted.
+        """
+        analysis_data_source, = cls._get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
+        execute(_REMOVE_DATA_FROM_DATA_SOURCE, {
+            'input': {
+                'id': int(analysis_data_source['id']),
+                'dataIds': Data.upload(data_ids),
+            },
+        })
+
+    @classmethod
+    def delete_analysis_target_data(cls, model_id: str, data_ids: pd.DataFrame) -> None:
+        """Delete target data from a model.
+
+        Args:
+            model_id: ID of the model.
+            data: ID's for the data to be deleted.
+        """
+        target_data_source = cls._get_target_data_source(model_id)
+        execute(_REMOVE_DATA_FROM_DATA_SOURCE, {
+            'input': {
+                'id': int(target_data_source['id']),
+                'dataIds': Data.upload(data_ids),
             },
         })
 
@@ -400,3 +424,15 @@ class Model:
             'modelId': int(model_id),
             'filter': filter,
         })['model']['dataSources']
+
+    @classmethod
+    def _get_target_data_source(cls, model_id: str) -> DataSourceSummary:
+        """Helper method to get target data source for a model"""
+        data_sources = cls._get_model_data_sources(model_id, frozendict({'name': 'target'}))
+        try:
+            return data_sources[0]
+        except IndexError:
+            raise InvalidOperationError(
+                f"Model '{model_id}' has no target data source. If targets are present, they are stored in the "
+                "analysis data source. Use `delete_analysis_data` instead."
+            )

@@ -505,6 +505,7 @@ type Mutation {
   delete_data_source(input: DeleteDataSourceInput!): DataSource!
   add_data_to_data_source(input: DataSourceDataInput!): DataSource!
   update_data_in_data_source(input: DataSourceDataInput!): DataSource!
+  delete_data_from_data_source(input: DataSourceDeleteInput!): DataSource!
   edit_user_notification_settings(settings: EditUserNotificationSettingsInput!): UserNotificationSettingsUserNotFound!
   edit_application_settings(settings: EditApplicationSettingsInput!): ApplicationSettings!
   upload_dataset(file: Upload!): DatasetCacheRef!
@@ -712,6 +713,11 @@ input DeleteDataSourceInput {
 input DataSourceDataInput {
   id: ID!
   storageInfo: StorageInput!
+}
+
+input DataSourceDeleteInput {
+  id: ID!
+  dataIds: StorageInput!
 }
 
 union UserNotificationSettingsUserNotFound = UserNotificationSettings | UserNotFound
