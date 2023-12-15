@@ -139,26 +139,26 @@ def test_schema_set_prediction_score_multiclass_classification_sets_column_type(
             {'name': 'b', 'columnType': 'CONTINUOUS_FEATURE', 'dataType': 'float64', 'className': None},
         ]
     }
-    new_schema = Schema.set_prediction_score(schema, {'a': 'A', 'b': 'B'})
+    new_schema = Schema.set_prediction_score(schema, {'class_a': 'a', 'class_b': 'b'})
 
     assert new_schema is schema
     assert schema['columns'][0]['columnType'] == 'PREDICTION_SCORE'
-    assert schema['columns'][0]['className'] == 'A'
+    assert schema['columns'][0]['className'] == 'class_a'
     assert schema['columns'][1]['columnType'] == 'PREDICTION_SCORE'
-    assert schema['columns'][1]['className'] == 'B'
+    assert schema['columns'][1]['className'] == 'class_b'
 
 
 def test_schema_set_prediction_score_multiclass_classification_unsets_existing_prediction_score() -> None:
     schema: ModelSchema = {
         'problemType': 'MULTICLASS_CLASSIFICATION',
         'columns': [
-            {'name': 'a', 'columnType': 'PREDICTION_SCORE', 'dataType': 'float64', 'className': 'A'},
-            {'name': 'b', 'columnType': 'PREDICTION_SCORE', 'dataType': 'float64', 'className': 'B'},
+            {'name': 'a', 'columnType': 'PREDICTION_SCORE', 'dataType': 'float64', 'className': 'class_a'},
+            {'name': 'b', 'columnType': 'PREDICTION_SCORE', 'dataType': 'float64', 'className': 'class_b'},
             {'name': 'c', 'columnType': 'CONTINUOUS_FEATURE', 'dataType': 'float64', 'className': None},
             {'name': 'd', 'columnType': 'CONTINUOUS_FEATURE', 'dataType': 'float64', 'className': None},
         ]
     }
-    new_schema = Schema.set_prediction_score(schema, {'c': 'C', 'd': 'D'})
+    new_schema = Schema.set_prediction_score(schema, {'class_c': 'c', 'class_d': 'd'})
 
     assert new_schema is schema
     assert schema['columns'][0]['columnType'] == 'CONTINUOUS_FEATURE'
@@ -166,9 +166,9 @@ def test_schema_set_prediction_score_multiclass_classification_unsets_existing_p
     assert schema['columns'][1]['columnType'] == 'CONTINUOUS_FEATURE'
     assert schema['columns'][1]['className'] is None
     assert schema['columns'][2]['columnType'] == 'PREDICTION_SCORE'
-    assert schema['columns'][2]['className'] == 'C'
+    assert schema['columns'][2]['className'] == 'class_c'
     assert schema['columns'][3]['columnType'] == 'PREDICTION_SCORE'
-    assert schema['columns'][3]['className'] == 'D'
+    assert schema['columns'][3]['className'] == 'class_d'
 
 
 def test_schema_set_prediction_score_multiclass_classification_rejects_single_prediction_score() -> None:
