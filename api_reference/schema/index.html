@@ -491,6 +491,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.schema.normalize" class="md-nav__link">
+    normalize()
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -611,6 +618,13 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.schema.normalize" class="md-nav__link">
+    normalize()
+  </a>
   
 </li>
       
@@ -1355,8 +1369,8 @@ changed to a feature column.</p>
   
       <p>Set the prediction score column(s) in a schema.</p>
 <p>Binary classification and regression problems require a single prediction score column.
-Multiclass classification problems require a dictionary mapping prediction score columns to class names, e.g.
-<code>{'prediction_score_1': 'class_1', 'prediction_score_2': 'class_2'}</code>.</p>
+Multiclass classification problems require a dictionary mapping class names to prediction score columns, e.g.
+<code>{'class_1': 'prediction_score_1', 'class_2': 'prediction_score_2'}</code>.</p>
 
 
 
@@ -1392,8 +1406,8 @@ Multiclass classification problems require a dictionary mapping prediction score
           </td>
           <td>
             <div class="doc-md-description">
-              <p>The name of the prediction score column or a dictionary mapping prediction score
-column names to class names. Any existing prediction score columns will be changed to feature columns.</p>
+              <p>The name of the prediction score column or a dictionary mapping class names to
+prediction score column names. Any existing prediction score columns will be changed to feature columns.</p>
             </div>
           </td>
           <td>
@@ -1633,6 +1647,28 @@ changed to a feature column.</p>
 
 </div>
 
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h2 id="nannyml_cloud_sdk.schema.normalize" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">normalize</span>
+
+
+</h2>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">normalize</span><span class="p">(</span><span class="n">column_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Normalize a column name.</p>
+
+  </div>
+
+</div>
 
 
 
