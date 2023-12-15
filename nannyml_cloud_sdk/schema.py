@@ -223,13 +223,13 @@ class Schema:
         """Set the prediction score column(s) in a schema.
 
         Binary classification and regression problems require a single prediction score column.
-        Multiclass classification problems require a dictionary mapping prediction score columns to class names, e.g.
-        `{'prediction_score_1': 'class_1', 'prediction_score_2': 'class_2'}`.
+        Multiclass classification problems require a dictionary mapping class names to prediction score columns, e.g.
+        `{'class_1': 'prediction_score_1', 'class_2': 'prediction_score_2'}`.
 
         Args:
             schema: The schema to modify.
-            column_name_or_mapping: The name of the prediction score column or a dictionary mapping prediction score
-                column names to class names. Any existing prediction score columns will be changed to feature columns.
+            column_name_or_mapping: The name of the prediction score column or a dictionary mapping class names to
+                prediction score column names. Any existing prediction score columns will be changed to feature columns.
 
         Returns:
             The modified schema.
@@ -243,7 +243,9 @@ class Schema:
                 'Must specify a single prediction score column name for binary classification and regression'
             )
         else:
-            column_name_or_mapping = {normalize(key): value for (key, value) in column_name_or_mapping.items()}
+            column_name_or_mapping = {
+                normalize(column_name): class_name for (class_name, column_name) in column_name_or_mapping.items()
+            }
 
         for column in schema['columns']:
             if column['name'] in column_name_or_mapping:
