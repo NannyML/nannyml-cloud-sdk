@@ -9,6 +9,11 @@ from .data import COLUMN_DETAILS_FRAGMENT, ColumnDetails, Data
 from .enums import ColumnType, FeatureType, ProblemType
 
 
+def normalize(column_name: str) -> str:
+    """Normalize a column name."""
+    return column_name.casefold()
+
+
 class ModelSchema(TypedDict):
     """Schema for a machine learning model."""
     problemType: ProblemType
@@ -153,6 +158,7 @@ class Schema:
         Returns:
             The modified schema.
         """
+        column_name = normalize(column_name)
         for column in schema['columns']:
             if column['name'] == column_name:
                 column['columnType'] = 'TARGET'
@@ -176,6 +182,7 @@ class Schema:
         Returns:
             The modified schema.
         """
+        column_name = normalize(column_name)
         for column in schema['columns']:
             if column['name'] == column_name:
                 column['columnType'] = 'TIMESTAMP'
@@ -200,6 +207,7 @@ class Schema:
         Returns:
             The modified schema.
         """
+        column_name = normalize(column_name)
         for column in schema['columns']:
             if column['name'] == column_name:
                 column['columnType'] = 'PREDICTION'
@@ -229,11 +237,13 @@ class Schema:
         if isinstance(column_name_or_mapping, str):
             if schema['problemType'] == 'MULTICLASS_CLASSIFICATION':
                 raise ValueError('Must specify a dictionary of prediction score columns for multiclass classification')
-            column_name_or_mapping = {column_name_or_mapping: cast(str, None)}
+            column_name_or_mapping = {normalize(column_name_or_mapping): cast(str, None)}
         elif schema['problemType'] != 'MULTICLASS_CLASSIFICATION':
             raise ValueError(
                 'Must specify a single prediction score column name for binary classification and regression'
             )
+        else:
+            column_name_or_mapping = {normalize(key): value for (key, value) in column_name_or_mapping.items()}
 
         for column in schema['columns']:
             if column['name'] in column_name_or_mapping:
@@ -257,6 +267,7 @@ class Schema:
         Returns:
             The modified schema.
         """
+        column_name = normalize(column_name)
         for column in schema['columns']:
             if column['name'] == column_name:
                 column['columnType'] = 'CATEGORICAL_FEATURE' if feature_type == 'CATEGORY' else 'CONTINUOUS_FEATURE'
@@ -277,6 +288,7 @@ class Schema:
         """
         if isinstance(column_names, str):
             column_names = (column_names,)
+        column_names = {normalize(column_name) for column_name in column_names}
 
         for column in schema['columns']:
             if column['name'] in column_names:
@@ -296,6 +308,7 @@ class Schema:
         Returns:
             The modified schema.
         """
+        column_name = normalize(column_name)
         for column in schema['columns']:
             if column['name'] == column_name:
                 column['columnType'] = 'IDENTIFIER'
