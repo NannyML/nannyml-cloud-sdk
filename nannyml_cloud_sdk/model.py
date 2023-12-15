@@ -13,7 +13,7 @@ from .data import (
 from .enums import ChunkPeriod, PerformanceMetric, ProblemType
 from .errors import InvalidOperationError
 from .run import RUN_SUMMARY_FRAGMENT, RunSummary
-from .schema import ModelSchema
+from .schema import ModelSchema, normalize
 from ._typing import TypedDict
 
 
@@ -215,7 +215,10 @@ class Model:
                 'name': 'analysis',
                 'hasReferenceData': False,
                 'hasAnalysisData': True,
-                'columns': [column for column in schema['columns'] if column['name'] in analysis_data.columns],
+                'columns': [
+                    column for column in schema['columns']
+                    if column['name'] in map(normalize, analysis_data.columns)
+                ],
                 'storageInfo': Data.upload(analysis_data),
             },
         ]
@@ -224,7 +227,10 @@ class Model:
                 'name': 'target',
                 'hasReferenceData': False,
                 'hasAnalysisData': True,
-                'columns': [column for column in schema['columns'] if column['name'] in target_data.columns],
+                'columns': [
+                    column for column in schema['columns']
+                    if column['name'] in map(normalize, target_data.columns)
+                ],
                 'storageInfo': Data.upload(target_data),
             })
 
