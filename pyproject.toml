@@ -32,10 +32,3 @@ mkdocs-literate-nav = "^0.6.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.ariadne-codegen]
-queries_path = "graphql/queries"
-schema_path = "graphql/schema.graphql"
-target_package_path = "nannyml_cloud_sdk"
-async_client = false
-opentelemetry_client = true
