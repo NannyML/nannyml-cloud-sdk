@@ -938,12 +938,13 @@ use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.model.Model.u
 </h3>
 <div class="doc-signature highlight"><pre><span></span><code><span class="n">create</span><span class="p">(</span>
     <span class="n">schema</span><span class="p">:</span> <span class="n">ModelSchema</span><span class="p">,</span>
-    <span class="n">chunk_period</span><span class="p">:</span> <span class="n">ChunkPeriod</span><span class="p">,</span>
     <span class="n">reference_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">analysis_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">target_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">main_performance_metric</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PerformanceMetric</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chunk_period</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ChunkPeriod</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">chunk_size</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelDetails</span>
 </code></pre></div>
 
@@ -972,20 +973,6 @@ use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.model.Model.u
           <td>
             <div class="doc-md-description">
               <p>Schema of the model. Typically created using <a class="autorefs autorefs-internal" href="../schema/#nannyml_cloud_sdk.schema.Schema.from_df">Schema.from_df</a>.</p>
-            </div>
-          </td>
-          <td>
-              <em>required</em>
-          </td>
-        </tr>
-        <tr>
-          <td><code>chunk_period</code></td>
-          <td>
-                <code><a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.enums.ChunkPeriod" href="../enums/#nannyml_cloud_sdk.enums.ChunkPeriod">ChunkPeriod</a></code>
-          </td>
-          <td>
-            <div class="doc-md-description">
-              <p>Period of time to aggregate data into chunks.</p>
             </div>
           </td>
           <td>
@@ -1058,6 +1045,34 @@ provided together with analysis data.</p>
             <div class="doc-md-description">
               <p>Optional main performance metric for the model. If not provided, no performance
 metric will be tagged as main.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>chunk_period</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.enums.ChunkPeriod" href="../enums/#nannyml_cloud_sdk.enums.ChunkPeriod">ChunkPeriod</a>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Time period per chunk. Should only be set for time-based chunking.</p>
+            </div>
+          </td>
+          <td>
+                <code>None</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>chunk_size</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[int]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Number of rows per chunk. Should only be set for size-based chunking.</p>
             </div>
           </td>
           <td>
