@@ -180,18 +180,18 @@ class Model:
     def create(
         cls,
         schema: ModelSchema,
-        chunk_period: ChunkPeriod,
         reference_data: pd.DataFrame,
         analysis_data: pd.DataFrame,
         target_data: Optional[pd.DataFrame] = None,
         name: Optional[str] = None,
         main_performance_metric: Optional[PerformanceMetric] = None,
+        chunk_period: Optional[ChunkPeriod] = None,
+        chunk_size: Optional[int] = None,
     ) -> ModelDetails:
         """Create a new model.
 
         Args:
             schema: Schema of the model. Typically created using [Schema.from_df][nannyml_cloud_sdk.Schema.from_df].
-            chunk_period: Period of time to aggregate data into chunks.
             reference_data: Reference data to use for the model.
             analysis_data: Analysis data to use for the model. If the data contains targets, targets must always be
                 provided together with analysis data.
@@ -199,10 +199,15 @@ class Model:
             name: Optional name for the model. If not provided, a name will be generated.
             main_performance_metric: Optional main performance metric for the model. If not provided, no performance
                 metric will be tagged as main.
+            chunk_period: Time period per chunk. Should only be set for time-based chunking.
+            chunk_size: Number of rows per chunk. Should only be set for size-based chunking.
 
         Returns:
             Detailed about the model once it has been created.
         """
+        if chunk_period is None and chunk_size is None:
+            raise ValueError("`chunk_size` or `chunk_period` must be provided when creating a model")
+
         data_sources = [
             {
                 'name': 'reference',
@@ -238,7 +243,8 @@ class Model:
             'input': {
                 'name': name,
                 'problemType': schema['problemType'],
-                'chunkAggregation': chunk_period,
+                'chunkAggregation': chunk_period if chunk_period is not None else 'NUMBER_OF_ROWS',
+                'numberOfRows': chunk_size,
                 'dataSources': data_sources,
                 'mainPerformanceMetric': main_performance_metric,
             },
