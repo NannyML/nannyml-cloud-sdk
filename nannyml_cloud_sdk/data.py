@@ -1,6 +1,7 @@
 import datetime
 import io
-from typing import Any, Optional, TypedDict
+from typing import Any, Optional, Dict, List
+from typing_extensions import TypedDict
 
 import pandas as pd
 from gql import gql
@@ -17,7 +18,7 @@ class StorageInfoRaw(TypedDict):
         options: Additional options for the storage backend.
     """
     connectionString: str
-    options: dict[str, Any]
+    options: Dict[str, Any]
 
 
 class StorageInfoAzureBlob(TypedDict):
@@ -109,7 +110,7 @@ class DataSourceSummary(TypedDict):
 
 
 class DataSourceDetails(DataSourceSummary):
-    columns: list[ColumnDetails]
+    columns: List[ColumnDetails]
 
 
 class DataSourceFilter(TypedDict, total=False):

@@ -1,5 +1,4 @@
-from collections.abc import Collection
-from typing import Dict, List, Literal, Optional, TypedDict, Union, cast, overload
+from typing import Dict, List, Literal, Optional, TypedDict, Union, cast, overload, Collection
 
 from gql import gql
 import pandas as pd

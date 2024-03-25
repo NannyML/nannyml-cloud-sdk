@@ -428,8 +428,8 @@ class Model:
             'dataSourceFilter': {'name': 'target'},
         })['model']['dataSources'][0]['events']
 
-    @functools.lru_cache(maxsize=128)
     @staticmethod
+    @functools.lru_cache(maxsize=128)
     def _get_model_data_sources(model_id: str, filter: Optional[DataSourceFilter] = None) -> List[DataSourceSummary]:
         """Get data sources for a model"""
         return execute(_GET_MODEL_DATA_SOURCES, {
