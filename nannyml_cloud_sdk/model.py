@@ -12,7 +12,7 @@ from .data import (
 )
 from .enums import ChunkPeriod, PerformanceMetric, ProblemType
 from .errors import InvalidOperationError
-from .run import RUN_SUMMARY_FRAGMENT, RunSummary
+from .monitoring_run import RUN_SUMMARY_FRAGMENT, MonitoringRunSummary
 from .schema import ModelSchema, normalize
 from ._typing import TypedDict
 
@@ -41,8 +41,8 @@ class ModelDetails(ModelSummary):
         nextRun: The next run scheduled for the model. This is ``None`` if there is a run currently active.
     """
 
-    latestRun: Optional[RunSummary]
-    nextRun: Optional[RunSummary]
+    latestRun: Optional[MonitoringRunSummary]
+    nextRun: Optional[MonitoringRunSummary]
 
 
 _MODEL_SUMMARY_FRAGMENT = f"""

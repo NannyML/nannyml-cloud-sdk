@@ -103,5 +103,5 @@ delayed_ground_truth = pd.DataFrame()
 nml_sdk.Model.add_analysis_target_data(model['id'], delayed_ground_truth)
 
 # Trigger analysis of the new data
-nml_sdk.Run.trigger(model['id'])
+nml_sdk.MonitoringRun.trigger(model['id'])
 ```

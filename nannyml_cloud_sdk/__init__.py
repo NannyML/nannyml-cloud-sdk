@@ -1,5 +1,5 @@
 from .model import Model
-from .run import Run
+from .run import MonitoringRun
 from .schema import Schema
 
 
@@ -9,6 +9,6 @@ url: str = ""
 
 __all__ = [
     'Model',
-    'Run',
+    'MonitoringRun',
     'Schema',
 ]

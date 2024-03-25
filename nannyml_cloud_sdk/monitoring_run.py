@@ -8,7 +8,7 @@ from .enums import RunState
 from ._typing import TypedDict
 
 
-class RunSummary(TypedDict):
+class MonitoringRunSummary(TypedDict):
     """Summary information for NannyML analysis of a model, a `run`.
 
     Attributes:
@@ -29,7 +29,7 @@ class RunSummary(TypedDict):
 
 RUN_SUMMARY_FRAGMENT = f"""
     fragment RunSummary on Run {{
-        {' '.join(RunSummary.__required_keys__)}
+        {' '.join(MonitoringRunSummary.__required_keys__)}
     }}
 """
 
@@ -42,11 +42,11 @@ _START_RUN = gql("""
 """ + RUN_SUMMARY_FRAGMENT)
 
 
-class Run:
+class MonitoringRun:
     """Operations for running NannyML model analysis."""
 
     @classmethod
-    def trigger(cls, model_id: str) -> RunSummary:
+    def trigger(cls, model_id: str) -> MonitoringRunSummary:
         """Trigger analysis of new data for a model.
 
         This method starts analysis for a model. The run is scheduled to start immediately, but the function returns
