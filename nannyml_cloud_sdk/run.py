@@ -35,7 +35,7 @@ RUN_SUMMARY_FRAGMENT = f"""
 
 _START_RUN = gql("""
     mutation startRun($modelId: Int!) {
-        start_model_run(modelId: $modelId) {
+        start_monitoring_model_run(modelId: $modelId) {
             ...RunSummary
         }
     }
@@ -58,4 +58,4 @@ class Run:
         Returns:
             Summary information for the newly started run.
         """
-        return execute(_START_RUN, {"modelId": int(model_id)})["start_model_run"]
+        return execute(_START_RUN, {"modelId": int(model_id)})["start_monitoring_model_run"]
