@@ -396,7 +396,7 @@ class Model:
         return execute(_GET_MODEL_DATA_HISTORY, {
             'modelId': int(model_id),
             'dataSourceFilter': {'name': 'reference'},
-        })['model']['dataSources'][0]['events']
+        })['monitoring_model']['dataSources'][0]['events']
 
     @classmethod
     def get_analysis_data_history(cls, model_id: str) -> List[DataSourceEvent]:
@@ -411,7 +411,7 @@ class Model:
         return execute(_GET_MODEL_DATA_HISTORY, {
             'modelId': int(model_id),
             'dataSourceFilter': {'name': 'analysis'},
-        })['model']['dataSources'][0]['events']
+        })['monitoring_model']['dataSources'][0]['events']
 
     @classmethod
     def get_analysis_target_data_history(cls, model_id: str) -> List[DataSourceEvent]:
@@ -426,7 +426,7 @@ class Model:
         return execute(_GET_MODEL_DATA_HISTORY, {
             'modelId': int(model_id),
             'dataSourceFilter': {'name': 'target'},
-        })['model']['dataSources'][0]['events']
+        })['monitoring_model']['dataSources'][0]['events']
 
     @functools.lru_cache(maxsize=128)
     @staticmethod
@@ -435,7 +435,7 @@ class Model:
         return execute(_GET_MODEL_DATA_SOURCES, {
             'modelId': int(model_id),
             'filter': filter,
-        })['model']['dataSources']
+        })['monitoring_model']['dataSources']
 
     @classmethod
     def _get_target_data_source(cls, model_id: str) -> DataSourceSummary:
