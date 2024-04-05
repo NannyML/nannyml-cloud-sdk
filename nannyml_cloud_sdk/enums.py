@@ -1,12 +1,21 @@
 from typing import Literal
 
 
+ProductType = Literal[
+    'MONITORING',
+    'EVALUATION',
+    'EXPERIMENT',
+]
+"""Product modules of NannyML Cloud"""
+
+
 ProblemType = Literal[
     'BINARY_CLASSIFICATION',
     'MULTICLASS_CLASSIFICATION',
     'REGRESSION',
 ]
 """Problem types supported by NannyML Cloud."""
+
 
 FeatureType = Literal['CONTINUOUS', 'CATEGORY']
 """Feature types supported by NannyML Cloud."""
