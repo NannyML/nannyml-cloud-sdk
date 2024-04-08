@@ -6,15 +6,15 @@ import pandas as pd
 from frozendict import frozendict
 from gql import gql
 
-from .client import execute
-from .data import (
+from ..client import execute
+from ..data import (
     DATA_SOURCE_EVENT_FRAGMENT, DATA_SOURCE_SUMMARY_FRAGMENT, Data, DataSourceEvent, DataSourceFilter, DataSourceSummary
 )
-from .enums import ChunkPeriod, PerformanceMetric, ProblemType
-from .errors import InvalidOperationError
+from ..enums import ChunkPeriod, PerformanceMetric, ProblemType
+from ..errors import InvalidOperationError
 from .run import RUN_SUMMARY_FRAGMENT, RunSummary
 from .schema import ModelSchema, normalize
-from ._typing import TypedDict
+from .._typing import TypedDict
 
 
 class ModelSummary(TypedDict):
