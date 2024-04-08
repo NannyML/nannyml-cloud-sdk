@@ -6,4 +6,5 @@ __all__ = [
     "Model",
     "MetricConfiguration",
     "Schema",
+    "Run",
 ]

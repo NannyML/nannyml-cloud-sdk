@@ -1,6 +1,6 @@
 import datetime
 import functools
-from typing import Optional, List, Dict, Type
+from typing import Optional, List, Dict
 
 import pandas as pd
 from frozendict import frozendict
@@ -10,7 +10,7 @@ from nannyml_cloud_sdk._typing import TypedDict
 from nannyml_cloud_sdk.client import execute
 from nannyml_cloud_sdk.data import DATA_SOURCE_SUMMARY_FRAGMENT, DATA_SOURCE_EVENT_FRAGMENT, Data, DataSourceSummary, \
     DataSourceFilter, DataSourceEvent
-from nannyml_cloud_sdk.enums import ProblemType, PerformanceMetric, ChunkPeriod
+from nannyml_cloud_sdk.enums import ProblemType, PerformanceMetric
 from nannyml_cloud_sdk.errors import InvalidOperationError
 from nannyml_cloud_sdk.model_evaluation.enums import HypothesisType
 from nannyml_cloud_sdk.model_evaluation.run import RunSummary, RUN_SUMMARY_FRAGMENT
@@ -305,7 +305,7 @@ class Model:
             If you are certain you are only adding new data, it is recommended to use
             [add_analysis_data][nannyml_cloud_sdk.Model.add_analysis_data] instead for better performance.
         """
-        evaluation_data_source, = cls._get_evaluation_data_source(model_id)
+        evaluation_data_source = cls._get_evaluation_data_source(model_id)
         execute(_UPSERT_DATA_IN_DATA_SOURCE, {
             'input': {
                 'id': int(evaluation_data_source['id']),

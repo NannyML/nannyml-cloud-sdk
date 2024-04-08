@@ -29,6 +29,10 @@ ColumnType = Literal[
     'CONTINUOUS_FEATURE',
     'IGNORED',
     'IDENTIFIER',
+    'METRIC_NAME',
+    'GROUP_NAME',
+    'SUCCESS_COUNT',
+    'FAIL_COUNT',
 ]
 """Schema column types defined by NannyML Cloud."""
 

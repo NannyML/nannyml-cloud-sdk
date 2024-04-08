@@ -1,17 +1,16 @@
-from typing import List, Optional, Dict, Union, Collection, cast
+from typing import List, Optional, Union, Collection
 
 import pandas as pd
 
 from .._typing import TypedDict
 from ..client import execute
 from ..data import ColumnDetails, Data
-from ..enums import ProblemType, ColumnType
+from ..enums import ColumnType
 from ..schema import INSPECT_SCHEMA, normalize
 
 
-class ModelSchema(TypedDict):
+class ExperimentSchema(TypedDict):
     """Schema for a machine learning model."""
-    problemType: ProblemType
     columns: List[ColumnDetails]
 
 
@@ -24,20 +23,20 @@ class Schema:
     @classmethod
     def from_df(
         cls,
-        problem_type: ProblemType,
         df: pd.DataFrame,
-        target_column_name: Optional[str] = None,
-        prediction_score_column_name_or_mapping: Optional[Union[str, Dict[str, str]]] = None,
+        metric_column_name: Optional[str] = None,
+        group_column_name: Optional[str] = None,
+        success_count_column_name: Optional[str] = None,
+        fail_count_column_name: Optional[str] = None,
         identifier_column_name: Optional[str] = None,
         ignore_column_names: Union[str, Collection[str]] = (),
-    ) -> ModelSchema:
+    ) -> ExperimentSchema:
         """Create a schema from a pandas dataframe.
 
         Sends a sample of the dataframe to the NannyML Cloud API to inspect the schema. Heuristics are used to identify
         what each column represents. The schema is then modified according to the provided arguments.
 
         Args:
-            problem_type: The problem type of the model.
             df: The pandas dataframe to create a schema from.
             target_column_name: The name of the target column. Any column that heuristics identified as target will be
                 changed to a feature column.
@@ -54,27 +53,25 @@ class Schema:
         Returns:
             The inspected schema with any modifications applied.
         """
-        if problem_type in ('MULTICLASS_CLASSIFICATION', 'REGRESSION'):
-            raise NotImplementedError(f"problem_type '{problem_type}' is not supported yet.")
-
         # Upload head of dataset than use API to inspect schema
         upload = Data.upload(df.head(cls.INSPECT_DATA_FRAME_NR_ROWS))
         schema = execute(INSPECT_SCHEMA, variable_values={
             "input": {
-                "productType": 'EVALUATION',
-                "problemType": problem_type,
+                "productType": 'EXPERIMENT',
                 "storageInfo": upload,
             },
         })['inspect_dataset']
 
-        # Problem type isn't included in API output, so we add it here
-        schema['problemType'] = problem_type
-
         # Apply overrides
-        if target_column_name is not None:
-            schema = cls.set_target(schema, target_column_name)
-        if prediction_score_column_name_or_mapping is not None:
-            schema = cls.set_prediction_score(schema, prediction_score_column_name_or_mapping)
+
+        if metric_column_name is not None:
+            schema = cls.set_metric_name(schema, metric_column_name)
+        if group_column_name is not None:
+            schema = cls.set_group_name(schema, group_column_name)
+        if success_count_column_name is not None:
+            schema = cls.set_success_count(schema, success_count_column_name)
+        if fail_count_column_name is not None:
+            schema = cls.set_fail_count(schema, fail_count_column_name)
         if identifier_column_name is not None:
             schema = cls.set_identifier(schema, identifier_column_name)
         schema = cls.set_ignored(schema, ignore_column_names)
@@ -82,69 +79,51 @@ class Schema:
         return schema
 
     @classmethod
-    def set_target(cls, schema: ModelSchema, column_name: str) -> ModelSchema:
-        """Set the target column in a schema.
+    def set_metric_name(cls, schema: ExperimentSchema, column_name: str) -> ExperimentSchema:
+        """Set the metric name column in a schema.
 
         Args:
             schema: The schema to modify.
-            column_name: The name of the target column. Any column that was previously set as target will be changed to
-                a feature column.
-
-        Returns:
-            The modified schema.
+            column_name: The name of the metric name column. Any column that was previously set as the metric column
+                will be changed to an ignored column.
         """
-        column_name = normalize(column_name)
-        for column in schema['columns']:
-            if column['name'] == column_name:
-                column['columnType'] = 'TARGET'
-            elif column['columnType'] == 'TARGET':
-                column['columnType'] = cls._guess_feature_type(column)
-
-        return schema
+        return _override_column_in_schema(column_name, 'METRIC_NAME', schema)
 
     @classmethod
-    def set_prediction_score(
-        cls, schema: ModelSchema, column_name_or_mapping: Union[str, Dict[str, str]]
-    ) -> ModelSchema:
-        """Set the prediction score column(s) in a schema.
-
-        Binary classification and regression problems require a single prediction score column.
-        Multiclass classification problems require a dictionary mapping class names to prediction score columns, e.g.
-        `{'class_1': 'prediction_score_1', 'class_2': 'prediction_score_2'}`.
+    def set_group_name(cls, schema: ExperimentSchema, column_name: str) -> ExperimentSchema:
+        """Set the group name column in a schema.
 
         Args:
             schema: The schema to modify.
-            column_name_or_mapping: The name of the prediction score column or a dictionary mapping class names to
-                prediction score column names. Any existing prediction score columns will be changed to feature columns.
-
-        Returns:
-            The modified schema.
+            column_name: The name of the group name column. Any column that was previously set as the metric column
+                will be changed to an ignored column.
         """
-        if isinstance(column_name_or_mapping, str):
-            if schema['problemType'] == 'MULTICLASS_CLASSIFICATION':
-                raise ValueError('Must specify a dictionary of prediction score columns for multiclass classification')
-            column_name_or_mapping = {normalize(column_name_or_mapping): cast(str, None)}
-        elif schema['problemType'] != 'MULTICLASS_CLASSIFICATION':
-            raise ValueError(
-                'Must specify a single prediction score column name for binary classification and regression'
-            )
-        else:
-            column_name_or_mapping = {
-                normalize(column_name): class_name for (class_name, column_name) in column_name_or_mapping.items()
-            }
-
-        for column in schema['columns']:
-            if column['name'] in column_name_or_mapping:
-                column['columnType'] = 'PREDICTION_SCORE'
-                column['className'] = column_name_or_mapping[column['name']]
-            elif column['columnType'] == 'PREDICTION_SCORE':
-                column['columnType'] = cls._guess_feature_type(column)
-                column['className'] = None
-
-        return schema
+        return _override_column_in_schema(column_name, 'GROUP_NAME', schema)
 
     @classmethod
-    def set_ignored(cls, schema: ModelSchema, column_names: Union[str, Collection[str]]) -> ModelSchema:
+    def set_success_count(cls, schema: ExperimentSchema, column_name: str) -> ExperimentSchema:
+        """Set the success count column in a schema.
+
+        Args:
+            schema: The schema to modify.
+            column_name: The name of the success column. Any column that was previously set as the metric column
+                will be changed to an ignored column.
+        """
+        return _override_column_in_schema(column_name, 'SUCCESS_COUNT', schema)
+
+    @classmethod
+    def set_fail_count(cls, schema: ExperimentSchema, column_name: str) -> ExperimentSchema:
+        """Set the fail count column in a schema.
+
+        Args:
+            schema: The schema to modify.
+            column_name: The name of the fail count column. Any column that was previously set as the metric column
+                will be changed to an ignored column.
+        """
+        return _override_column_in_schema(column_name, 'FAIL_COUNT', schema)
+
+    @classmethod
+    def set_ignored(cls, schema: ExperimentSchema, column_names: Union[str, Collection[str]]) -> ExperimentSchema:
         """Set one or more columns to be ignored.
 
         Args:
@@ -165,7 +144,7 @@ class Schema:
         return schema
 
     @classmethod
-    def set_identifier(cls, schema: ModelSchema, column_name: str) -> ModelSchema:
+    def set_identifier(cls, schema: ExperimentSchema, column_name: str) -> ExperimentSchema:
         """Set the identifier column in a schema.
 
         Args:
@@ -188,7 +167,23 @@ class Schema:
     @classmethod
     def _guess_feature_type(cls, column: ColumnDetails) -> ColumnType:
         """Guess feature type from column details."""
-        return (
-            'CATEGORICAL_FEATURE' if column['dataType'] in cls.CATEGORICAL_DTYPES
-            else 'CONTINUOUS_FEATURE'
-        )
+        return 'IGNORED'
+
+
+def _override_column_in_schema(
+        column_name: str,
+        column_type: ColumnType,
+        schema: ExperimentSchema,
+        is_exclusive_type: bool = True,
+        overridden_type: ColumnType = 'IGNORED'
+):
+    """Updates the Schema given that a certain column was marked as having a certain column type."""
+
+    column_name = normalize(column_name)
+    for column in schema['columns']:
+        if column['name'] == column_name:
+            column['columnType'] = column_type
+        elif column['columnType'] == column_type and is_exclusive_type:
+            column['columnType'] = overridden_type
+
+    return schema

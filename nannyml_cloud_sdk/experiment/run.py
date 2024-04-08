@@ -28,15 +28,15 @@ class RunSummary(TypedDict):
 
 
 RUN_SUMMARY_FRAGMENT = f"""
-    fragment RunSummary on EvaluationRun {{
+    fragment RunSummary on ExperimentRun {{
         {' '.join(RunSummary.__required_keys__)}
     }}
 """
 
 
 _START_RUN = gql("""
-    mutation startRun($modelId: Int!) {
-        start_evaluation_model_run(evaluationModelId: $modelId) {
+    mutation startRun($experimentId: Int!) {
+        start_experiment_run(experimentId: $experimentId) {
             ...RunSummary
         }
     }
@@ -47,16 +47,16 @@ class Run:
     """Operations for running NannyML model analysis."""
 
     @classmethod
-    def trigger(cls, model_id: str) -> RunSummary:
+    def trigger(cls, experiment_id: str) -> RunSummary:
         """Trigger analysis of new data for a model.
 
         This method starts analysis for a model. The run is scheduled to start immediately, but the function returns
         before the run has started. The returned summary information can be used to track the progress of the run.
 
         Args:
-            model_id: The ID of the model to run.
+            experiment_id: The ID of the model to run.
 
         Returns:
             Summary information for the newly started run.
         """
-        return execute(_START_RUN, {"modelId": int(model_id)})["start_evaluation_model_run"]
+        return execute(_START_RUN, {"experimentId": int(experiment_id)})["start_experiment_run"]
