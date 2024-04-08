@@ -289,16 +289,16 @@ class Experiment:
             List of events related to reference data for the model.
         """
         return execute(_GET_EXPERIMENT_DATA_HISTORY, {
-            'modelId': int(experiment_id),
+            'experimentId': int(experiment_id),
         })['evaluation_model']['referenceDataSource']['events']
 
     @staticmethod
     @functools.lru_cache(maxsize=128)
     def _get_experiment_data_source(
-            model_id: str, filter: Optional[DataSourceFilter] = None
+            experimentId: str, filter: Optional[DataSourceFilter] = None
     ) -> DataSourceSummary:
         """Get data sources for a model"""
         return execute(_GET_EXPERIMENT_DATA_SOURCES, {
-            'modelId': int(model_id),
+            'experimentId': int(experimentId),
             'filter': filter,
         })['experiment']['dataSource']
