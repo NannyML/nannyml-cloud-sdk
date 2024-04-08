@@ -9,11 +9,11 @@ from ..schema import INSPECT_SCHEMA, normalize, BaseSchema, _override_column_in_
 
 
 class ExperimentSchema(BaseSchema):
-    """Schema for a machine learning model."""
+    """Schema for a machine learning experiment."""
 
 
 class Schema:
-    """Operations for working with machine learning model schemas."""
+    """Operations for working with machine learning experiment schemas."""
 
     INSPECT_DATA_FRAME_NR_ROWS = 100
     CATEGORICAL_DTYPES = ('object', 'str', 'category', 'bool')
@@ -36,14 +36,10 @@ class Schema:
 
         Args:
             df: The pandas dataframe to create a schema from.
-            target_column_name: The name of the target column. Any column that heuristics identified as target will be
-                changed to a feature column.
-            prediction_score_column_name_or_mapping: This parameter accepts two formats depending on problem type.
-
-                - For binary classification and regression, this should be the name of the prediction score column.
-                - For multiclass classification, it should be a dict mapping prediction score column names to class
-                  names, e.g. `{'prediction_score_1': 'class_1', 'prediction_score_2': 'class_2'}`.
-
+            metric_column_name: The name of the column containing the metric names.
+            group_column_name: The name of the column containing the group names for each group.
+            success_count_column_name: The name of the column containing the success count for a metric and group.
+            fail_count_column_name: The name of the column containing the fail count for a metric and group.
             identifier_column_name: The name of the identifier column. Any column that heuristics identified as
                 identifier will be changed to a feature column.
             ignore_column_names: The names of columns to ignore.

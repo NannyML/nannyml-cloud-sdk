@@ -191,7 +191,8 @@ class Model:
         """Create a new model.
 
         Args:
-            schema: Schema of the model. Typically created using [Schema.from_df][nannyml_cloud_sdk.Schema.from_df].
+            schema: Schema of the model. Typically, created using
+                [Schema.from_df][nannyml_cloud_sdk.monitoring.Schema.from_df].
             reference_data: Reference data to use for the model.
             analysis_data: Analysis data to use for the model. If the data contains targets, targets must always be
                 provided together with analysis data.
@@ -269,7 +270,7 @@ class Model:
 
         Note:
             This method does not update existing data. It only adds new data. If you want to update existing data,
-            use [upsert_analysis_data][nannyml_cloud_sdk.Model.upsert_analysis_data] instead.
+            use [upsert_analysis_data][nannyml_cloud_sdk.monitoring.Model.upsert_analysis_data] instead.
         """
         analysis_data_source, = cls._get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
         execute(_ADD_DATA_TO_DATA_SOURCE, {
@@ -288,13 +289,13 @@ class Model:
             data: Data to be added.
 
         Note:
-            This method can only be used if the model has a target data source. If you want to add analysis data to a
-            model without a target data source, use [add_analysis_data][nannyml_cloud_sdk.Model.add_analysis_data]
-            instead.
+            This method can only be used if the model has a target data source.
+            If you want to add analysis data to a model without a target data source, use
+            [add_analysis_data][nannyml_cloud_sdk.monitoring.Model.add_analysis_data] instead.
 
         Note:
             This method does not update existing data. It only adds new data. If you want to update existing data,
-            use [upsert_analysis_target_data][nannyml_cloud_sdk.Model.upsert_analysis_target_data] instead.
+            use [upsert_analysis_target_data][nannyml_cloud_sdk.monitoring.Model.upsert_analysis_target_data] instead.
         """
         target_data_source = cls._get_target_data_source(model_id)
         execute(_ADD_DATA_TO_DATA_SOURCE, {
@@ -315,7 +316,7 @@ class Model:
         Note:
             This method compares existing data with the new data to determine which rows to update and which to add.
             If you are certain you are only adding new data, it is recommended to use
-            [add_analysis_data][nannyml_cloud_sdk.Model.add_analysis_data] instead for better performance.
+            [add_analysis_data][nannyml_cloud_sdk.monitoring.Model.add_analysis_data] instead for better performance.
         """
         analysis_data_source, = cls._get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
         execute(_UPSERT_DATA_IN_DATA_SOURCE, {
@@ -335,13 +336,14 @@ class Model:
 
         Note:
             This method can only be used if the model has a target data source. If you want to update analysis data in a
-            model without a target data source, use [upsert_analysis_data][nannyml_cloud_sdk.Model.upsert_analysis_data]
-            instead.
+            model without a target data source, use
+            [upsert_analysis_data][nannyml_cloud_sdk.monitoring.Model.upsert_analysis_data] instead.
 
         Note:
             This method compares existing data with the new data to determine which rows to update and which to add.
             If you are certain you are only adding new data, it is recommended to use
-            [add_analysis_target_data][nannyml_cloud_sdk.Model.add_analysis_target_data] instead for better performance.
+            [add_analysis_target_data][nannyml_cloud_sdk.monitoring.Model.add_analysis_target_data]
+            instead for better performance.
         """
         target_data_source = cls._get_target_data_source(model_id)
         execute(_UPSERT_DATA_IN_DATA_SOURCE, {

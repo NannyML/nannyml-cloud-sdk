@@ -213,12 +213,18 @@ class Model:
         """Create a new model.
 
         Args:
-            schema: Schema of the model. Typically created using [Schema.from_df][nannyml_cloud_sdk.Schema.from_df].
+            schema: Schema of the model. Typically, created using
+                [Schema.from_df][nannyml_cloud_sdk.model_evaluation.Schema.from_df].
+            hypothesis: The type of hypothesis the model is trying to validate. This can be one of the following:
+                - `MODEL_PERFORMANCE_NO_WORSE_THAN_REFERENCE`: The model's performance is not worse than the reference.
+                - `MODEL_PERFORMANCE_WITHIN_RANGE`: The model's performance is within a specified range.
+            classification_threshold: The threshold used to turn predicted probabilities into binary predictions.
             reference_data: Reference data to use for the model.
             evaluation_data: Analysis data to use for the model. If the data contains targets, targets must always be
                 provided together with analysis data.
+            metrics_configuration: Configuration for each metric to be used in the model.
             name: Optional name for the model. If not provided, a name will be generated.
-            main_performance_metric: Optional main performance metric for the model. If not provided, no performance
+            key_performance_metric: Optional key performance metric for the model. If not provided, no performance
                 metric will be tagged as main.
 
         Returns:
@@ -282,7 +288,7 @@ class Model:
 
         Note:
             This method does not update existing data. It only adds new data. If you want to update existing data,
-            use [upsert_analysis_data][nannyml_cloud_sdk.Model.upsert_analysis_data] instead.
+            use [upsert_evaluation_data][nannyml_cloud_sdk.model_evaluation.Model.upsert_evaluation_data] instead.
         """
         evaluation_data_source = cls._get_evaluation_data_source(model_id)
         execute(_ADD_DATA_TO_DATA_SOURCE, {
@@ -303,7 +309,8 @@ class Model:
         Note:
             This method compares existing data with the new data to determine which rows to update and which to add.
             If you are certain you are only adding new data, it is recommended to use
-            [add_analysis_data][nannyml_cloud_sdk.Model.add_analysis_data] instead for better performance.
+            [add_evaluation_data][nannyml_cloud_sdk.model_evaluation.Model.add_evaluation_data]
+            instead for better performance.
         """
         evaluation_data_source = cls._get_evaluation_data_source(model_id)
         execute(_UPSERT_DATA_IN_DATA_SOURCE, {
