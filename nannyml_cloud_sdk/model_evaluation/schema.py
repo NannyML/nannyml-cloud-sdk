@@ -1,18 +1,16 @@
-from typing import List, Optional, Dict, Union, Collection, cast
+from typing import Optional, Dict, Union, Collection, cast
 
 import pandas as pd
 
-from .._typing import TypedDict
 from ..client import execute
-from ..data import ColumnDetails, Data
-from ..enums import ProblemType, ColumnType
-from ..schema import INSPECT_SCHEMA, normalize
+from ..data import Data
+from ..enums import ProblemType
+from ..schema import INSPECT_SCHEMA, normalize, BaseSchema, _override_column_in_schema
 
 
-class ModelSchema(TypedDict):
+class ModelSchema(BaseSchema):
     """Schema for a machine learning model."""
     problemType: ProblemType
-    columns: List[ColumnDetails]
 
 
 class Schema:
@@ -93,14 +91,8 @@ class Schema:
         Returns:
             The modified schema.
         """
-        column_name = normalize(column_name)
-        for column in schema['columns']:
-            if column['name'] == column_name:
-                column['columnType'] = 'TARGET'
-            elif column['columnType'] == 'TARGET':
-                column['columnType'] = cls._guess_feature_type(column)
 
-        return schema
+        return _override_column_in_schema(column_name, 'TARGET', schema)
 
     @classmethod
     def set_prediction_score(
@@ -138,7 +130,7 @@ class Schema:
                 column['columnType'] = 'PREDICTION_SCORE'
                 column['className'] = column_name_or_mapping[column['name']]
             elif column['columnType'] == 'PREDICTION_SCORE':
-                column['columnType'] = cls._guess_feature_type(column)
+                column['columnType'] = 'IGNORED'
                 column['className'] = None
 
         return schema
@@ -177,18 +169,4 @@ class Schema:
             The modified schema.
         """
         column_name = normalize(column_name)
-        for column in schema['columns']:
-            if column['name'] == column_name:
-                column['columnType'] = 'IDENTIFIER'
-            elif column['columnType'] == 'IDENTIFIER':
-                column['columnType'] = cls._guess_feature_type(column)
-
-        return schema
-
-    @classmethod
-    def _guess_feature_type(cls, column: ColumnDetails) -> ColumnType:
-        """Guess feature type from column details."""
-        return (
-            'CATEGORICAL_FEATURE' if column['dataType'] in cls.CATEGORICAL_DTYPES
-            else 'CONTINUOUS_FEATURE'
-        )
+        return _override_column_in_schema(column_name, 'IDENTIFIER', schema)

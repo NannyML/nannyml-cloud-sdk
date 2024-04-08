@@ -73,7 +73,7 @@ _READ_EXPERIMENT = gql("""
 
 _GET_EXPERIMENT_DATA_SOURCES = gql("""
     query getExperimentDataSources($experimentId: Int!) {
-        experiment(id: $modelId) {
+        experiment(id: $experimentId) {
             dataSource{
               ...DataSourceSummary
             }

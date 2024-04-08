@@ -1,5 +1,6 @@
 import pytest
-from nannyml_cloud_sdk.schema import ModelSchema, Schema, INSPECT_SCHEMA
+from nannyml_cloud_sdk.monitoring.schema import ModelSchema, Schema
+from nannyml_cloud_sdk.schema import INSPECT_SCHEMA
 
 
 def test_inspect_schema_query_matches_api_schema(gql_client):

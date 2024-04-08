@@ -1,17 +1,15 @@
-from typing import List, Optional, Union, Collection
+from typing import Optional, Union, Collection
 
 import pandas as pd
 
-from .._typing import TypedDict
 from ..client import execute
 from ..data import ColumnDetails, Data
 from ..enums import ColumnType
-from ..schema import INSPECT_SCHEMA, normalize
+from ..schema import INSPECT_SCHEMA, normalize, BaseSchema, _override_column_in_schema
 
 
-class ExperimentSchema(TypedDict):
+class ExperimentSchema(BaseSchema):
     """Schema for a machine learning model."""
-    columns: List[ColumnDetails]
 
 
 class Schema:
@@ -168,22 +166,3 @@ class Schema:
     def _guess_feature_type(cls, column: ColumnDetails) -> ColumnType:
         """Guess feature type from column details."""
         return 'IGNORED'
-
-
-def _override_column_in_schema(
-        column_name: str,
-        column_type: ColumnType,
-        schema: ExperimentSchema,
-        is_exclusive_type: bool = True,
-        overridden_type: ColumnType = 'IGNORED'
-):
-    """Updates the Schema given that a certain column was marked as having a certain column type."""
-
-    column_name = normalize(column_name)
-    for column in schema['columns']:
-        if column['name'] == column_name:
-            column['columnType'] = column_type
-        elif column['columnType'] == column_type and is_exclusive_type:
-            column['columnType'] = overridden_type
-
-    return schema

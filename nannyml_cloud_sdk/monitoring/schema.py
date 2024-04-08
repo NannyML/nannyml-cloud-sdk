@@ -1,17 +1,16 @@
-from typing import Dict, List, Literal, Optional, TypedDict, Union, cast, overload, Collection
+from typing import Dict, Literal, Optional, Union, cast, overload, Collection
 
 import pandas as pd
 
 from ..client import execute
 from ..data import ColumnDetails, Data
 from ..enums import ColumnType, FeatureType, ProblemType
-from ..schema import INSPECT_SCHEMA, normalize
+from ..schema import INSPECT_SCHEMA, normalize, BaseSchema
 
 
-class ModelSchema(TypedDict):
+class ModelSchema(BaseSchema):
     """Schema for a machine learning model."""
     problemType: ProblemType
-    columns: List[ColumnDetails]
 
 
 class Schema:
