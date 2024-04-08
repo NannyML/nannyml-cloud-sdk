@@ -65,7 +65,7 @@ _MODEL_DETAILS_FRAGMENT = """
 
 _LIST_MODELS = gql("""
     query listModels($filter: ModelsFilter) {
-        models(filter: $filter) {
+        monitoring_models(filter: $filter) {
             ...ModelSummary
         }
     }
@@ -73,7 +73,7 @@ _LIST_MODELS = gql("""
 
 _READ_MODEL = gql("""
     query readModel($id: Int!) {
-        model(id: $id) {
+        monitoring_model(id: $id) {
             ...ModelDetails
         }
     }
@@ -81,7 +81,7 @@ _READ_MODEL = gql("""
 
 _GET_MODEL_DATA_SOURCES = gql("""
     query getModelDataSources($modelId: Int!, $filter: DataSourcesFilter) {
-        model(id: $modelId) {
+        monitoring_model(id: $modelId) {
             dataSources(filter: $filter) {
                 ...DataSourceSummary
             }
@@ -91,7 +91,7 @@ _GET_MODEL_DATA_SOURCES = gql("""
 
 _GET_MODEL_DATA_HISTORY = gql("""
     query getModelDataHistory($modelId: Int!, $dataSourceFilter: DataSourcesFilter) {
-        model(id: $modelId) {
+        monitoring_model(id: $modelId) {
             dataSources(filter: $dataSourceFilter) {
                 events {
                     ...DataSourceEvent
@@ -104,7 +104,7 @@ _GET_MODEL_DATA_HISTORY = gql("""
 
 _CREATE_MODEL = gql("""
     mutation createModel($input: CreateModelInput!) {
-        create_model(model: $input) {
+        create_monitoring_model(model: $input) {
             ...ModelDetails
         }
     }
@@ -112,7 +112,7 @@ _CREATE_MODEL = gql("""
 
 _DELETE_MODEL = gql("""
     mutation deleteModel($id: Int!) {
-        delete_model(modelId: $id) {
+        delete_monitoring_model(modelId: $id) {
             id
         }
     }
@@ -162,7 +162,7 @@ class Model:
                 'name': name,
                 'problemType': problem_type,
             }
-        })['models']
+        })['monitoring_models']
 
     @classmethod
     def get(cls, model_id: str) -> ModelDetails:
@@ -174,7 +174,7 @@ class Model:
         Returns:
             Detailed information about the model.
         """
-        return execute(_READ_MODEL, {'id': int(model_id)})['model']
+        return execute(_READ_MODEL, {'id': int(model_id)})['monitoring_model']
 
     @classmethod
     def create(
@@ -248,7 +248,7 @@ class Model:
                 'dataSources': data_sources,
                 'mainPerformanceMetric': main_performance_metric,
             },
-        })['create_model']
+        })['create_monitoring_model']
 
     @classmethod
     def delete(cls, model_id: str) -> None:
@@ -396,7 +396,7 @@ class Model:
         return execute(_GET_MODEL_DATA_HISTORY, {
             'modelId': int(model_id),
             'dataSourceFilter': {'name': 'reference'},
-        })['model']['dataSources'][0]['events']
+        })['monitoring_model']['dataSources'][0]['events']
 
     @classmethod
     def get_analysis_data_history(cls, model_id: str) -> List[DataSourceEvent]:
@@ -411,7 +411,7 @@ class Model:
         return execute(_GET_MODEL_DATA_HISTORY, {
             'modelId': int(model_id),
             'dataSourceFilter': {'name': 'analysis'},
-        })['model']['dataSources'][0]['events']
+        })['monitoring_model']['dataSources'][0]['events']
 
     @classmethod
     def get_analysis_target_data_history(cls, model_id: str) -> List[DataSourceEvent]:
@@ -426,7 +426,7 @@ class Model:
         return execute(_GET_MODEL_DATA_HISTORY, {
             'modelId': int(model_id),
             'dataSourceFilter': {'name': 'target'},
-        })['model']['dataSources'][0]['events']
+        })['monitoring_model']['dataSources'][0]['events']
 
     @staticmethod
     @functools.lru_cache(maxsize=128)
@@ -435,7 +435,7 @@ class Model:
         return execute(_GET_MODEL_DATA_SOURCES, {
             'modelId': int(model_id),
             'filter': filter,
-        })['model']['dataSources']
+        })['monitoring_model']['dataSources']
 
     @classmethod
     def _get_target_data_source(cls, model_id: str) -> DataSourceSummary:
