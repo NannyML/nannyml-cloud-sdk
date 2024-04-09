@@ -196,8 +196,7 @@ nml_sdk.model_evaluation.Run.trigger(model['id'])
 
 This snippet provides an example of how you can set up an A/B-testing experiment in NannyML Cloud.
 
-You can configure each of the available metrics by providing an optional value for ROPE and HDI width.
-If a `None` is provided, NannyML will calculate a sensible default during the first evaluation run.
+You can configure each of the available metrics by providing a value for ROPE and HDI width.
 
 ```python
 import nannyml_cloud_sdk as nml_sdk
