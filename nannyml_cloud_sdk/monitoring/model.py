@@ -156,11 +156,11 @@ class Model:
     @classmethod
     def create(
         cls,
+        name: str,
         schema: ModelSchema,
         reference_data: pd.DataFrame,
         analysis_data: pd.DataFrame,
         target_data: Optional[pd.DataFrame] = None,
-        name: Optional[str] = None,
         main_performance_metric: Optional[PerformanceMetric] = None,
         chunk_period: Optional[ChunkPeriod] = None,
         chunk_size: Optional[int] = None,
@@ -168,13 +168,13 @@ class Model:
         """Create a new model.
 
         Args:
+            name: Name for the model.
             schema: Schema of the model. Typically, created using
                 [Schema.from_df][nannyml_cloud_sdk.monitoring.Schema.from_df].
             reference_data: Reference data to use for the model.
             analysis_data: Analysis data to use for the model. If the data contains targets, targets must always be
                 provided together with analysis data.
             target_data: Optional target data to use for the model.
-            name: Optional name for the model. If not provided, a name will be generated.
             main_performance_metric: Optional main performance metric for the model. If not provided, no performance
                 metric will be tagged as main.
             chunk_period: Time period per chunk. Should only be set for time-based chunking.

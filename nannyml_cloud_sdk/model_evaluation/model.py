@@ -39,11 +39,9 @@ class ModelDetails(ModelSummary):
     Attributes:
         latestRun: The currently active run or latest run performed for the model. This is ``None`` if no runs have been
             performed yet.
-        nextRun: The next run scheduled for the model. This is ``None`` if there is a run currently active.
     """
 
     latestRun: Optional[RunSummary]
-    nextRun: Optional[RunSummary]
 
 
 _MODEL_SUMMARY_FRAGMENT = f"""
@@ -177,18 +175,19 @@ class Model:
     @classmethod
     def create(
             cls,
+            name: str,
             schema: ModelSchema,
             reference_data: pd.DataFrame,
             hypothesis: HypothesisType,
             classification_threshold: float,
             metrics_configuration: Dict[PerformanceMetric, MetricConfiguration],
+            key_performance_metric: PerformanceMetric,
             evaluation_data: Optional[pd.DataFrame] = None,
-            name: Optional[str] = None,
-            key_performance_metric: Optional[PerformanceMetric] = None,
     ) -> ModelDetails:
         """Create a new model.
 
         Args:
+            name: Name for the model.
             schema: Schema of the model. Typically, created using
                 [Schema.from_df][nannyml_cloud_sdk.model_evaluation.Schema.from_df].
             hypothesis: The type of hypothesis the model is trying to validate. This can be one of the following:
@@ -199,9 +198,7 @@ class Model:
             evaluation_data: Analysis data to use for the model. If the data contains targets, targets must always be
                 provided together with analysis data.
             metrics_configuration: Configuration for each metric to be used in the model.
-            name: Optional name for the model. If not provided, a name will be generated.
-            key_performance_metric: Optional key performance metric for the model. If not provided, no performance
-                metric will be tagged as main.
+            key_performance_metric:  Key performance metric for the model.
 
         Returns:
             Detailed about the model once it has been created.
@@ -343,6 +340,5 @@ class Model:
             return data_sources['evaluationDataSource']
         except IndexError:
             raise InvalidOperationError(
-                f"Model '{model_id}' has no target data source. If targets are present, they are stored in the "
-                "analysis data source. Use `delete_analysis_data` instead."
+                f"Model '{model_id}' has no evaluation data source."
             )

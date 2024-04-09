@@ -155,22 +155,22 @@ class Experiment:
     @classmethod
     def create(
             cls,
+            name: str,
             schema: ExperimentSchema,
             experiment_data: pd.DataFrame,
             experiment_type: ExperimentType,
             metrics_configuration: Dict[str, MetricConfiguration],
-            name: Optional[str] = None,
             key_experiment_metric: Optional[str] = None,
     ) -> ExperimentDetails:
         """Create a new experiment.
 
         Args:
+            name: Name for the experiment.
             schema: Schema of the experiment. Typically, created using
                 [Schema.from_df][nannyml_cloud_sdk.experiment.Schema.from_df].
             experiment_data: Data to be used for the experiment.
             experiment_type: Type of the experiment.
             metrics_configuration: Configuration for each metric to be used in the experiment.
-            name: Optional name for the experiment. If not provided, a name will be generated.
             key_experiment_metric: Optional metric to be used as the key experiment metric.
 
         Returns:
@@ -270,11 +270,8 @@ class Experiment:
 
     @staticmethod
     @functools.lru_cache(maxsize=128)
-    def _get_experiment_data_source(
-            experimentId: str, filter: Optional[DataSourceFilter] = None
-    ) -> DataSourceSummary:
+    def _get_experiment_data_source(experimentId: str) -> DataSourceSummary:
         """Get data sources for a model"""
         return execute(_GET_EXPERIMENT_DATA_SOURCES, {
             'experimentId': int(experimentId),
-            'filter': filter,
         })['experiment']['dataSource']
