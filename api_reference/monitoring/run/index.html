@@ -9,18 +9,22 @@
       
       
       
+        <link rel="prev" href="../model/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+        <link rel="next" href="../schema/">
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.8">
     
     
       
-        <title>Summary - NannyML Cloud SDK - API Reference</title>
+        <title>run - NannyML Cloud SDK - API Reference</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.4b4a2bd9.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.4b4a2bd9.min.css">
       
       
 
@@ -39,9 +43,9 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -62,6 +66,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#nannyml_cloud_sdk.monitoring.run" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -74,7 +83,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="NannyML Cloud SDK - API Reference" class="md-header__button md-logo" aria-label="NannyML Cloud SDK - API Reference" data-md-component="logo">
+    <a href="../../.." title="NannyML Cloud SDK - API Reference" class="md-header__button md-logo" aria-label="NannyML Cloud SDK - API Reference" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -94,7 +103,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Summary
+              run
             
           </span>
         </div>
@@ -166,7 +175,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="NannyML Cloud SDK - API Reference" class="md-nav__button md-logo" aria-label="NannyML Cloud SDK - API Reference" data-md-component="logo">
+    <a href="../../.." title="NannyML Cloud SDK - API Reference" class="md-nav__button md-logo" aria-label="NannyML Cloud SDK - API Reference" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -183,7 +192,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -200,18 +209,20 @@
       
   
   
+    
+  
   
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -225,7 +236,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             API Reference
@@ -238,7 +249,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../client/" class="md-nav__link">
+      <a href="../../client/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -258,7 +269,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../data/" class="md-nav__link">
+      <a href="../../data/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -278,7 +289,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../enums/" class="md-nav__link">
+      <a href="../../enums/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -298,7 +309,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../errors/" class="md-nav__link">
+      <a href="../../errors/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -354,7 +365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../experiment/enums/" class="md-nav__link">
+      <a href="../../experiment/enums/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -374,7 +385,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../experiment/experiment/" class="md-nav__link">
+      <a href="../../experiment/experiment/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -394,7 +405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../experiment/run/" class="md-nav__link">
+      <a href="../../experiment/run/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -414,7 +425,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../experiment/schema/" class="md-nav__link">
+      <a href="../../experiment/schema/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -478,7 +489,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../model_evaluation/enums/" class="md-nav__link">
+      <a href="../../model_evaluation/enums/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -498,7 +509,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../model_evaluation/model/" class="md-nav__link">
+      <a href="../../model_evaluation/model/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -518,7 +529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../model_evaluation/run/" class="md-nav__link">
+      <a href="../../model_evaluation/run/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -538,7 +549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../model_evaluation/schema/" class="md-nav__link">
+      <a href="../../model_evaluation/schema/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -564,18 +575,20 @@
                 
   
   
+    
+  
   
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_7" checked>
         
           
           <label class="md-nav__link" for="__nav_2_7" id="__nav_2_7_label" tabindex="0">
@@ -589,7 +602,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_7_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_7_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_7">
             <span class="md-nav__icon md-icon"></span>
             monitoring
@@ -602,7 +615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../monitoring/model/" class="md-nav__link">
+      <a href="../model/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -620,9 +633,27 @@
                 
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../monitoring/run/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    run
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -631,6 +662,58 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.monitoring.run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.monitoring.run.Run" class="md-nav__link">
+    Run
+  </a>
+  
+    <nav class="md-nav" aria-label="Run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.monitoring.run.Run.trigger" class="md-nav__link">
+    trigger()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.monitoring.run.RunSummary" class="md-nav__link">
+    RunSummary
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -642,7 +725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../monitoring/schema/" class="md-nav__link">
+      <a href="../schema/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -670,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../schema/" class="md-nav__link">
+      <a href="../../schema/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -709,6 +792,48 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.monitoring.run" class="md-nav__link">
+    run
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.monitoring.run.Run" class="md-nav__link">
+    Run
+  </a>
+  
+    <nav class="md-nav" aria-label="Run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.monitoring.run.Run.trigger" class="md-nav__link">
+    trigger()
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.monitoring.run.RunSummary" class="md-nav__link">
+    RunSummary
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -722,35 +847,275 @@
                   
 
 
-  <h1>Summary</h1>
+  <h1>run</h1>
 
-<ul>
-<li><a href="../client/">client</a></li>
-<li><a href="../data/">data</a></li>
-<li><a href="../enums/">enums</a></li>
-<li><a href="../errors/">errors</a></li>
-<li>experiment<ul>
-<li><a href="../experiment/enums/">enums</a></li>
-<li><a href="../experiment/experiment/">experiment</a></li>
-<li><a href="../experiment/run/">run</a></li>
-<li><a href="../experiment/schema/">schema</a></li>
-</ul>
-</li>
-<li>model_evaluation<ul>
-<li><a href="../model_evaluation/enums/">enums</a></li>
-<li><a href="../model_evaluation/model/">model</a></li>
-<li><a href="../model_evaluation/run/">run</a></li>
-<li><a href="../model_evaluation/schema/">schema</a></li>
-</ul>
-</li>
-<li>monitoring<ul>
-<li><a href="../monitoring/model/">model</a></li>
-<li><a href="../monitoring/run/">run</a></li>
-<li><a href="../monitoring/schema/">schema</a></li>
-</ul>
-</li>
-<li><a href="../schema/">schema</a></li>
-</ul>
+<div class="doc doc-object doc-module">
+
+
+
+<a id="nannyml_cloud_sdk.monitoring.run"></a>
+  <div class="doc doc-contents first">
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="nannyml_cloud_sdk.monitoring.run.Run" class="doc doc-heading">
+          <span class="doc doc-object-name doc-class-name">Run</span>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+
+  
+      <p>Operations for running NannyML model analysis.</p>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+
+
+<h3 id="nannyml_cloud_sdk.monitoring.run.Run.trigger" class="doc doc-heading">
+          <span class="doc doc-object-name doc-function-name">trigger</span>
+
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h3>
+<div class="doc-signature highlight"><pre><span></span><code><span class="n">trigger</span><span class="p">(</span><span class="n">model_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RunSummary</span>
+</code></pre></div>
+
+  <div class="doc doc-contents ">
+  
+      <p>Trigger analysis of new data for a model.</p>
+<p>This method starts analysis for a model. The run is scheduled to start immediately, but the function returns
+before the run has started. The returned summary information can be used to track the progress of the run.</p>
+
+
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>model_id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>The ID of the model to run.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.monitoring.run.RunSummary" href="#nannyml_cloud_sdk.monitoring.run.RunSummary">RunSummary</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Summary information for the newly started run.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="nannyml_cloud_sdk.monitoring.run.RunSummary" class="doc doc-heading">
+          <span class="doc doc-object-name doc-class-name">RunSummary</span>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="nannyml_cloud_sdk._typing.TypedDict">TypedDict</span></code></p>
+
+  
+      <p>Summary information for NannyML analysis of a model, a <code>run</code>.</p>
+
+
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>id</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Unique identifier for the run (generated by NannyML Cloud).</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>state</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.enums.RunState" href="../../enums/#nannyml_cloud_sdk.enums.RunState">RunState</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Current state of the run.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>scheduledFor</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Date and time the run was scheduled to start.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>startedAt</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Date and time the run started.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>completedAt</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[<span title="datetime.datetime">datetime</span>]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Date and time the run completed.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>ranSuccessfully</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[bool]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Whether the run completed successfully.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
 
 
 
@@ -789,10 +1154,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.81fa17fe.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.81fa17fe.min.js"></script>
       
     
   </body>
