@@ -143,7 +143,8 @@ schema = nml_sdk.model_evaluation.Schema.from_df(
 
 # Create model
 model = nml_sdk.model_evaluation.Model.create(
-    schema,
+    name='from_sdk',
+    schema=schema,
     reference_data=reference_data,
     evaluation_data=evaluation_data,
     metrics_configuration={
@@ -160,7 +161,6 @@ model = nml_sdk.model_evaluation.Model.create(
             'hdi_width': None
         },
     },
-    name='from_sdk',
     key_performance_metric='F1',
     hypothesis='MODEL_PERFORMANCE_NO_WORSE_THAN_REFERENCE',
     classification_threshold=0.5,
@@ -221,11 +221,11 @@ schema = nml_sdk.experiment.Schema.from_df(df=experiment_data, metric_column_nam
 pprint(schema)
 
 experiment = nml_sdk.experiment.Experiment.create(
+    name='experiment (SDK)',
     schema=schema,
     experiment_type='A_B_TESTING',
     experiment_data=experiment_data,
     key_experiment_metric='renewed',
-    name='experiment (SDK)',
     metrics_configuration={
         metric: {
             "rope_lower_bound": 0.80,
