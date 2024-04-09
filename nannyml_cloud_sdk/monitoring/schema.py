@@ -103,7 +103,7 @@ class Schema:
         upload = Data.upload(df.head(cls.INSPECT_DATA_FRAME_NR_ROWS))
         schema = execute(INSPECT_SCHEMA, variable_values={
             "input": {
-                "productType": 'monitoring',
+                "productType": 'MONITORING',
                 "problemType": problem_type,
                 "storageInfo": upload,
             },
