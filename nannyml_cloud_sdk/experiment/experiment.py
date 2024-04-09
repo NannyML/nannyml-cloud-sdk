@@ -8,7 +8,7 @@ from gql import gql
 from nannyml_cloud_sdk._typing import TypedDict
 from nannyml_cloud_sdk.client import execute
 from nannyml_cloud_sdk.data import DATA_SOURCE_SUMMARY_FRAGMENT, DATA_SOURCE_EVENT_FRAGMENT, Data, DataSourceSummary, \
-    DataSourceFilter, DataSourceEvent, _UPSERT_DATA_IN_DATA_SOURCE, _ADD_DATA_TO_DATA_SOURCE
+    DataSourceEvent, _UPSERT_DATA_IN_DATA_SOURCE, _ADD_DATA_TO_DATA_SOURCE
 from nannyml_cloud_sdk.experiment.enums import ExperimentType
 from nannyml_cloud_sdk.experiment.run import RunSummary, RUN_SUMMARY_FRAGMENT
 from nannyml_cloud_sdk.experiment.schema import ExperimentSchema
