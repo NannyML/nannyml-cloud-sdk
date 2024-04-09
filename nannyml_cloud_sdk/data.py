@@ -166,6 +166,33 @@ _UPLOAD_DATASET = gql("""
 """)
 
 
+# Some common snippets used across product modules
+
+_ADD_DATA_TO_DATA_SOURCE = gql("""
+    mutation addDataToDataSource($input: DataSourceDataInput!) {
+        add_data_to_data_source(input: $input) {
+            id
+        }
+    }
+""")
+
+_UPSERT_DATA_IN_DATA_SOURCE = gql("""
+    mutation updateDataInDataSource($input: DataSourceDataInput!) {
+        upsert_data_in_data_source(input: $input) {
+            id
+        }
+    }
+""")
+
+_REMOVE_DATA_FROM_DATA_SOURCE = gql("""
+    mutation removeDataFromDataSource($input: DataSourceDeleteInput!) {
+        delete_data_from_data_source(input: $input) {
+            id
+        }
+    }
+""")
+
+
 class Data:
     @classmethod
     def upload(cls, df: pd.DataFrame) -> StorageInfo:

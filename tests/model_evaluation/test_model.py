@@ -21,14 +21,6 @@ def test_model_get_model_data_sources_query_matches_api_schema(gql_client):
     gql_client.validate(model._GET_MODEL_DATA_SOURCES)
 
 
-def test_model_add_data_to_data_source_query_matches_api_schema(gql_client):
-    gql_client.validate(model._ADD_DATA_TO_DATA_SOURCE)
-
-
-def test_model_upsert_data_in_data_source_query_matches_api_schema(gql_client):
-    gql_client.validate(model._UPSERT_DATA_IN_DATA_SOURCE)
-
-
 def test_model_get_model_reference_data_history_query_matches_api_schema(gql_client):
     gql_client.validate(model._GET_MODEL_REFERENCE_DATA_HISTORY)
 

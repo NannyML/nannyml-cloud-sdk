@@ -9,7 +9,7 @@ from gql import gql
 from nannyml_cloud_sdk._typing import TypedDict
 from nannyml_cloud_sdk.client import execute
 from nannyml_cloud_sdk.data import DATA_SOURCE_SUMMARY_FRAGMENT, DATA_SOURCE_EVENT_FRAGMENT, Data, DataSourceSummary, \
-    DataSourceFilter, DataSourceEvent
+    DataSourceFilter, DataSourceEvent, _UPSERT_DATA_IN_DATA_SOURCE, _ADD_DATA_TO_DATA_SOURCE
 from nannyml_cloud_sdk.enums import ProblemType, PerformanceMetric
 from nannyml_cloud_sdk.errors import InvalidOperationError
 from nannyml_cloud_sdk.model_evaluation.enums import HypothesisType
@@ -127,30 +127,6 @@ _CREATE_MODEL = gql("""
 _DELETE_MODEL = gql("""
     mutation deleteModel($id: Int!) {
         delete_evaluation_model(evaluationModelId: $id) {
-            id
-        }
-    }
-""")
-
-_ADD_DATA_TO_DATA_SOURCE = gql("""
-    mutation addDataToDataSource($input: DataSourceDataInput!) {
-        add_data_to_data_source(input: $input) {
-            id
-        }
-    }
-""")
-
-_UPSERT_DATA_IN_DATA_SOURCE = gql("""
-    mutation updateDataInDataSource($input: DataSourceDataInput!) {
-        upsert_data_in_data_source(input: $input) {
-            id
-        }
-    }
-""")
-
-_REMOVE_DATA_FROM_DATA_SOURCE = gql("""
-    mutation removeDataFromDataSource($input: DataSourceDeleteInput!) {
-        delete_data_from_data_source(input: $input) {
             id
         }
     }

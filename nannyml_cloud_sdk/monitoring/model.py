@@ -8,7 +8,8 @@ from gql import gql
 
 from ..client import execute
 from ..data import (
-    DATA_SOURCE_EVENT_FRAGMENT, DATA_SOURCE_SUMMARY_FRAGMENT, Data, DataSourceEvent, DataSourceFilter, DataSourceSummary
+    DATA_SOURCE_EVENT_FRAGMENT, DATA_SOURCE_SUMMARY_FRAGMENT, Data, DataSourceEvent, DataSourceFilter,
+    DataSourceSummary, _ADD_DATA_TO_DATA_SOURCE, _UPSERT_DATA_IN_DATA_SOURCE, _REMOVE_DATA_FROM_DATA_SOURCE
 )
 from ..enums import ChunkPeriod, PerformanceMetric, ProblemType
 from ..errors import InvalidOperationError
@@ -113,30 +114,6 @@ _CREATE_MODEL = gql("""
 _DELETE_MODEL = gql("""
     mutation deleteModel($id: Int!) {
         delete_monitoring_model(modelId: $id) {
-            id
-        }
-    }
-""")
-
-_ADD_DATA_TO_DATA_SOURCE = gql("""
-    mutation addDataToDataSource($input: DataSourceDataInput!) {
-        add_data_to_data_source(input: $input) {
-            id
-        }
-    }
-""")
-
-_UPSERT_DATA_IN_DATA_SOURCE = gql("""
-    mutation updateDataInDataSource($input: DataSourceDataInput!) {
-        upsert_data_in_data_source(input: $input) {
-            id
-        }
-    }
-""")
-
-_REMOVE_DATA_FROM_DATA_SOURCE = gql("""
-    mutation removeDataFromDataSource($input: DataSourceDeleteInput!) {
-        delete_data_from_data_source(input: $input) {
             id
         }
     }
