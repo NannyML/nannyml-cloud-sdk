@@ -3,9 +3,9 @@ from typing import Optional
 
 from gql import gql
 
-from .client import execute
-from .enums import RunState
-from ._typing import TypedDict
+from ..client import execute
+from ..enums import RunState
+from .._typing import TypedDict
 
 
 class RunSummary(TypedDict):

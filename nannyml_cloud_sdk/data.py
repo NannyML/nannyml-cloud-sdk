@@ -1,6 +1,7 @@
 import datetime
 import io
-from typing import Any, Optional, TypedDict
+from typing import Any, Optional, Dict, List
+from typing_extensions import TypedDict
 
 import pandas as pd
 from gql import gql
@@ -17,7 +18,7 @@ class StorageInfoRaw(TypedDict):
         options: Additional options for the storage backend.
     """
     connectionString: str
-    options: dict[str, Any]
+    options: Dict[str, Any]
 
 
 class StorageInfoAzureBlob(TypedDict):
@@ -109,7 +110,7 @@ class DataSourceSummary(TypedDict):
 
 
 class DataSourceDetails(DataSourceSummary):
-    columns: list[ColumnDetails]
+    columns: List[ColumnDetails]
 
 
 class DataSourceFilter(TypedDict, total=False):
@@ -159,6 +160,33 @@ DATA_SOURCE_EVENT_FRAGMENT = f"""
 _UPLOAD_DATASET = gql("""
     mutation uploadDataset($file: Upload!) {
         upload_dataset(file: $file) {
+            id
+        }
+    }
+""")
+
+
+# Some common snippets used across product modules
+
+_ADD_DATA_TO_DATA_SOURCE = gql("""
+    mutation addDataToDataSource($input: DataSourceDataInput!) {
+        add_data_to_data_source(input: $input) {
+            id
+        }
+    }
+""")
+
+_UPSERT_DATA_IN_DATA_SOURCE = gql("""
+    mutation updateDataInDataSource($input: DataSourceDataInput!) {
+        upsert_data_in_data_source(input: $input) {
+            id
+        }
+    }
+""")
+
+_REMOVE_DATA_FROM_DATA_SOURCE = gql("""
+    mutation removeDataFromDataSource($input: DataSourceDeleteInput!) {
+        delete_data_from_data_source(input: $input) {
             id
         }
     }

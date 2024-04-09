@@ -1,12 +1,21 @@
 from typing import Literal
 
 
+ProductType = Literal[
+    'MONITORING',
+    'EVALUATION',
+    'EXPERIMENT',
+]
+"""Product modules of NannyML Cloud"""
+
+
 ProblemType = Literal[
     'BINARY_CLASSIFICATION',
     'MULTICLASS_CLASSIFICATION',
     'REGRESSION',
 ]
 """Problem types supported by NannyML Cloud."""
+
 
 FeatureType = Literal['CONTINUOUS', 'CATEGORY']
 """Feature types supported by NannyML Cloud."""
@@ -20,6 +29,10 @@ ColumnType = Literal[
     'CONTINUOUS_FEATURE',
     'IGNORED',
     'IDENTIFIER',
+    'METRIC_NAME',
+    'GROUP_NAME',
+    'SUCCESS_COUNT',
+    'FAIL_COUNT',
 ]
 """Schema column types defined by NannyML Cloud."""
 

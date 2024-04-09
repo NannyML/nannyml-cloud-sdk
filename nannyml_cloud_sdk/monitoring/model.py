@@ -6,15 +6,16 @@ import pandas as pd
 from frozendict import frozendict
 from gql import gql
 
-from .client import execute
-from .data import (
-    DATA_SOURCE_EVENT_FRAGMENT, DATA_SOURCE_SUMMARY_FRAGMENT, Data, DataSourceEvent, DataSourceFilter, DataSourceSummary
+from ..client import execute
+from ..data import (
+    DATA_SOURCE_EVENT_FRAGMENT, DATA_SOURCE_SUMMARY_FRAGMENT, Data, DataSourceEvent, DataSourceFilter,
+    DataSourceSummary, _ADD_DATA_TO_DATA_SOURCE, _UPSERT_DATA_IN_DATA_SOURCE, _REMOVE_DATA_FROM_DATA_SOURCE
 )
-from .enums import ChunkPeriod, PerformanceMetric, ProblemType
-from .errors import InvalidOperationError
+from ..enums import ChunkPeriod, PerformanceMetric, ProblemType
+from ..errors import InvalidOperationError
 from .run import RUN_SUMMARY_FRAGMENT, RunSummary
 from .schema import ModelSchema, normalize
-from ._typing import TypedDict
+from .._typing import TypedDict
 
 
 class ModelSummary(TypedDict):
@@ -118,30 +119,6 @@ _DELETE_MODEL = gql("""
     }
 """)
 
-_ADD_DATA_TO_DATA_SOURCE = gql("""
-    mutation addDataToDataSource($input: DataSourceDataInput!) {
-        add_data_to_data_source(input: $input) {
-            id
-        }
-    }
-""")
-
-_UPSERT_DATA_IN_DATA_SOURCE = gql("""
-    mutation updateDataInDataSource($input: DataSourceDataInput!) {
-        upsert_data_in_data_source(input: $input) {
-            id
-        }
-    }
-""")
-
-_REMOVE_DATA_FROM_DATA_SOURCE = gql("""
-    mutation removeDataFromDataSource($input: DataSourceDeleteInput!) {
-        delete_data_from_data_source(input: $input) {
-            id
-        }
-    }
-""")
-
 
 class Model:
     """Operations for working with machine learning models."""
@@ -179,11 +156,11 @@ class Model:
     @classmethod
     def create(
         cls,
+        name: str,
         schema: ModelSchema,
         reference_data: pd.DataFrame,
         analysis_data: pd.DataFrame,
         target_data: Optional[pd.DataFrame] = None,
-        name: Optional[str] = None,
         main_performance_metric: Optional[PerformanceMetric] = None,
         chunk_period: Optional[ChunkPeriod] = None,
         chunk_size: Optional[int] = None,
@@ -191,12 +168,13 @@ class Model:
         """Create a new model.
 
         Args:
-            schema: Schema of the model. Typically created using [Schema.from_df][nannyml_cloud_sdk.Schema.from_df].
+            name: Name for the model.
+            schema: Schema of the model. Typically, created using
+                [Schema.from_df][nannyml_cloud_sdk.monitoring.Schema.from_df].
             reference_data: Reference data to use for the model.
             analysis_data: Analysis data to use for the model. If the data contains targets, targets must always be
                 provided together with analysis data.
             target_data: Optional target data to use for the model.
-            name: Optional name for the model. If not provided, a name will be generated.
             main_performance_metric: Optional main performance metric for the model. If not provided, no performance
                 metric will be tagged as main.
             chunk_period: Time period per chunk. Should only be set for time-based chunking.
@@ -269,7 +247,7 @@ class Model:
 
         Note:
             This method does not update existing data. It only adds new data. If you want to update existing data,
-            use [upsert_analysis_data][nannyml_cloud_sdk.Model.upsert_analysis_data] instead.
+            use [upsert_analysis_data][nannyml_cloud_sdk.monitoring.Model.upsert_analysis_data] instead.
         """
         analysis_data_source, = cls._get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
         execute(_ADD_DATA_TO_DATA_SOURCE, {
@@ -288,13 +266,13 @@ class Model:
             data: Data to be added.
 
         Note:
-            This method can only be used if the model has a target data source. If you want to add analysis data to a
-            model without a target data source, use [add_analysis_data][nannyml_cloud_sdk.Model.add_analysis_data]
-            instead.
+            This method can only be used if the model has a target data source.
+            If you want to add analysis data to a model without a target data source, use
+            [add_analysis_data][nannyml_cloud_sdk.monitoring.Model.add_analysis_data] instead.
 
         Note:
             This method does not update existing data. It only adds new data. If you want to update existing data,
-            use [upsert_analysis_target_data][nannyml_cloud_sdk.Model.upsert_analysis_target_data] instead.
+            use [upsert_analysis_target_data][nannyml_cloud_sdk.monitoring.Model.upsert_analysis_target_data] instead.
         """
         target_data_source = cls._get_target_data_source(model_id)
         execute(_ADD_DATA_TO_DATA_SOURCE, {
@@ -315,7 +293,7 @@ class Model:
         Note:
             This method compares existing data with the new data to determine which rows to update and which to add.
             If you are certain you are only adding new data, it is recommended to use
-            [add_analysis_data][nannyml_cloud_sdk.Model.add_analysis_data] instead for better performance.
+            [add_analysis_data][nannyml_cloud_sdk.monitoring.Model.add_analysis_data] instead for better performance.
         """
         analysis_data_source, = cls._get_model_data_sources(model_id, frozendict({'name': 'analysis'}))
         execute(_UPSERT_DATA_IN_DATA_SOURCE, {
@@ -335,13 +313,14 @@ class Model:
 
         Note:
             This method can only be used if the model has a target data source. If you want to update analysis data in a
-            model without a target data source, use [upsert_analysis_data][nannyml_cloud_sdk.Model.upsert_analysis_data]
-            instead.
+            model without a target data source, use
+            [upsert_analysis_data][nannyml_cloud_sdk.monitoring.Model.upsert_analysis_data] instead.
 
         Note:
             This method compares existing data with the new data to determine which rows to update and which to add.
             If you are certain you are only adding new data, it is recommended to use
-            [add_analysis_target_data][nannyml_cloud_sdk.Model.add_analysis_target_data] instead for better performance.
+            [add_analysis_target_data][nannyml_cloud_sdk.monitoring.Model.add_analysis_target_data]
+            instead for better performance.
         """
         target_data_source = cls._get_target_data_source(model_id)
         execute(_UPSERT_DATA_IN_DATA_SOURCE, {
@@ -428,8 +407,8 @@ class Model:
             'dataSourceFilter': {'name': 'target'},
         })['monitoring_model']['dataSources'][0]['events']
 
-    @functools.lru_cache(maxsize=128)
     @staticmethod
+    @functools.lru_cache(maxsize=128)
     def _get_model_data_sources(model_id: str, filter: Optional[DataSourceFilter] = None) -> List[DataSourceSummary]:
         """Get data sources for a model"""
         return execute(_GET_MODEL_DATA_SOURCES, {
