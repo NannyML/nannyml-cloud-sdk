@@ -69,7 +69,7 @@ target_data = pd.read_csv('https://github.com/NannyML/nannyml/raw/main/nannyml/d
 print(reference_data.head())
 
 # Inspect schema from dataset and apply overrides
-schema = nml_sdk.Schema.from_df(
+schema = nml_sdk.monitoring.Schema.from_df(
     'BINARY_CLASSIFICATION',
     reference_data,
     target_column_name='work_home_actual',
@@ -77,7 +77,7 @@ schema = nml_sdk.Schema.from_df(
 )
 
 # Create model
-model = nml_sdk.Model.create(
+model = nml_sdk.monitoring.Model.create(
     name='Example model',
     schema=schema,
     chunk_period='MONTHLY',
@@ -103,17 +103,17 @@ nml_sdk.url = os.environ['NML_SDK_URL']
 nml_sdk.api_token = os.environ['NML_SDK_API_TOKEN']
 
 # Find model in NannyML Cloud by name
-model, = nml_sdk.Model.list(name='Example model')
+model, = nml_sdk.monitoring.Model.list(name='Example model')
 
 # Add new inferences to NannyML Cloud
 new_inferences = pd.DataFrame()
-nml_sdk.Model.add_analysis_data(model['id'], new_inferences)
+nml_sdk.monitoring.Model.add_analysis_data(model['id'], new_inferences)
 
 # If you have delayed access to ground truth, you can add them to NannyML Cloud
 # later. This will match analysis & target datasets using an identifier column.
 delayed_ground_truth = pd.DataFrame()
-nml_sdk.Model.add_analysis_target_data(model['id'], delayed_ground_truth)
+nml_sdk.monitoring.Model.add_analysis_target_data(model['id'], delayed_ground_truth)
 
 # Trigger analysis of the new data
-nml_sdk.Run.trigger(model['id'])
+nml_sdk.monitoring.Run.trigger(model['id'])
 ```
