@@ -560,6 +560,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model_evaluation.model.MetricConfiguration" class="md-nav__link">
+    MetricConfiguration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#nannyml_cloud_sdk.model_evaluation.model.Model" class="md-nav__link">
     Model
   </a>
@@ -862,6 +869,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.model_evaluation.model.MetricConfiguration" class="md-nav__link">
+    MetricConfiguration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#nannyml_cloud_sdk.model_evaluation.model.Model" class="md-nav__link">
     Model
   </a>
@@ -978,6 +992,107 @@
 
 
 
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="nannyml_cloud_sdk.model_evaluation.model.MetricConfiguration" class="doc doc-heading">
+          <span class="doc doc-object-name doc-class-name">MetricConfiguration</span>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="nannyml_cloud_sdk._typing.TypedDict">TypedDict</span></code></p>
+
+  
+      <p>Configuration for a model evaluation metric.</p>
+
+
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>enabled</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Whether the metric is enabled or disabled.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>rope_lower_bound</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[float]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Lower bound of the region of practical equivalence (ROPE) for the metric. This is required
+when the hypothesis is <code>MODEL_PERFORMANCE_WITHIN_RANGE</code>.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>rope_upper_bound</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[float]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Upper bound of the region of practical equivalence (ROPE) for the metric. This is required
+when the hypothesis is <code>MODEL_PERFORMANCE_WITHIN_RANGE</code>.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>hdi_width</code></td>
+          <td>
+                <code><span title="typing.Optional">Optional</span>[float]</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Required width of the highest density interval (HDI) for the metric before evaluating the hypothesis.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
 
 <div class="doc doc-object doc-class">
 
@@ -1158,7 +1273,7 @@ use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.model_evaluat
         <tr>
           <td><code>hypothesis</code></td>
           <td>
-                <code><span title="nannyml_cloud_sdk.model_evaluation.enums.HypothesisType">HypothesisType</span></code>
+                <code><a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.model_evaluation.enums.HypothesisType" href="../enums/#nannyml_cloud_sdk.model_evaluation.enums.HypothesisType">HypothesisType</a></code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -1217,7 +1332,7 @@ provided together with analysis data.</p>
         <tr>
           <td><code>metrics_configuration</code></td>
           <td>
-                <code><span title="typing.Dict">Dict</span>[<a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.enums.PerformanceMetric" href="../../enums/#nannyml_cloud_sdk.enums.PerformanceMetric">PerformanceMetric</a>, <span title="nannyml_cloud_sdk.model_evaluation.model.MetricConfiguration">MetricConfiguration</span>]</code>
+                <code><span title="typing.Dict">Dict</span>[<a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.enums.PerformanceMetric" href="../../enums/#nannyml_cloud_sdk.enums.PerformanceMetric">PerformanceMetric</a>, <a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.model_evaluation.model.MetricConfiguration" href="#nannyml_cloud_sdk.model_evaluation.model.MetricConfiguration">MetricConfiguration</a>]</code>
           </td>
           <td>
             <div class="doc-md-description">

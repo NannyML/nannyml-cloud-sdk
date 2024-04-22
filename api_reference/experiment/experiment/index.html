@@ -511,6 +511,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.experiment.experiment.MetricConfiguration" class="md-nav__link">
+    MetricConfiguration
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -930,6 +937,13 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#nannyml_cloud_sdk.experiment.experiment.MetricConfiguration" class="md-nav__link">
+    MetricConfiguration
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1156,7 +1170,7 @@ use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.experiment.ex
         <tr>
           <td><code>experiment_type</code></td>
           <td>
-                <code><span title="nannyml_cloud_sdk.experiment.enums.ExperimentType">ExperimentType</span></code>
+                <code><a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.experiment.enums.ExperimentType" href="../enums/#nannyml_cloud_sdk.experiment.enums.ExperimentType">ExperimentType</a></code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -1170,7 +1184,7 @@ use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.experiment.ex
         <tr>
           <td><code>metrics_configuration</code></td>
           <td>
-                <code><span title="typing.Dict">Dict</span>[str, <span title="nannyml_cloud_sdk.experiment.experiment.MetricConfiguration">MetricConfiguration</span>]</code>
+                <code><span title="typing.Dict">Dict</span>[str, <a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.experiment.experiment.MetricConfiguration" href="#nannyml_cloud_sdk.experiment.experiment.MetricConfiguration">MetricConfiguration</a>]</code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -1496,7 +1510,7 @@ use <a class="autorefs autorefs-internal" href="#nannyml_cloud_sdk.experiment.ex
         <tr>
           <td><code>experiment_type</code></td>
           <td>
-                <code><span title="typing.Optional">Optional</span>[<span title="nannyml_cloud_sdk.experiment.enums.ExperimentType">ExperimentType</span>]</code>
+                <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="nannyml_cloud_sdk.experiment.enums.ExperimentType" href="../enums/#nannyml_cloud_sdk.experiment.enums.ExperimentType">ExperimentType</a>]</code>
           </td>
           <td>
             <div class="doc-md-description">
@@ -1751,6 +1765,105 @@ This is <code>None</code> if no runs have been performed yet.</p>
           <td>
             <div class="doc-md-description">
               <p>Timestamp when the experiment was created.</p>
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+
+  
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+
+<h2 id="nannyml_cloud_sdk.experiment.experiment.MetricConfiguration" class="doc doc-heading">
+          <span class="doc doc-object-name doc-class-name">MetricConfiguration</span>
+
+
+</h2>
+
+
+  <div class="doc doc-contents ">
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="nannyml_cloud_sdk._typing.TypedDict">TypedDict</span></code></p>
+
+  
+      <p>Configuration for a metric in an experiment.</p>
+
+
+
+  <p><strong>Attributes:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>enabled</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Whether the metric is enabled or disabled.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>rope_lower_bound</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Lower bound of the region of practical equivalence (ROPE) for the metric.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>rope_upper_bound</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Upper bound of the region of practical equivalence (ROPE) for the metric.</p>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><code>hdi_width</code></td>
+          <td>
+                <code>float</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Required width of the highest density interval (HDI) for the metric before evaluating the hypothesis.</p>
             </div>
           </td>
         </tr>
