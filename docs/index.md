@@ -35,8 +35,8 @@ nml_sdk.url = os.environ['NML_SDK_URL']
 nml_sdk.api_token = os.environ['NML_SDK_API_TOKEN']
 ```
 
-> [!NOTE]
-> We recommend using an environment variable for the API token. This prevents accidentally leaking any token associated with your personal account when sharing code.
+!!! note
+    We recommend using an environment variable for the API token. This prevents accidentally leaking any token associated with your personal account when sharing code.
 
 ## Examples
 
