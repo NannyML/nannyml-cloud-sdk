@@ -112,10 +112,18 @@ _DELETE_EXPERIMENT = gql("""
 
 
 class MetricConfiguration(TypedDict):
+    """Configuration for a metric in an experiment.
+
+    Attributes:
+        enabled: Whether the metric is enabled or disabled.
+        rope_lower_bound: Lower bound of the region of practical equivalence (ROPE) for the metric.
+        rope_upper_bound: Upper bound of the region of practical equivalence (ROPE) for the metric.
+        hdi_width: Required width of the highest density interval (HDI) for the metric before evaluating the hypothesis.
+    """
     enabled: bool
-    rope_lower_bound: Optional[float]
-    rope_upper_bound: Optional[float]
-    hdi_width: Optional[float]
+    rope_lower_bound: float
+    rope_upper_bound: float
+    hdi_width: float
 
 
 class Experiment:

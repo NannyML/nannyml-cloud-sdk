@@ -132,6 +132,16 @@ _DELETE_MODEL = gql("""
 
 
 class MetricConfiguration(TypedDict):
+    """Configuration for a model evaluation metric.
+
+    Attributes:
+        enabled: Whether the metric is enabled or disabled.
+        rope_lower_bound: Lower bound of the region of practical equivalence (ROPE) for the metric. This is required
+            when the hypothesis is `MODEL_PERFORMANCE_WITHIN_RANGE`.
+        rope_upper_bound: Upper bound of the region of practical equivalence (ROPE) for the metric. This is required
+            when the hypothesis is `MODEL_PERFORMANCE_WITHIN_RANGE`.
+        hdi_width: Required width of the highest density interval (HDI) for the metric before evaluating the hypothesis.
+    """
     enabled: bool
     rope_lower_bound: Optional[float]
     rope_upper_bound: Optional[float]
