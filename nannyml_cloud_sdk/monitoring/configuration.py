@@ -31,7 +31,7 @@ class PerformanceTypesConfiguration(TypedDict):
 class PerformanceMetricsConfiguration(TypedDict):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]  # TODO: Define threshold type if required
+    threshold: Dict[str, Any]
     segmentThresholds: List
     metric: PerformanceMetric
     estimated: SupportConfig
@@ -42,7 +42,7 @@ class UnivariateDriftConfiguration(TypedDict):
     """Univariate drift configuration"""
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]  # TODO: Define threshold type if required
+    threshold: Dict[str, Any]
     segmentThresholds: List
     categorical: SupportConfig
     continuous: SupportConfig
@@ -55,7 +55,7 @@ class UnivariateDriftConfiguration(TypedDict):
 class MultivariateDriftConfiguration(TypedDict):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]  # TODO: Define threshold type if required
+    threshold: Dict[str, Any]
     segmentThresholds: List
     enabled: bool
     is_supported: bool
@@ -66,7 +66,7 @@ class MultivariateDriftConfiguration(TypedDict):
 class DataQualityMetricConfiguration(TypedDict):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]  # TODO: Define threshold type if required
+    threshold: Dict[str, Any]
     segmentThresholds: List
     categorical: SupportConfig
     continuous: SupportConfig
@@ -80,7 +80,7 @@ class DataQualityMetricConfiguration(TypedDict):
 class ConceptShiftMetricConfiguration(TypedDict):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]  # TODO: Define threshold type if required
+    threshold: Dict[str, Any]
     segmentThresholds: List
     enabled: bool
     is_supported: bool
@@ -91,7 +91,7 @@ class ConceptShiftMetricConfiguration(TypedDict):
 class SummaryStatsSimpleMetricConfiguration(TypedDict):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]  # TODO: Define threshold type if required
+    threshold: Dict[str, Any]
     segmentThresholds: List
     enabled: bool
     is_supported: bool
@@ -102,7 +102,7 @@ class SummaryStatsSimpleMetricConfiguration(TypedDict):
 class SummaryStatsMetricColumnConfiguration(TypedDict):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]  # TODO: Define threshold type if required
+    threshold: Dict[str, Any]
     segmentThresholds: List
     categorical: SupportConfig
     continuous: SupportConfig
