@@ -1,4 +1,4 @@
-from typing import Literal, Optional, Dict, Any, List, Union
+from typing import Optional, Dict, Any, List, Union
 
 from gql import gql
 
@@ -36,6 +36,8 @@ class PerformanceMetricsConfiguration(TypedDict):
     metric: PerformanceMetric
     estimated: SupportConfig
     realized: SupportConfig
+    businessValue: Optional[Dict[str, Any]]
+    __typename: str
 
 
 class UnivariateDriftConfiguration(TypedDict):
@@ -50,6 +52,7 @@ class UnivariateDriftConfiguration(TypedDict):
     predictions: SupportConfig
     predictedProbabilities: SupportConfig
     method: UnivariateDriftMethod
+    __typename: str
 
 
 class MultivariateDriftConfiguration(TypedDict):
@@ -61,6 +64,7 @@ class MultivariateDriftConfiguration(TypedDict):
     is_supported: bool
     support_reason: Optional[str]
     method: MultivariateDriftMethod
+    __typename: str
 
 
 class DataQualityMetricConfiguration(TypedDict):
@@ -75,6 +79,7 @@ class DataQualityMetricConfiguration(TypedDict):
     predictedProbabilities: SupportConfig
     metric: DataQualityMetric
     normalize: bool
+    __typename: str
 
 
 class ConceptShiftMetricConfiguration(TypedDict):
@@ -86,6 +91,7 @@ class ConceptShiftMetricConfiguration(TypedDict):
     is_supported: bool
     support_reason: Optional[str]
     metric: ConceptShiftMetric
+    __typename: str
 
 
 class SummaryStatsSimpleMetricConfiguration(TypedDict):
@@ -97,6 +103,7 @@ class SummaryStatsSimpleMetricConfiguration(TypedDict):
     is_supported: bool
     support_reason: Optional[str]
     metric: SummaryStatsMetric
+    __typename: str
 
 
 class SummaryStatsMetricColumnConfiguration(TypedDict):
@@ -110,6 +117,7 @@ class SummaryStatsMetricColumnConfiguration(TypedDict):
     predictions: SupportConfig
     predictedProbabilities: SupportConfig
     metric: SummaryStatsMetric
+    __typename: str
 
 
 _THRESHOLD_FRAGMENT = """
@@ -258,7 +266,7 @@ class RuntimeConfiguration:
     @staticmethod
     def default(
         problem_type: ProblemType, chunking: Chunking, data_sources: List[dict[str, Any]]
-    ) -> RuntimeConfigurationDict:
+    ) -> dict[str, Any]:
         rc = execute(_GET_DEFAULT_RUNTIME_CONFIGURATION, {
             'input': {
                 'problemType': problem_type,
@@ -285,7 +293,7 @@ def _to_input(rc: RuntimeConfigurationDict) -> dict[str, Any]:
     }
 
 
-def _convert_supports_config(s: Dict[str, Any]) -> bool:
+def _convert_supports_config(s: SupportConfig) -> bool:
     if 'enabled' in s:
         return s['enabled']
     else:
@@ -318,23 +326,23 @@ def _convert_segment_threshold(st: dict) -> dict:
     }
 
 
-def _convert_performance_metric(m: dict) -> dict:
+def _convert_performance_metric(m: PerformanceMetricsConfiguration) -> dict:
     return {
         'metric': m['metric'],
         'enabledEstimated': _convert_supports_config(m['estimated']),
         'enabledRealized': _convert_supports_config(m['realized']),
         'businessValue': None if m['__typename'] != 'BusinessValueMetricConfig' else {
-            'truePositiveWeight': m['truePositiveWeight'],
-            'falsePositiveWeight': m['falsePositiveWeight'],
-            'trueNegativeWeight': m['trueNegativeWeight'],
-            'falseNegativeWeight': m['falseNegativeWeight'],
+            'truePositiveWeight': m['truePositiveWeight'],  # type: ignore
+            'falsePositiveWeight': m['falsePositiveWeight'],  # type: ignore
+            'trueNegativeWeight': m['trueNegativeWeight'],  # type: ignore
+            'falseNegativeWeight': m['falseNegativeWeight'],  # type: ignore
         },
         'threshold': _convert_threshold(m['threshold']),
         'segmentThresholds': [_convert_segment_threshold(st) for st in m['segmentThresholds']],
     }
 
 
-def _convert_univariate_drift_method(m: dict) -> dict:
+def _convert_univariate_drift_method(m: UnivariateDriftConfiguration) -> dict:
     return {
         'method': m['method'],
         'enabledCategorical': _convert_supports_config(m['categorical']),
@@ -347,7 +355,7 @@ def _convert_univariate_drift_method(m: dict) -> dict:
     }
 
 
-def _convert_multivariate_drift_method(m: dict) -> dict:
+def _convert_multivariate_drift_method(m: MultivariateDriftConfiguration) -> dict:
     return {
         'method': m['method'],
         'enabled': m['enabled'],
@@ -356,7 +364,7 @@ def _convert_multivariate_drift_method(m: dict) -> dict:
     }
 
 
-def _convert_data_quality_metric(m: dict) -> dict:
+def _convert_data_quality_metric(m: DataQualityMetricConfiguration) -> dict:
     return {
         'metric': m['metric'],
         'normalize': m['normalize'],
@@ -370,7 +378,7 @@ def _convert_data_quality_metric(m: dict) -> dict:
     }
 
 
-def _convert_concept_drift_metric(m: dict) -> dict:
+def _convert_concept_drift_metric(m: ConceptShiftMetricConfiguration) -> dict:
     return {
         'metric': m['metric'],
         'enabled': m['enabled'],
@@ -379,20 +387,22 @@ def _convert_concept_drift_metric(m: dict) -> dict:
     }
 
 
-def _convert_summary_stats_metric(m: dict) -> dict:
+def _convert_summary_stats_metric(
+        m: Union[SummaryStatsSimpleMetricConfiguration, SummaryStatsMetricColumnConfiguration]
+) -> dict:
     res = {
         'metric': m['metric'],
-        'threshold': _convert_threshold(m['threshold']),
+        'threshold': _convert_threshold(m['threshold']),  # type: ignore
         'segmentThresholds': [_convert_segment_threshold(st) for st in m['segmentThresholds']],
     }
     if m['__typename'] == 'SummaryStatsSimpleMetricConfig':
-        res['enabled'] = m['enabled']
+        res['enabled'] = m['enabled']  # type: ignore
     else:
         res['metric'] = m['metric']
-        res['enabledCategorical'] = _convert_supports_config(m['categorical'])
-        res['enabledContinuous'] = _convert_supports_config(m['continuous'])
-        res['enabledTargets'] = _convert_supports_config(m['targets'])
-        res['enabledPredictions'] = _convert_supports_config(m['predictions'])
-        res['enabledPredictedProbabilities'] = _convert_supports_config(m['predictedProbabilities'])
+        res['enabledCategorical'] = _convert_supports_config(m['categorical'])  # type: ignore
+        res['enabledContinuous'] = _convert_supports_config(m['continuous'])  # type: ignore
+        res['enabledTargets'] = _convert_supports_config(m['targets'])  # type: ignore
+        res['enabledPredictions'] = _convert_supports_config(m['predictions'])  # type: ignore
+        res['enabledPredictedProbabilities'] = _convert_supports_config(m['predictedProbabilities'])  # type: ignore
 
     return res
