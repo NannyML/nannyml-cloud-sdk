@@ -1,26 +1,222 @@
-type BusinessValueMetricConfig implements PerformanceMetricConfigInterface {
-  metric: PerformanceMetric!
-  enabled: Boolean!
-  enabledEstimated: Boolean!
-  enabledRealized: Boolean!
-  threshold: Threshold
-  truePositiveWeight: Float!
-  falsePositiveWeight: Float!
-  trueNegativeWeight: Float!
-  falseNegativeWeight: Float!
+type ConstantThreshold implements Thresholdbase & Threshold {
+  id: ID!
+  type: ThresholdType!
+  lower: Float
+  upper: Float
 }
 
-interface PerformanceMetricConfigInterface {
-  metric: PerformanceMetric!
-  enabled: Boolean!
-  enabledEstimated: Boolean!
-  enabledRealized: Boolean!
+interface Thresholdbase implements Threshold {
+  id: ID!
+  type: ThresholdType!
+}
+
+interface Threshold {
+  id: ID!
+  type: ThresholdType!
+}
+
+enum ThresholdType {
+  CONSTANT
+  STANDARD_DEVIATION
+}
+
+type StandardDeviationThreshold implements Thresholdbase & Threshold {
+  id: ID!
+  type: ThresholdType!
+  stdLowerMultiplier: Float
+  stdUpperMultiplier: Float
+}
+
+type KdeDistributionResult implements Result {
+  modelId: Int!
+  analysisType: AnalysisType!
+  calculatorType: CalculatorType!
+  segment: Segment
+  tags: [String!]!
+  columnName: String!
+  chunks(filter: ResultDataFilter = null): [KdeDistributionResultChunk!]!
+}
+
+interface Result {
+  modelId: Int!
+  analysisType: AnalysisType!
+  calculatorType: CalculatorType!
+  segment: Segment
+  tags: [String!]!
+}
+
+enum AnalysisType {
+  REALIZED_PERFORMANCE
+  ESTIMATED_PERFORMANCE
+  FEATURE_DRIFT
+  DATA_QUALITY
+  CONCEPT_SHIFT
+  DISTRIBUTION
+  SUMMARY_STATS
+}
+
+enum CalculatorType {
+  CBPE
+  MCBPE
+  DLE
+  PERFORMANCE_CALCULATION
+  UNIVARIATE_DRIFT
+  MULTIVARIATE_DRIFT
+  MISSING_VALUES
+  UNSEEN_VALUES
+  RCS
+  CATEGORICAL_DISTRIBUTION
+  CONTINUOUS_DISTRIBUTION
+  SUMMARY_STATS_AVG
+  SUMMARY_STATS_ROW_COUNT
+  SUMMARY_STATS_MEDIAN
+  SUMMARY_STATS_STD
+  SUMMARY_STATS_SUM
+}
+
+type Segment {
+  id: Int!
+  segmentColumnName: String!
+  segment: String!
+}
+
+type KdeDistributionResultChunk implements DistributionResultChunk & ResultData {
+  isAnalysis: Boolean!
+  startTimestamp: DateTime!
+  endTimestamp: DateTime!
+  nrDataPoints: Int!
+  data: [KdeDistributionDataPoint!]!
+  indices: [KdeDistributionIndex!]!
+}
+
+interface DistributionResultChunk implements ResultData {
+  isAnalysis: Boolean!
+  startTimestamp: DateTime!
+  endTimestamp: DateTime!
+  nrDataPoints: Int!
+}
+
+interface ResultData {
+  isAnalysis: Boolean!
+  startTimestamp: DateTime!
+  endTimestamp: DateTime!
+  nrDataPoints: Int!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+type KdeDistributionDataPoint {
+  value: Float!
+  density: Float!
+}
+
+type KdeDistributionIndex {
+  value: Float!
+  density: Float!
+  cumulativeDensity: Float!
+}
+
+input ResultDataFilter {
+  periods: [DataPeriod!] = null
+  startTimestamp: DateTime = null
+  endTimestamp: DateTime = null
+}
+
+enum DataPeriod {
+  ANALYSIS
+  REFERENCE
+}
+
+type TimeSeriesResult implements Result {
+  modelId: Int!
+  analysisType: AnalysisType!
+  calculatorType: CalculatorType!
+  segment: Segment
+  tags: [String!]!
+  metricName: String!
+  componentName: String
+  columnName: String
+  columnNames: [String!]
+  mean: Float
+  stdev: Float
+  data(filter: ResultDataFilter = null): [TimeSeriesDataPoint!]!
+  lastDataPoint: TimeSeriesDataPoint
+  nrAlerts: Int!
+  config: MetricConfig!
+}
+
+type TimeSeriesDataPoint implements ResultData {
+  isAnalysis: Boolean!
+  startTimestamp: DateTime!
+  endTimestamp: DateTime!
+  nrDataPoints: Int!
+  value: Float
+  samplingError: Float
+  lowerConfidenceBound: Float
+  upperConfidenceBound: Float
+}
+
+interface MetricConfig {
+  lowerValueLimit: Float
+  upperValueLimit: Float
   threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+}
+
+type SegmentThreshold {
+  segment: Segment!
+  threshold: Threshold
+}
+
+type ValueCountDistributionResult implements Result {
+  modelId: Int!
+  analysisType: AnalysisType!
+  calculatorType: CalculatorType!
+  segment: Segment
+  tags: [String!]!
+  columnName: String!
+  chunks(filter: ResultDataFilter = null): [ValueCountDistributionResultChunk!]!
+}
+
+type ValueCountDistributionResultChunk implements DistributionResultChunk & ResultData {
+  isAnalysis: Boolean!
+  startTimestamp: DateTime!
+  endTimestamp: DateTime!
+  nrDataPoints: Int!
+  data: [ValueCountDistributionDataPoint!]!
+}
+
+type ValueCountDistributionDataPoint {
+  value: String!
+  density: Float!
+  count: Int!
+}
+
+type MetricConfigPerformance implements PerformanceMetricConfigInterface & MetricConfig {
+  lowerValueLimit: Float
+  upperValueLimit: Float
+  threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  metric: PerformanceMetric!
+  estimated: SupportConfig!
+  realized: SupportConfig!
+}
+
+interface PerformanceMetricConfigInterface implements MetricConfig {
+  lowerValueLimit: Float
+  upperValueLimit: Float
+  threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  metric: PerformanceMetric!
+  estimated: SupportConfig!
+  realized: SupportConfig!
 }
 
 enum PerformanceMetric {
   ROC_AUC
   F1
+  AVERAGE_PRECISION
   PRECISION
   RECALL
   SPECIFICITY
@@ -35,86 +231,156 @@ enum PerformanceMetric {
   RMSLE
 }
 
-interface Threshold implements ThresholdBase {
-  name: String!
-  id: ID!
-  type: ThresholdType!
-}
-
-interface ThresholdBase {
-  name: String!
-}
-
-enum ThresholdType {
-  CONSTANT
-  STANDARD_DEVIATION
-}
-
-type ConstantThreshold implements Thresholdbase & Threshold & ThresholdBase {
-  name: String!
-  id: ID!
-  type: ThresholdType!
-  lower: Float
-  upper: Float
-}
-
-interface Thresholdbase implements Threshold & ThresholdBase {
-  name: String!
-  id: ID!
-  type: ThresholdType!
-}
-
-type MetricConfigPerformance implements PerformanceMetricConfigInterface {
-  metric: PerformanceMetric!
+type SupportConfig implements SupportConfigInterface {
   enabled: Boolean!
-  enabledEstimated: Boolean!
-  enabledRealized: Boolean!
+  isSupported: Boolean!
+  supportReason: String
+}
+
+interface SupportConfigInterface {
+  enabled: Boolean!
+  isSupported: Boolean!
+  supportReason: String
+}
+
+type BusinessValueMetricConfig implements PerformanceMetricConfigInterface & MetricConfig {
+  lowerValueLimit: Float
+  upperValueLimit: Float
   threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  metric: PerformanceMetric!
+  estimated: SupportConfig!
+  realized: SupportConfig!
+  truePositiveWeight: Float!
+  falsePositiveWeight: Float!
+  trueNegativeWeight: Float!
+  falseNegativeWeight: Float!
 }
 
-type StandardDeviationThreshold implements Thresholdbase & Threshold & ThresholdBase {
-  name: String!
-  id: ID!
-  type: ThresholdType!
-  stdLowerMultiplier: Float
-  stdUpperMultiplier: Float
+type SummaryStatsSimpleMetricConfig implements SimpleMetricConfig & SummaryStatsMetricConfig & MetricConfig & SupportConfigInterface {
+  lowerValueLimit: Float
+  upperValueLimit: Float
+  threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  enabled: Boolean!
+  isSupported: Boolean!
+  supportReason: String
+  metric: SummaryStatsMetric!
 }
 
-type ThresholdAlreadyExists implements ThresholdBase {
-  name: String!
+interface SimpleMetricConfig implements MetricConfig & SupportConfigInterface {
+  lowerValueLimit: Float
+  upperValueLimit: Float
+  threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  enabled: Boolean!
+  isSupported: Boolean!
+  supportReason: String
+}
+
+interface SummaryStatsMetricConfig implements MetricConfig {
+  lowerValueLimit: Float
+  upperValueLimit: Float
+  threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  metric: SummaryStatsMetric!
+}
+
+enum SummaryStatsMetric {
+  ROWS_COUNT
+  SUMMARY_STATS_AVG
+  SUMMARY_STATS_MEDIAN
+  SUMMARY_STATS_STD
+  SUMMARY_STATS_SUM
+}
+
+type SummaryStatsColumnMetricConfig implements ColumnMetricConfig & SummaryStatsMetricConfig & MetricConfig {
+  lowerValueLimit: Float
+  upperValueLimit: Float
+  threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  categorical: SupportConfig!
+  continuous: SupportConfig!
+  targets: SupportConfig!
+  predictions: SupportConfig!
+  predictedProbabilities: SupportConfig!
+  metric: SummaryStatsMetric!
+}
+
+interface ColumnMetricConfig implements MetricConfig {
+  lowerValueLimit: Float
+  upperValueLimit: Float
+  threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  categorical: SupportConfig!
+  continuous: SupportConfig!
+  targets: SupportConfig!
+  predictions: SupportConfig!
+  predictedProbabilities: SupportConfig!
 }
 
 type Query {
-  models: [Model!]!
-  model(id: Int!): Model
   inspect_dataset(input: InspectDataSourceInput!): DataSourceInspectData!
-  results(modelId: ID!, analysisType: AnalysisType = null, metricNames: [String!] = null, componentNames: [String!] = null, columnNames: [String!] = null, tags: [String!] = null, includeDisabled: Boolean! = false): [TimeSeriesResult!]!
-  thresholds: [Threshold!]!
+  inspect_experiment_dataset(input: InspectExperimentDataSourceInput!): ExperimentDataSourceInspectData!
   current_user: User!
   tags(names: [String!] = null): [Tag!]!
-  application_settings: ApplicationSettings
+  application_settings: ApplicationSettings!
+  verify_auth(authSettings: AuthenticationSettingsInput!, accessToken: String!): Boolean!
+  send_test_email(settings: EmailSmtpSettingsInput!, recipient: String!): Void
+  send_test_webhook_call(settings: WebhookNotificationSettingsInput!): Void
+  monitoring_models(filter: ModelsFilter = null): [Model!]!
+  monitoring_model(id: Int!): Model
+  get_default_monitoring_runtime_config(input: GetDefaultMonitoringRuntimeConfigInput!): RuntimeConfig!
+  evaluation_models(filter: EvaluationModelsFilter = null): [EvaluationModel!]!
+  evaluation_model(id: Int!): EvaluationModel
+  evaluation_model_config: EvaluationModelConfig
+  experiments(filter: ExperimentsFilter = null): [Experiment!]!
+  experiment(id: Int!): Experiment
 }
 
-type Model {
-  id: ID!
+type DataSourceInspectData {
+  columns: [Column!]!
+  head: JSON!
+}
+
+type Column {
   name: String!
-  problemType: ProblemType!
-  createdAt: DateTime!
-  latestRun: Run
-  nextRun: Run
-  referenceStartTimestamp: DateTime
-  referenceEndTimestamp: DateTime
-  dataSources: [DataSource!]!
-  runs: [Run!]!
-  results(analysisType: AnalysisType = null, metricNames: [String!] = null, componentNames: [String!] = null, columnNames: [String!] = null, tags: [String!] = null, includeDisabled: Boolean! = false): [TimeSeriesResult!]!
-  runtimeConfig: RuntimeConfig!
-  runnerConfig: JSON!
-  schedules: [Schedule!]!
-  keyIndicators: [KeyIndicator!]!
-  nrPerformanceAlerts: Int!
-  nrTargetDriftAlerts: Int
-  nrModelOutputDriftAlerts: Int!
-  nrOtherDriftAlerts: Int!
+  columnType: ColumnType!
+  dataType: String!
+  className: String
+}
+
+enum ColumnType {
+  TARGET
+  PREDICTION_SCORE
+  PREDICTION
+  TIMESTAMP
+  CATEGORICAL_FEATURE
+  CONTINUOUS_FEATURE
+  IGNORED
+  IDENTIFIER
+  METRIC_NAME
+  GROUP_NAME
+  SUCCESS_COUNT
+  FAIL_COUNT
+  SEGMENT
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+input InspectDataSourceInput {
+  productType: ProductType! = MONITORING
+  problemType: ProblemType = null
+  storageInfo: StorageInput!
+}
+
+enum ProductType {
+  MONITORING
+  EVALUATION
+  EXPERIMENT
 }
 
 enum ProblemType {
@@ -123,8 +389,221 @@ enum ProblemType {
   REGRESSION
 }
 
-"""Date with time (isoformat)"""
-scalar DateTime
+input StorageInput {
+  raw: RawStorageInput = null
+  azureBlob: AzureBlobStorageInput = null
+  s3: S3StorageInput = null
+  cache: CacheStorageInput = null
+}
+
+input RawStorageInput {
+  connectionString: String!
+  options: JSON = null
+}
+
+input AzureBlobStorageInput {
+  accountName: String!
+  container: String!
+  path: String!
+  authenticationMode: AzureBlobAuthenticationMode!
+  accessKey: String = null
+  sasToken: String = null
+}
+
+enum AzureBlobAuthenticationMode {
+  ANONYMOUS
+  MANAGED_IDENTITY
+  ACCESS_KEY
+  SAS_TOKEN
+}
+
+input S3StorageInput {
+  uri: String!
+  authenticationMode: S3AuthenticationMode!
+  awsAccessKeyId: String = null
+  awsSecretAccessKey: String = null
+}
+
+enum S3AuthenticationMode {
+  ANONYMOUS
+  INTEGRATED
+  ACCESS_KEY
+}
+
+input CacheStorageInput {
+  id: String!
+  filename: String = null
+}
+
+type ExperimentDataSourceInspectData {
+  metrics: [ExperimentMetric!]!
+}
+
+type ExperimentMetric {
+  name: String!
+  groups: [String!]!
+  valid: Boolean!
+}
+
+input InspectExperimentDataSourceInput {
+  columns: [ColumnInput!]!
+  storageInfo: StorageInput!
+}
+
+input ColumnInput {
+  name: String!
+  columnType: ColumnType!
+  dataType: String!
+  className: String = null
+}
+
+type User {
+  id: ID!
+  businessKey: String!
+  email: String
+  firstName: String
+  familyName: String
+  name: String
+  notificationSettings: UserNotificationSettings!
+  apiTokens: [UserApiToken!]!
+}
+
+type UserNotificationSettings {
+  emailEnabled: Boolean!
+  emailRecipient: String
+}
+
+type UserApiToken {
+  id: ID!
+  createdAt: DateTime!
+  description: String
+}
+
+type Tag {
+  name: String!
+}
+
+type ApplicationSettings {
+  usageStatistics: Boolean
+  auth: AuthenticationSettings
+  notifications: NotificationSettings
+  maxUploadSize: Int!
+}
+
+type AuthenticationSettings {
+  mode: AuthMode!
+  oidcProviders: [OidcProvider!]!
+}
+
+enum AuthMode {
+  ANONYMOUS
+  LOCAL
+  OIDC
+}
+
+type OidcProvider {
+  audience: String!
+  authority: String!
+  issuer: String!
+  redirectUri: String
+}
+
+type NotificationSettings {
+  email: EmailNotificationSettings
+  webhook: WebhookNotificationSettings
+}
+
+type EmailNotificationSettings {
+  enabled: Boolean!
+  smtp: EmailSmtpSettings
+  resend: EmailResendSettings
+}
+
+type EmailSmtpSettings {
+  host: String!
+  port: Int!
+  username: String
+  password: String
+  sender: String!
+  useTls: Boolean!
+}
+
+type EmailResendSettings {
+  apiKey: String!
+  sender: String!
+}
+
+type WebhookNotificationSettings {
+  enabled: Boolean!
+  address: String!
+  additionalHeaders: [WebhookNotificationHeader!]!
+}
+
+type WebhookNotificationHeader {
+  key: String!
+  value: String!
+}
+
+input AuthenticationSettingsInput {
+  mode: AuthMode!
+  oidcProviders: [OidcProviderInput!] = null
+  localUsers: [UserCredentialInput!] = null
+}
+
+input OidcProviderInput {
+  audience: String!
+  authority: String!
+  issuer: String!
+  redirectUri: String = null
+}
+
+input UserCredentialInput {
+  email: String!
+  password: String!
+}
+
+"""Represents NULL values"""
+scalar Void
+
+input EmailSmtpSettingsInput {
+  host: String!
+  port: Int!
+  username: String
+  password: String
+  sender: String!
+  useTls: Boolean!
+}
+
+input WebhookNotificationSettingsInput {
+  enabled: Boolean!
+  address: String!
+  additionalHeaders: [WebhookNotificationHeaderInput!]!
+}
+
+input WebhookNotificationHeaderInput {
+  key: String!
+  value: String!
+}
+
+type Model {
+  id: Int!
+  name: String!
+  problemType: ProblemType!
+  createdAt: DateTime!
+  latestRun: Run
+  nextRun: Run
+  referenceStartTimestamp: DateTime
+  referenceEndTimestamp: DateTime
+  kpm: KeyPerformanceMetric!
+  dataSources(filter: DataSourcesFilter = null): [DataSource!]!
+  runs: [Run!]!
+  results(filter: ModelResultsFilter = null, includeDisabled: Boolean! = false): [Result!]!
+  runtimeConfig: RuntimeConfig!
+  runnerConfig: JSON!
+  schedules: [Schedule!]!
+  segments: [Segment!]!
+  hasInitialRunCompleted: Boolean!
+}
 
 type Run {
   id: ID!
@@ -145,6 +624,7 @@ enum RunState {
 }
 
 type RunEvent {
+  id: Int!
   eventType: RunEventType!
   calculator: CalculatorType
   ranSuccessfully: Boolean
@@ -165,32 +645,15 @@ enum RunEventType {
   WARNING
   ERROR
   TIMEOUT
+  INFRASTRUCTURE_INFO
+  INFRASTRUCTURE_WARNING
+  INFRASTRUCTURE_ERROR
 }
 
-enum CalculatorType {
-  CBPE
-  DLE
-  PERFORMANCE_CALCULATION
-  UNIVARIATE_DRIFT
-  MULTIVARIATE_DRIFT
-  MISSING_VALUES
-  UNSEEN_VALUES
-  CSPEE
-}
-
-type User {
-  id: ID!
-  businessKey: String!
-  email: String
-  firstName: String
-  familyName: String
-  name: String
-  notificationSettings: UserNotificationSettings!
-}
-
-type UserNotificationSettings {
-  emailEnabled: Boolean!
-  emailRecipient: String
+type KeyPerformanceMetric {
+  metric: PerformanceMetric!
+  component: String
+  results: [TimeSeriesResult!]!
 }
 
 type DataSource {
@@ -200,58 +663,44 @@ type DataSource {
   hasAnalysisData: Boolean!
   columns: [Column!]!
   nrRows: Int
+  head(nrRows: Int! = 10): JSON!
+  events(filter: DataSourceEventsFilter = null): [DataSourceEvent!]!
 }
 
-type Column {
-  name: String!
-  columnType: ColumnType!
-  dataType: String!
-  className: String
+type DataSourceEvent {
+  id: ID!
+  eventType: DataSourceEventType!
+  timestamp: DateTime!
+  causedBy: User!
+  nrRows: Int
 }
 
-enum ColumnType {
-  TARGET
-  PREDICTION_SCORE
-  PREDICTION
-  TIMESTAMP
-  CATEGORICAL_FEATURE
-  CONTINUOUS_FEATURE
-  IGNORED
-  JOIN
+enum DataSourceEventType {
+  CREATED
+  DATA_ADDED
+  DATA_REMOVED
+  DATA_UPDATED
 }
 
-type TimeSeriesResult {
-  analysisType: AnalysisType!
-  metricName: String!
-  componentName: String
-  columnName: String
-  columnNames: [String!]
-  lowerThreshold: Float
-  upperThreshold: Float
-  tags: [String!]!
-  testData: [TimeSeriesDataPoint!]!
-  analysisData: [TimeSeriesDataPoint!]!
-  lastDataPoint: TimeSeriesDataPoint
-  nrAlerts: Int!
+input DataSourceEventsFilter {
+  eventType: DataSourceEventType = null
+  causedByUserId: ID = null
 }
 
-enum AnalysisType {
-  REALIZED_PERFORMANCE
-  ESTIMATED_PERFORMANCE
-  FEATURE_DRIFT
-  DATA_QUALITY
-  CONCEPT_SHIFT
+input DataSourcesFilter {
+  name: String = null
+  hasReferenceData: Boolean = null
+  hasAnalysisData: Boolean = null
 }
 
-type TimeSeriesDataPoint {
-  value: Float!
-  hasAlert: Boolean!
-  startTimestamp: DateTime!
-  endTimestamp: DateTime!
-  nrDataPoints: Int!
-  samplingError: Float
-  lowerConfidenceBound: Float
-  upperConfidenceBound: Float
+input ModelResultsFilter {
+  analysisTypes: [AnalysisType!] = null
+  calculatorTypes: [CalculatorType!] = null
+  metricNames: [String!] = null
+  componentNames: [String!] = null
+  columnNames: [String!] = null
+  tags: [String!] = null
+  segments: [Int] = null
 }
 
 type RuntimeConfig {
@@ -262,12 +711,13 @@ type RuntimeConfig {
   multivariateDriftMethods: [MultivariateDriftMethodConfig!]!
   dataQualityMetrics: [DataQualityMetricConfig!]!
   conceptShiftMetrics: [ConceptShiftMetricConfig!]!
+  summaryStatsMetrics: [SummaryStatsMetricConfig!]!
 }
 
 type ChunkingConfig {
   chunking: Chunking!
   enabled: Boolean!
-  count: Int
+  nrOfRows: Int
 }
 
 enum Chunking {
@@ -277,24 +727,34 @@ enum Chunking {
   WEEKLY
   DAILY
   HOURLY
+  NUMBER_OF_ROWS
 }
 
-type PerformanceTypeConfig {
-  type: PerformanceType!
+type PerformanceTypeConfig implements SupportConfigInterface {
   enabled: Boolean!
+  isSupported: Boolean!
+  supportReason: String
+  type: PerformanceType!
 }
 
 enum PerformanceType {
-  ESTIMATED
+  CBPE
+  MCBPE
+  DLE
   REALIZED
 }
 
-type UnivariateDriftMethodConfig {
-  method: UnivariateDriftMethod!
-  enabled: Boolean!
-  enabledCategorical: Boolean!
-  enabledContinuous: Boolean!
+type UnivariateDriftMethodConfig implements ColumnMetricConfig & MetricConfig {
+  lowerValueLimit: Float
+  upperValueLimit: Float
   threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  categorical: SupportConfig!
+  continuous: SupportConfig!
+  targets: SupportConfig!
+  predictions: SupportConfig!
+  predictedProbabilities: SupportConfig!
+  method: UnivariateDriftMethod!
 }
 
 enum UnivariateDriftMethod {
@@ -306,21 +766,33 @@ enum UnivariateDriftMethod {
   CHI2
 }
 
-type MultivariateDriftMethodConfig {
-  method: MultivariateDriftMethod!
-  enabled: Boolean!
+type MultivariateDriftMethodConfig implements SimpleMetricConfig & MetricConfig & SupportConfigInterface {
+  lowerValueLimit: Float
+  upperValueLimit: Float
   threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  enabled: Boolean!
+  isSupported: Boolean!
+  supportReason: String
+  method: MultivariateDriftMethod!
 }
 
 enum MultivariateDriftMethod {
   PCA_RECONSTRUCTION_ERROR
 }
 
-type DataQualityMetricConfig {
-  metric: DataQualityMetric!
-  enabled: Boolean!
-  normalize: Boolean!
+type DataQualityMetricConfig implements ColumnMetricConfig & MetricConfig {
+  lowerValueLimit: Float
+  upperValueLimit: Float
   threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  categorical: SupportConfig!
+  continuous: SupportConfig!
+  targets: SupportConfig!
+  predictions: SupportConfig!
+  predictedProbabilities: SupportConfig!
+  metric: DataQualityMetric!
+  normalize: Boolean!
 }
 
 enum DataQualityMetric {
@@ -328,14 +800,20 @@ enum DataQualityMetric {
   UNSEEN_VALUES
 }
 
-type ConceptShiftMetricConfig {
-  metric: ConceptShiftMetric!
-  enabled: Boolean!
+type ConceptShiftMetricConfig implements SimpleMetricConfig & MetricConfig & SupportConfigInterface {
+  lowerValueLimit: Float
+  upperValueLimit: Float
   threshold: Threshold
+  segmentThresholds: [SegmentThreshold!]!
+  enabled: Boolean!
+  isSupported: Boolean!
+  supportReason: String
+  metric: ConceptShiftMetric!
 }
 
 enum ConceptShiftMetric {
   ROC_AUC
+  AVERAGE_PRECISION
   F1
   PRECISION
   RECALL
@@ -343,11 +821,6 @@ enum ConceptShiftMetric {
   ACCURACY
   MAGNITUDE
 }
-
-"""
-The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
-"""
-scalar JSON
 
 type Schedule {
   frequency: ScheduleFrequency!
@@ -379,107 +852,16 @@ enum DayOfWeek {
   SUNDAY
 }
 
-type KeyIndicator {
-  analysisType: AnalysisType!
-  metricName: String!
-  componentName: String
-  columnName: String
-  columnNames: [String!]
-  value: Float
-  change: ChangeDirection
+input ModelsFilter {
+  name: String = null
+  problemType: ProblemType = null
 }
 
-enum ChangeDirection {
-  INCREASE
-  DECREASE
-  UNCHANGED
-}
-
-type DataSourceInspectData {
-  columns: [Column!]!
-  head: JSON!
-}
-
-input InspectDataSourceInput {
+input GetDefaultMonitoringRuntimeConfigInput {
   problemType: ProblemType!
-  storageInfo: StorageInput!
-}
-
-input StorageInput {
-  raw: RawStorageInput = null
-  azureBlob: AzureBlobStorageInput = null
-  s3: S3StorageInput = null
-  cache: CacheStorageInput = null
-}
-
-input RawStorageInput {
-  connectionString: String!
-  options: JSON
-}
-
-input AzureBlobStorageInput {
-  accountName: String!
-  container: String!
-  path: String!
-  isPublic: Boolean! = false
-  accountKey: String = null
-  sasToken: String = null
-}
-
-input S3StorageInput {
-  uri: String!
-  authenticationMode: S3AuthenticationMode!
-  awsAccessKeyId: String = null
-  awsSecretAccessKey: String = null
-}
-
-enum S3AuthenticationMode {
-  ANONYMOUS
-  INTEGRATED
-  ACCESS_KEY
-}
-
-input CacheStorageInput {
-  id: String!
-}
-
-type Tag {
-  name: String!
-}
-
-type ApplicationSettings {
-  usageStatistics: Boolean!
-}
-
-type Mutation {
-  create_model(model: CreateModelInput!): Model!
-  delete_model(modelId: Int!): Model!
-  start_model_run(modelId: Int!): Run!
-  stop_model_run(modelId: Int!): Run!
-  edit_model(input: EditModelInput!): ModelResultInvalidationRequired!
-  create_threshold(input: CreateThresholdInput!): ThresholdBase!
-  create_tag(input: CreateTagInput!): TagTagAlreadyExists!
-  edit_tag(input: EditTagInput!): TagTagAlreadyExistsTagNotFound!
-  tag_result(input: TagResultInput!): TagTagNotFoundResultNotFoundTagAlreadyExists!
-  untag_result(input: TagResultInput!): TagTagNotFoundResultNotFound!
-  add_model_data_source(input: AddDataSourceToModelInput!): DataSource!
-  delete_data_source(input: DeleteDataSourceInput!): DataSource!
-  add_data_to_data_source(input: DataSourceDataInput!): DataSource!
-  update_data_in_data_source(input: DataSourceDataInput!): DataSource!
-  edit_user_notification_settings(settings: EditUserNotificationSettingsInput!): UserNotificationSettingsUserNotFound!
-  edit_application_settings(settings: EditApplicationSettingsInput!): ApplicationSettings!
-  upload_dataset(file: Upload!): DatasetCacheRef!
-}
-
-input CreateModelInput {
-  name: String!
-  problemType: ProblemType!
-  chunkAggregation: Chunking!
-  referenceStartTimestamp: DateTime = null
-  referenceEndTimestamp: DateTime = null
-  dataSources: [CreateDataSourceInput!]! = []
-  mainPerformanceMetric: PerformanceMetric = null
-  mainPerformanceComponent: String = null
+  dataSources: [CreateDataSourceInput!]!
+  chunking: Chunking!
+  nrOfRows: Int = null
 }
 
 input CreateDataSourceInput {
@@ -490,129 +872,225 @@ input CreateDataSourceInput {
   storageInfo: StorageInput
 }
 
-input ColumnInput {
+type EvaluationModel {
+  id: Int!
   name: String!
-  columnType: ColumnType!
-  dataType: String!
-  className: String = null
+  problemType: ProblemType!
+  hypothesis: EvaluationHypothesis!
+  kpm: PerformanceMetric!
+  classificationThreshold: Float!
+  createdAt: DateTime!
+  createdBy: User
+  referenceDataSource: DataSource!
+  evaluationDataSource: DataSource!
+  config: EvaluationModelConfig!
+  kpmResult: EvaluationPerformanceResult
+  results(filter: EvaluationModelResultsFilter = null): [EvaluationPerformanceResult!]!
+  latestRun: EvaluationRun
+  runs: [EvaluationRun!]!
 }
 
-union ModelResultInvalidationRequired = Model | ResultInvalidationRequired
-
-type ResultInvalidationRequired {
-  modelId: ID!
-  all: Boolean!
-  metrics: [ResultRef!]!
+enum EvaluationHypothesis {
+  MODEL_PERFORMANCE_NO_WORSE_THAN_REFERENCE
+  MODEL_PERFORMANCE_WITHIN_RANGE
 }
 
-type ResultRef {
-  analysisType: AnalysisType!
-  metricName: String!
-  componentName: String
-  columnName: String
-  columnNames: [String!]
+type EvaluationModelConfig {
+  metrics: [EvaluationPerformanceMetricConfig!]!
 }
 
-input EditModelInput {
-  modelId: ID!
-  allowInvalidatingResults: Boolean! = false
-  name: String = null
-  referenceStartTimestamp: DateTime = null
-  referenceEndTimestamp: DateTime = null
-  runtimeConfig: EditRuntimeConfigInput = null
-  schedules: [EditScheduleInput!] = null
-}
-
-input EditRuntimeConfigInput {
-  dataChunking: [ChunkingConfigInput!] = null
-  performanceTypes: [PerformanceTypeConfigInput!] = null
-  performanceMetrics: [PerformanceMetricConfigInput!] = null
-  univariateDriftMethods: [UnivariateDriftMethodConfigInput!] = null
-  multivariateDriftMethods: [MultivariateDriftMethodConfigInput!] = null
-  dataQualityMetrics: [DataQualityMetricConfigInput!] = null
-  conceptShiftMetrics: [ConceptShiftMetricConfigInput!] = null
-}
-
-input ChunkingConfigInput {
-  chunking: Chunking!
-  enabled: Boolean!
-  count: Int = null
-}
-
-input PerformanceTypeConfigInput {
-  type: PerformanceType!
-  enabled: Boolean!
-}
-
-input PerformanceMetricConfigInput {
+type EvaluationPerformanceMetricConfig {
   metric: PerformanceMetric!
   enabled: Boolean!
-  enabledEstimated: Boolean!
-  enabledRealized: Boolean!
-  threshold: ThresholdRefInput
-  businessValue: BusinessValueMetricConfigInput = null
+  ropeLowerBound: Float
+  ropeUpperBound: Float
+  hdiWidth: Float
 }
 
-input ThresholdRefInput {
-  id: ID!
+type EvaluationPerformanceResult {
+  modelId: Int!
+  metric: PerformanceMetric!
+  status: EvaluationStatus!
+  hdiWidthReached: Boolean!
+  experimentDistribution: JSON!
+  referenceDistribution: JSON!
+  latestHdi: EvaluationResultHdiDataPoint
+  hdiData: [EvaluationResultHdiDataPoint!]!
+  tags: [String!]!
+  config: EvaluationPerformanceMetricConfig!
 }
 
-input BusinessValueMetricConfigInput {
-  truePositiveWeight: Float!
-  falsePositiveWeight: Float!
-  trueNegativeWeight: Float!
-  falseNegativeWeight: Float!
+enum EvaluationStatus {
+  ACCEPTED
+  REJECTED
+  ONGOING
 }
 
-input UnivariateDriftMethodConfigInput {
-  method: UnivariateDriftMethod!
-  enabled: Boolean!
-  enabledCategorical: Boolean!
-  enabledContinuous: Boolean!
-  threshold: ThresholdRefInput
+type EvaluationResultHdiDataPoint {
+  nrObservations: Int!
+  hdiLower: Float!
+  hdiUpper: Float!
+  cut: Float!
+  generatedBy: EvaluationRun
 }
 
-input MultivariateDriftMethodConfigInput {
-  method: MultivariateDriftMethod!
-  enabled: Boolean!
-  threshold: ThresholdRefInput
+type EvaluationRun {
+  id: Int!
+  state: RunState!
+  scheduledFor: DateTime
+  startedAt: DateTime
+  completedAt: DateTime
+  log: String
+  ranSuccessfully: Boolean
+  events(eventType: RunEventType = null): [EvaluationRunEvent!]!
 }
 
-input DataQualityMetricConfigInput {
-  metric: DataQualityMetric!
-  enabled: Boolean!
-  normalize: Boolean!
-  threshold: ThresholdRefInput
+type EvaluationRunEvent {
+  id: Int!
+  eventType: RunEventType!
+  ranSuccessfully: Boolean
+  scheduledFor: DateTime
+  currentStep: Int
+  nrSteps: Int
+  description: String
+  timestamp: DateTime!
+  causedBy: User
 }
 
-input ConceptShiftMetricConfigInput {
-  metric: ConceptShiftMetric!
-  enabled: Boolean!
-  threshold: ThresholdRefInput
+input EvaluationModelResultsFilter {
+  metrics: [PerformanceMetric!] = null
+  status: [EvaluationStatus!] = null
+  hdiWidthReached: Boolean = null
+  tags: [String!] = null
 }
 
-input EditScheduleInput {
-  frequency: ScheduleFrequency!
-  multiplier: Int!
-  time: Time!
-  offsetDays: Int = null
-  dayOfWeek: DayOfWeek = null
+input EvaluationModelsFilter {
+  name: String = null
+  problemType: ProblemType = null
 }
 
-input CreateThresholdInput {
+type Experiment {
+  id: Int!
   name: String!
-  constant: ConstantThresholdInput = null
-  standardDeviation: StandardDeviationThresholdInput = null
+  experimentType: ExperimentType!
+  kem: String!
+  createdAt: DateTime!
+  createdBy: User
+  dataSource: DataSource!
+  runtimeConfig: ExperimentRuntimeConfig!
+  kemResult: ExperimentResultMetric
+  results(filter: ExperimentResultsFilter = null): [ExperimentResultMetric!]!
+  latestRun: ExperimentRun
+  runs: [ExperimentRun!]!
 }
 
-input ConstantThresholdInput {
-  lower: Float
-  upper: Float
+enum ExperimentType {
+  A_B_TESTING
 }
 
-input StandardDeviationThresholdInput {
-  stdLowerMultiplier: Float
-  stdUpperMultiplier: Float
+type ExperimentRuntimeConfig {
+  metrics: [ExperimentMetricConfig!]!
+}
+
+type ExperimentMetricConfig {
+  metric: String!
+  ropeLowerBound: Float!
+  ropeUpperBound: Float!
+  hdiWidth: Float!
+}
+
+type ExperimentResultMetric {
+  id: Int!
+  experimentId: Int!
+  metric: String!
+  status: ExperimentStatus!
+  hdiWidthReached: Boolean!
+  distribution: JSON!
+  latestHdi: ExperimentResultHdiDataPoint
+  hdiData: [ExperimentResultHdiDataPoint!]!
+  tags: [String!]!
+  config: ExperimentMetricConfig!
+}
+
+enum ExperimentStatus {
+  ACCEPTED
+  REJECTED
+  ONGOING
+}
+
+type ExperimentResultHdiDataPoint {
+  nrObservations: Int!
+  hdiLower: Float!
+  hdiUpper: Float!
+  cut: Float!
+  generatedBy: ExperimentRun!
+}
+
+type ExperimentRun {
+  id: Int!
+  state: RunState!
+  scheduledFor: DateTime
+  startedAt: DateTime
+  completedAt: DateTime
+  log: String
+  ranSuccessfully: Boolean
+  events: [ExperimentRunEvent!]!
+}
+
+type ExperimentRunEvent {
+  id: Int!
+  eventType: RunEventType!
+  ranSuccessfully: Boolean
+  scheduledFor: DateTime
+  currentStep: Int
+  nrSteps: Int
+  description: String
+  timestamp: DateTime!
+  causedBy: User
+}
+
+input ExperimentResultsFilter {
+  metric: [String!] = null
+  status: [ExperimentStatus!] = null
+  hdiWidthReached: Boolean = null
+  tags: [String!] = null
+}
+
+input ExperimentsFilter {
+  name: String = null
+  experimentType: ExperimentType = null
+}
+
+type Mutation {
+  create_tag(input: CreateTagInput!): TagTagAlreadyExists!
+  edit_tag(input: EditTagInput!): TagTagAlreadyExistsTagNotFound!
+  add_model_data_source(input: AddDataSourceToModelInput!): DataSource!
+  delete_data_source(input: DeleteDataSourceInput!): DataSource!
+  add_data_to_data_source(input: DataSourceDataInput!): DataSource!
+  upsert_data_in_data_source(input: DataSourceDataInput!): DataSource!
+  delete_data_from_data_source(input: DataSourceDeleteInput!): DataSource!
+  edit_user_notification_settings(settings: EditUserNotificationSettingsInput!): UserNotificationSettingsUserNotFound!
+  edit_application_settings(settings: EditApplicationSettingsInput!): ApplicationSettings!
+  upload_dataset(file: Upload!): DatasetCacheRef!
+  create_user_api_token(input: UserApiTokenCreateInput!): UserApiTokenCreateResponse!
+  delete_user_api_token(tokenId: ID!): UserApiTokenTokenNotFound!
+  create_monitoring_model(model: CreateModelInput!): Model!
+  delete_monitoring_model(modelId: Int!): Model!
+  start_monitoring_model_run(modelId: Int!): Run!
+  stop_monitoring_model_run(modelId: Int!): Run!
+  edit_monitoring_model(input: EditModelInput!): ModelResultInvalidationRequired!
+  tag_monitoring_result(input: TagResultInput!): Result!
+  untag_monitoring_result(input: TagResultInput!): Result!
+  create_evaluation_model(input: CreateEvaluationModelInput!): EvaluationModel!
+  edit_evaluation_model(input: EditEvaluationModelInput!): EvaluationModel!
+  delete_evaluation_model(evaluationModelId: Int!): EvaluationModel!
+  start_evaluation_model_run(evaluationModelId: Int!): EvaluationRun!
+  cancel_evaluation_model_run(evaluationRunId: Int!): EvaluationRun!
+  create_experiment(input: CreateExperimentInput!): Experiment!
+  edit_experiment(input: EditExperimentInput!): Experiment!
+  delete_experiment(id: Int!): Experiment!
+  start_experiment_run(experimentId: Int!): ExperimentRun!
+  cancel_experiment_run(runId: Int!): ExperimentRun!
 }
 
 union TagTagAlreadyExists = Tag | TagAlreadyExists
@@ -636,29 +1114,6 @@ input EditTagInput {
   name: String!
 }
 
-union TagTagNotFoundResultNotFoundTagAlreadyExists = Tag | TagNotFound | ResultNotFound | TagAlreadyExists
-
-type ResultNotFound {
-  analysisType: AnalysisType!
-  metricName: String!
-  componentName: String
-  columnName: String
-  columnNames: [String!]
-  modelId: Int!
-}
-
-input TagResultInput {
-  analysisType: AnalysisType!
-  metricName: String!
-  componentName: String = null
-  columnName: String = null
-  columnNames: [String!] = null
-  modelId: Int!
-  tagName: String!
-}
-
-union TagTagNotFoundResultNotFound = Tag | TagNotFound | ResultNotFound
-
 input AddDataSourceToModelInput {
   modelId: ID!
   dataSource: CreateDataSourceInput!
@@ -671,6 +1126,11 @@ input DeleteDataSourceInput {
 input DataSourceDataInput {
   id: ID!
   storageInfo: StorageInput!
+}
+
+input DataSourceDeleteInput {
+  id: ID!
+  dataIds: StorageInput!
 }
 
 union UserNotificationSettingsUserNotFound = UserNotificationSettings | UserNotFound
@@ -686,7 +1146,25 @@ input EditUserNotificationSettingsInput {
 }
 
 input EditApplicationSettingsInput {
-  usageStatistics: Boolean!
+  usageStatistics: Boolean = null
+  auth: AuthenticationSettingsInput = null
+  notifications: NotificationSettingsInput = null
+}
+
+input NotificationSettingsInput {
+  email: EmailNotificationSettingsInput = null
+  webhook: WebhookNotificationSettingsInput = null
+}
+
+input EmailNotificationSettingsInput {
+  enabled: Boolean!
+  smtp: EmailSmtpSettingsInput = null
+  resend: EmailResendSettingsInput = null
+}
+
+input EmailResendSettingsInput {
+  apiKey: String!
+  sender: String!
 }
 
 type DatasetCacheRef {
@@ -694,3 +1172,300 @@ type DatasetCacheRef {
 }
 
 scalar Upload
+
+type UserApiTokenCreateResponse {
+  id: ID!
+  createdAt: DateTime!
+  description: String
+  token: String!
+}
+
+input UserApiTokenCreateInput {
+  description: String = null
+}
+
+union UserApiTokenTokenNotFound = UserApiToken | TokenNotFound
+
+type TokenNotFound {
+  id: ID!
+}
+
+input CreateModelInput {
+  name: String!
+  problemType: ProblemType!
+  referenceStartTimestamp: DateTime = null
+  referenceEndTimestamp: DateTime = null
+  dataSources: [CreateDataSourceInput!]! = []
+  kpm: KeyPerformanceMetricInput!
+  runtimeConfig: RuntimeConfigInput!
+}
+
+input KeyPerformanceMetricInput {
+  metric: PerformanceMetric!
+  component: String = null
+}
+
+input RuntimeConfigInput {
+  dataChunking: [ChunkingConfigInput!]!
+  performanceTypes: [PerformanceTypeConfigInput!]!
+  performanceMetrics: [PerformanceMetricConfigInput!]!
+  univariateDriftMethods: [UnivariateDriftMethodConfigInput!]!
+  multivariateDriftMethods: [MultivariateDriftMethodConfigInput!]!
+  dataQualityMetrics: [DataQualityMetricConfigInput!]!
+  conceptShiftMetrics: [ConceptShiftMetricConfigInput!]!
+  summaryStatsMetrics: [SummaryStatsMetricConfigInput!]!
+}
+
+input ChunkingConfigInput {
+  chunking: Chunking!
+  enabled: Boolean!
+  nrOfRows: Int = null
+}
+
+input PerformanceTypeConfigInput {
+  type: PerformanceType!
+  enabled: Boolean!
+}
+
+input PerformanceMetricConfigInput {
+  metric: PerformanceMetric!
+  enabledEstimated: Boolean! = true
+  enabledRealized: Boolean! = true
+  threshold: ThresholdInput
+  segmentThresholds: [SegmentThresholdInput!]!
+  businessValue: BusinessValueMetricConfigInput = null
+}
+
+input ThresholdInput {
+  constant: ConstantThresholdInput = null
+  standardDeviation: StandardDeviationThresholdInput = null
+}
+
+input ConstantThresholdInput {
+  lower: Float
+  upper: Float
+}
+
+input StandardDeviationThresholdInput {
+  stdLowerMultiplier: Float
+  stdUpperMultiplier: Float
+}
+
+input SegmentThresholdInput {
+  segmentId: Int!
+  threshold: ThresholdInput
+}
+
+input BusinessValueMetricConfigInput {
+  truePositiveWeight: Float!
+  falsePositiveWeight: Float!
+  trueNegativeWeight: Float!
+  falseNegativeWeight: Float!
+}
+
+input UnivariateDriftMethodConfigInput {
+  method: UnivariateDriftMethod!
+  enabledCategorical: Boolean!
+  enabledContinuous: Boolean!
+  enabledTargets: Boolean!
+  enabledPredictions: Boolean!
+  enabledPredictedProbabilities: Boolean!
+  threshold: ThresholdInput
+  segmentThresholds: [SegmentThresholdInput!]!
+}
+
+input MultivariateDriftMethodConfigInput {
+  method: MultivariateDriftMethod!
+  enabled: Boolean!
+  threshold: ThresholdInput
+  segmentThresholds: [SegmentThresholdInput!]!
+}
+
+input DataQualityMetricConfigInput {
+  metric: DataQualityMetric!
+  enabledCategorical: Boolean!
+  enabledContinuous: Boolean!
+  enabledTargets: Boolean!
+  enabledPredictions: Boolean!
+  enabledPredictedProbabilities: Boolean!
+  normalize: Boolean!
+  threshold: ThresholdInput
+  segmentThresholds: [SegmentThresholdInput!]!
+}
+
+input ConceptShiftMetricConfigInput {
+  metric: ConceptShiftMetric!
+  enabled: Boolean!
+  threshold: ThresholdInput
+  segmentThresholds: [SegmentThresholdInput!]!
+}
+
+input SummaryStatsMetricConfigInput {
+  metric: SummaryStatsMetric!
+  enabled: Boolean = null
+  enabledCategorical: Boolean = null
+  enabledContinuous: Boolean = null
+  enabledTargets: Boolean = null
+  enabledPredictions: Boolean = null
+  enabledPredictedProbabilities: Boolean = null
+  threshold: ThresholdInput
+  segmentThresholds: [SegmentThresholdInput!]!
+}
+
+union ModelResultInvalidationRequired = Model | ResultInvalidationRequired
+
+type ResultInvalidationRequired {
+  modelId: Int!
+  all: Boolean!
+  metrics: [ResultRef!]!
+}
+
+type ResultRef {
+  modelId: Int!
+  analysisType: AnalysisType!
+  calculatorType: CalculatorType!
+  metricName: String
+  componentName: String
+  columnName: String
+  columnNames: [String!]
+  segmentId: Int
+}
+
+input EditModelInput {
+  modelId: Int!
+  allowInvalidatingResults: Boolean! = false
+  name: String = null
+  referenceStartTimestamp: DateTime = null
+  referenceEndTimestamp: DateTime = null
+  runtimeConfig: EditRuntimeConfigInput = null
+  schedules: [EditScheduleInput!] = null
+  dataSources: [EditDataSourceColumnTypesInput!] = null
+  kpm: EditKeyPerformanceMetricInput = null
+}
+
+input EditRuntimeConfigInput {
+  dataChunking: [ChunkingConfigInput!] = null
+  performanceTypes: [PerformanceTypeConfigInput!] = null
+  performanceMetrics: [PerformanceMetricConfigInput!] = null
+  univariateDriftMethods: [UnivariateDriftMethodConfigInput!] = null
+  multivariateDriftMethods: [MultivariateDriftMethodConfigInput!] = null
+  dataQualityMetrics: [DataQualityMetricConfigInput!] = null
+  conceptShiftMetrics: [ConceptShiftMetricConfigInput!] = null
+  summaryStatsMetrics: [SummaryStatsMetricConfigInput!] = null
+}
+
+input EditScheduleInput {
+  frequency: ScheduleFrequency!
+  multiplier: Int!
+  time: Time!
+  offsetDays: Int = null
+  dayOfWeek: DayOfWeek = null
+}
+
+input EditDataSourceColumnTypesInput {
+  id: ID!
+  columns: [ColumnTypeInput!]!
+}
+
+input ColumnTypeInput {
+  name: String!
+  columnType: ColumnType!
+}
+
+input EditKeyPerformanceMetricInput {
+  metric: PerformanceMetric = null
+  component: String = null
+}
+
+input TagResultInput {
+  resultRef: ResultRefInput!
+  tagName: String!
+}
+
+input ResultRefInput {
+  modelId: Int!
+  analysisType: AnalysisType!
+  calculatorType: CalculatorType!
+  metricName: String = null
+  componentName: String = null
+  columnName: String = null
+  segmentId: Int = null
+}
+
+input CreateEvaluationModelInput {
+  name: String!
+  problemType: ProblemType!
+  hypothesis: EvaluationHypothesis!
+  classificationThreshold: Float!
+  referenceDataSource: CreateDataSourceInput!
+  evaluationDataSource: CreateDataSourceInput
+  metrics: [EvaluationPerformanceMetricConfigInput!]!
+  kpm: PerformanceMetric!
+}
+
+input EvaluationPerformanceMetricConfigInput {
+  metric: PerformanceMetric!
+  enabled: Boolean!
+  ropeLowerBound: Float
+  ropeUpperBound: Float
+  hdiWidth: Float
+}
+
+input EditEvaluationModelInput {
+  modelId: Int!
+  name: String = null
+  problemType: ProblemType = null
+  hypothesis: EvaluationHypothesis = null
+  classificationThreshold: Float = null
+  runtimeConfig: EditEvaluationModelRuntimeConfigInput = null
+  kpm: PerformanceMetric = null
+}
+
+input EditEvaluationModelRuntimeConfigInput {
+  metrics: [EditEvaluationPerformanceMetricConfigInput!] = null
+}
+
+input EditEvaluationPerformanceMetricConfigInput {
+  metric: PerformanceMetric!
+  enabled: Boolean = null
+  ropeLowerBound: Float
+  ropeUpperBound: Float
+  hdiWidth: Float
+}
+
+input CreateExperimentInput {
+  name: String!
+  experimentType: ExperimentType!
+  kem: String!
+  dataSource: CreateDataSourceInput!
+  config: ExperimentRuntimeConfigInput!
+}
+
+input ExperimentRuntimeConfigInput {
+  metrics: [ExperimentMetricConfigInput!]!
+}
+
+input ExperimentMetricConfigInput {
+  metric: String!
+  ropeLowerBound: Float!
+  ropeUpperBound: Float!
+  hdiWidth: Float!
+}
+
+input EditExperimentInput {
+  experimentId: Int!
+  name: String = null
+  kem: String = null
+  config: EditExperimentRuntimeConfigInput = null
+}
+
+input EditExperimentRuntimeConfigInput {
+  metrics: [EditExperimentMetricConfigInput!] = null
+}
+
+input EditExperimentMetricConfigInput {
+  metric: String!
+  ropeLowerBound: Float!
+  ropeUpperBound: Float!
+  hdiWidth: Float!
+}
