@@ -84,7 +84,7 @@ model = nml_sdk.monitoring.Model.create(
     reference_data=reference_data,
     analysis_data=analysis_data,
     target_data=target_data,
-    main_performance_metric='F1',
+    key_performance_metric='F1',
 )
 print("Model", model['id'], "created at", model['createdAt'])
 ```
