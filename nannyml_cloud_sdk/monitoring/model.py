@@ -16,6 +16,7 @@ from ..errors import InvalidOperationError
 from .run import RUN_SUMMARY_FRAGMENT, RunSummary
 from .schema import ModelSchema, normalize
 from .._typing import TypedDict
+from .configuration import RuntimeConfiguration
 
 
 class ModelSummary(TypedDict):
@@ -160,8 +161,9 @@ class Model:
         schema: ModelSchema,
         reference_data: pd.DataFrame,
         analysis_data: pd.DataFrame,
+        key_performance_metric: PerformanceMetric,
+        key_performance_metric_component: Optional[str] = None,
         target_data: Optional[pd.DataFrame] = None,
-        main_performance_metric: Optional[PerformanceMetric] = None,
         chunk_period: Optional[ChunkPeriod] = None,
         chunk_size: Optional[int] = None,
     ) -> ModelDetails:
@@ -174,9 +176,11 @@ class Model:
             reference_data: Reference data to use for the model.
             analysis_data: Analysis data to use for the model. If the data contains targets, targets must always be
                 provided together with analysis data.
+            key_performance_metric: Key performance metric for the model.
+            key_performance_metric_component: Optional key performance metric component for the model.
+                This is only required if the key performance metric is a composite metric, for example
+                the `CONFUSION_MATRIX` metric that has components like `true_positives`, `false_positives`, etc.
             target_data: Optional target data to use for the model.
-            main_performance_metric: Optional main performance metric for the model. If not provided, no performance
-                metric will be tagged as main.
             chunk_period: Time period per chunk. Should only be set for time-based chunking.
             chunk_size: Number of rows per chunk. Should only be set for size-based chunking.
 
@@ -217,6 +221,9 @@ class Model:
                 'storageInfo': Data.upload(target_data),
             })
 
+        runtime_config = RuntimeConfiguration.default(
+            schema['problemType'], chunk_period if chunk_period is not None else 'NUMBER_OF_ROWS', data_sources)
+
         return execute(_CREATE_MODEL, {
             'input': {
                 'name': name,
@@ -224,7 +231,11 @@ class Model:
                 'chunkAggregation': chunk_period if chunk_period is not None else 'NUMBER_OF_ROWS',
                 'numberOfRows': chunk_size,
                 'dataSources': data_sources,
-                'mainPerformanceMetric': main_performance_metric,
+                'kpm': {
+                    'metric': key_performance_metric,
+                    'component': key_performance_metric_component,
+                },
+                'runtimeConfig': runtime_config,
             },
         })['create_monitoring_model']
 
