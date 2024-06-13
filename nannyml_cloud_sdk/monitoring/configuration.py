@@ -1,10 +1,10 @@
-from typing import Optional, Dict, Any, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from gql import gql
 
 from .enums import Chunking, PerformanceType, UnivariateDriftMethod, MultivariateDriftMethod, DataQualityMetric, \
     ConceptShiftMetric, SummaryStatsMetric
-from .._typing import TypedDict
+from .._typing import GraphQLObject, TypedDict, is_gql_type
 from ..client import execute
 from ..enums import ProblemType, PerformanceMetric
 
@@ -28,7 +28,7 @@ class PerformanceTypesConfiguration(TypedDict):
     type_: PerformanceType
 
 
-class PerformanceMetricsConfiguration(TypedDict):
+class PerformanceMetricsConfiguration(GraphQLObject):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
     threshold: Dict[str, Any]
@@ -36,11 +36,16 @@ class PerformanceMetricsConfiguration(TypedDict):
     metric: PerformanceMetric
     estimated: SupportConfig
     realized: SupportConfig
-    businessValue: Optional[Dict[str, Any]]
-    __typename: str
 
 
-class UnivariateDriftConfiguration(TypedDict):
+class BusinessValueMetricConfiguration(PerformanceMetricsConfiguration):
+    truePositiveWeight: float
+    falsePositiveWeight: float
+    trueNegativeWeight: float
+    falseNegativeWeight: float
+
+
+class UnivariateDriftConfiguration(GraphQLObject):
     """Univariate drift configuration"""
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
@@ -52,10 +57,9 @@ class UnivariateDriftConfiguration(TypedDict):
     predictions: SupportConfig
     predictedProbabilities: SupportConfig
     method: UnivariateDriftMethod
-    __typename: str
 
 
-class MultivariateDriftConfiguration(TypedDict):
+class MultivariateDriftConfiguration(GraphQLObject):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
     threshold: Dict[str, Any]
@@ -64,10 +68,9 @@ class MultivariateDriftConfiguration(TypedDict):
     is_supported: bool
     support_reason: Optional[str]
     method: MultivariateDriftMethod
-    __typename: str
 
 
-class DataQualityMetricConfiguration(TypedDict):
+class DataQualityMetricConfiguration(GraphQLObject):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
     threshold: Dict[str, Any]
@@ -79,10 +82,9 @@ class DataQualityMetricConfiguration(TypedDict):
     predictedProbabilities: SupportConfig
     metric: DataQualityMetric
     normalize: bool
-    __typename: str
 
 
-class ConceptShiftMetricConfiguration(TypedDict):
+class ConceptShiftMetricConfiguration(GraphQLObject):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
     threshold: Dict[str, Any]
@@ -91,33 +93,28 @@ class ConceptShiftMetricConfiguration(TypedDict):
     is_supported: bool
     support_reason: Optional[str]
     metric: ConceptShiftMetric
-    __typename: str
 
 
-class SummaryStatsSimpleMetricConfiguration(TypedDict):
+class SummaryStatsMetricConfiguration(GraphQLObject):
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
     threshold: Dict[str, Any]
     segmentThresholds: List
+    metric: SummaryStatsMetric
+
+
+class SummaryStatsSimpleMetricConfig(SummaryStatsMetricConfiguration):
     enabled: bool
     is_supported: bool
     support_reason: Optional[str]
-    metric: SummaryStatsMetric
-    __typename: str
 
 
-class SummaryStatsMetricColumnConfiguration(TypedDict):
-    lowerValueLimit: Optional[float]
-    upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]
-    segmentThresholds: List
+class SummaryStatsColumnMetricConfig(SummaryStatsMetricConfiguration):
     categorical: SupportConfig
     continuous: SupportConfig
     targets: SupportConfig
     predictions: SupportConfig
     predictedProbabilities: SupportConfig
-    metric: SummaryStatsMetric
-    __typename: str
 
 
 _THRESHOLD_FRAGMENT = """
@@ -257,7 +254,7 @@ class RuntimeConfigurationDict(TypedDict):
     multivariateDriftMethods: List[MultivariateDriftConfiguration]
     dataQualityMetrics: List[DataQualityMetricConfiguration]
     conceptShiftMetrics: List[ConceptShiftMetricConfiguration]
-    summaryStatsMetrics: List[Union[SummaryStatsSimpleMetricConfiguration, SummaryStatsMetricColumnConfiguration]]
+    summaryStatsMetrics: List[Union[SummaryStatsSimpleMetricConfig, SummaryStatsColumnMetricConfig]]
 
 
 class RuntimeConfiguration:
@@ -326,16 +323,16 @@ def _convert_segment_threshold(st: dict) -> dict:
     }
 
 
-def _convert_performance_metric(m: PerformanceMetricsConfiguration) -> dict:
+def _convert_performance_metric(m: PerformanceMetricsConfiguration | BusinessValueMetricConfiguration) -> dict:
     return {
         'metric': m['metric'],
         'enabledEstimated': _convert_supports_config(m['estimated']),
         'enabledRealized': _convert_supports_config(m['realized']),
-        'businessValue': None if m['__typename'] != 'BusinessValueMetricConfig' else {
-            'truePositiveWeight': m['truePositiveWeight'],  # type: ignore
-            'falsePositiveWeight': m['falsePositiveWeight'],  # type: ignore
-            'trueNegativeWeight': m['trueNegativeWeight'],  # type: ignore
-            'falseNegativeWeight': m['falseNegativeWeight'],  # type: ignore
+        'businessValue': None if not is_gql_type(m, BusinessValueMetricConfiguration) else {
+            'truePositiveWeight': m['truePositiveWeight'],
+            'falsePositiveWeight': m['falsePositiveWeight'],
+            'trueNegativeWeight': m['trueNegativeWeight'],
+            'falseNegativeWeight': m['falseNegativeWeight'],
         },
         'threshold': _convert_threshold(m['threshold']),
         'segmentThresholds': [_convert_segment_threshold(st) for st in m['segmentThresholds']],
@@ -387,22 +384,22 @@ def _convert_concept_drift_metric(m: ConceptShiftMetricConfiguration) -> dict:
     }
 
 
-def _convert_summary_stats_metric(
-        m: Union[SummaryStatsSimpleMetricConfiguration, SummaryStatsMetricColumnConfiguration]
-) -> dict:
-    res = {
+def _convert_summary_stats_metric(m: SummaryStatsMetricConfiguration) -> dict:
+    res: dict[str, Any] = {
         'metric': m['metric'],
-        'threshold': _convert_threshold(m['threshold']),  # type: ignore
+        'threshold': _convert_threshold(m['threshold']),
         'segmentThresholds': [_convert_segment_threshold(st) for st in m['segmentThresholds']],
     }
-    if m['__typename'] == 'SummaryStatsSimpleMetricConfig':
-        res['enabled'] = m['enabled']  # type: ignore
-    else:
+    if is_gql_type(m, SummaryStatsSimpleMetricConfig):
+        res['enabled'] = m['enabled']
+    elif is_gql_type(m, SummaryStatsColumnMetricConfig):
         res['metric'] = m['metric']
-        res['enabledCategorical'] = _convert_supports_config(m['categorical'])  # type: ignore
-        res['enabledContinuous'] = _convert_supports_config(m['continuous'])  # type: ignore
-        res['enabledTargets'] = _convert_supports_config(m['targets'])  # type: ignore
-        res['enabledPredictions'] = _convert_supports_config(m['predictions'])  # type: ignore
-        res['enabledPredictedProbabilities'] = _convert_supports_config(m['predictedProbabilities'])  # type: ignore
+        res['enabledCategorical'] = _convert_supports_config(m['categorical'])
+        res['enabledContinuous'] = _convert_supports_config(m['continuous'])
+        res['enabledTargets'] = _convert_supports_config(m['targets'])
+        res['enabledPredictions'] = _convert_supports_config(m['predictions'])
+        res['enabledPredictedProbabilities'] = _convert_supports_config(m['predictedProbabilities'])
+    else:
+        raise ValueError(f"Unknown summary stats metric configuration type: {m['__typename']}")
 
     return res
