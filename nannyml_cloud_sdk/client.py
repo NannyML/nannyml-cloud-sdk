@@ -1,15 +1,15 @@
 import datetime
 import functools
-from typing import Callable, Optional, TypeVar
+from typing import Any, Callable, Optional, TypeVar
 
 from graphql import GraphQLScalarType
 from gql import Client
-from gql.transport.exceptions import TransportQueryError
+from gql.transport.exceptions import TransportQueryError, TransportServerError
 from gql.transport.requests import RequestsHTTPTransport
 from gql.utilities import update_schema_scalars
 
 import nannyml_cloud_sdk
-from .errors import ApiError
+from .errors import ApiError, LicenseError
 from ._typing import Concatenate, ParamSpec
 
 _T = TypeVar('_T')
@@ -32,7 +32,7 @@ def get_client() -> Client:
     if nannyml_cloud_sdk.api_token:
         headers['Authorization'] = f"ApiToken {nannyml_cloud_sdk.api_token}"
 
-    transport = RequestsHTTPTransport(url=f"{nannyml_cloud_sdk.url}/api/graphql", headers=headers)
+    transport = RequestsHTTPTransport(url=f"{nannyml_cloud_sdk.url}/graphql", headers=headers)
     _active_client = Client(
         transport=transport, fetch_schema_from_transport=True, parse_results=True, serialize_variables=True
     )
@@ -57,6 +57,13 @@ def _translate_gql_errors(fn: Callable[Concatenate[Client, _P], _T]) -> Callable
                 raise ApiError(ex.errors[0]['message']) from ex
             else:
                 raise ApiError(str(ex)) from ex
+        except TransportServerError as ex:
+            cause: Any = ex.__cause__
+            if ex.code == 403:
+                data = cause.response.json()
+                if data.get('type') == 'LicenseError':
+                    raise LicenseError(data.get('detail', '')) from ex
+            raise
     return wrapper
 
 
