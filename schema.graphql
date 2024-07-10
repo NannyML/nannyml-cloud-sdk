@@ -28,6 +28,7 @@ type StandardDeviationThreshold implements Thresholdbase & Threshold {
 }
 
 type KdeDistributionResult implements Result {
+  id: String!
   modelId: Int!
   analysisType: AnalysisType!
   calculatorType: CalculatorType!
@@ -38,6 +39,7 @@ type KdeDistributionResult implements Result {
 }
 
 interface Result {
+  id: String!
   modelId: Int!
   analysisType: AnalysisType!
   calculatorType: CalculatorType!
@@ -57,11 +59,12 @@ enum AnalysisType {
 
 enum CalculatorType {
   CBPE
-  MCBPE
+  PAPE
   DLE
   PERFORMANCE_CALCULATION
   UNIVARIATE_DRIFT
-  MULTIVARIATE_DRIFT
+  RECONSTRUCTION_ERROR
+  DOMAIN_CLASSIFIER
   MISSING_VALUES
   UNSEEN_VALUES
   RCS
@@ -129,6 +132,7 @@ enum DataPeriod {
 }
 
 type TimeSeriesResult implements Result {
+  id: String!
   modelId: Int!
   analysisType: AnalysisType!
   calculatorType: CalculatorType!
@@ -142,7 +146,6 @@ type TimeSeriesResult implements Result {
   stdev: Float
   data(filter: ResultDataFilter = null): [TimeSeriesDataPoint!]!
   lastDataPoint: TimeSeriesDataPoint
-  nrAlerts: Int!
   config: MetricConfig!
 }
 
@@ -170,6 +173,7 @@ type SegmentThreshold {
 }
 
 type ValueCountDistributionResult implements Result {
+  id: String!
   modelId: Int!
   analysisType: AnalysisType!
   calculatorType: CalculatorType!
@@ -328,6 +332,7 @@ type Query {
   verify_auth(authSettings: AuthenticationSettingsInput!, accessToken: String!): Boolean!
   send_test_email(settings: EmailSmtpSettingsInput!, recipient: String!): Void
   send_test_webhook_call(settings: WebhookNotificationSettingsInput!): Void
+  version: VersionInfo!
   monitoring_models(filter: ModelsFilter = null): [Model!]!
   monitoring_model(id: Int!): Model
   get_default_monitoring_runtime_config(input: GetDefaultMonitoringRuntimeConfigInput!): RuntimeConfig!
@@ -346,6 +351,7 @@ type DataSourceInspectData {
 type Column {
   name: String!
   columnType: ColumnType!
+  columnFlags: [ColumnFlag!]!
   dataType: String!
   className: String
 }
@@ -363,6 +369,9 @@ enum ColumnType {
   GROUP_NAME
   SUCCESS_COUNT
   FAIL_COUNT
+}
+
+enum ColumnFlag {
   SEGMENT
 }
 
@@ -453,6 +462,7 @@ input InspectExperimentDataSourceInput {
 input ColumnInput {
   name: String!
   columnType: ColumnType!
+  columnFlags: [ColumnFlag!]!
   dataType: String!
   className: String = null
 }
@@ -585,6 +595,17 @@ input WebhookNotificationHeaderInput {
   value: String!
 }
 
+type VersionInfo {
+  applicationVersion: String!
+  serverVersion: String!
+  products: [ProductVersionInfo!]!
+}
+
+type ProductVersionInfo {
+  product: ProductType!
+  version: String!
+}
+
 type Model {
   id: Int!
   name: String!
@@ -597,7 +618,7 @@ type Model {
   kpm: KeyPerformanceMetric!
   dataSources(filter: DataSourcesFilter = null): [DataSource!]!
   runs: [Run!]!
-  results(filter: ModelResultsFilter = null, includeDisabled: Boolean! = false): [Result!]!
+  results(filter: [ModelResultsFilter!] = null, includeDisabled: Boolean! = false): [Result!]!
   runtimeConfig: RuntimeConfig!
   runnerConfig: JSON!
   schedules: [Schedule!]!
@@ -653,7 +674,7 @@ enum RunEventType {
 type KeyPerformanceMetric {
   metric: PerformanceMetric!
   component: String
-  results: [TimeSeriesResult!]!
+  results(segments: [Int] = null): [TimeSeriesResult!]!
 }
 
 type DataSource {
@@ -739,7 +760,7 @@ type PerformanceTypeConfig implements SupportConfigInterface {
 
 enum PerformanceType {
   CBPE
-  MCBPE
+  PAPE
   DLE
   REALIZED
 }
@@ -779,6 +800,7 @@ type MultivariateDriftMethodConfig implements SimpleMetricConfig & MetricConfig 
 
 enum MultivariateDriftMethod {
   PCA_RECONSTRUCTION_ERROR
+  DOMAIN_CLASSIFIER_AUROC
 }
 
 type DataQualityMetricConfig implements ColumnMetricConfig & MetricConfig {
@@ -1370,6 +1392,7 @@ input EditDataSourceColumnTypesInput {
 input ColumnTypeInput {
   name: String!
   columnType: ColumnType!
+  columnFlags: [ColumnFlag!]!
 }
 
 input EditKeyPerformanceMetricInput {
