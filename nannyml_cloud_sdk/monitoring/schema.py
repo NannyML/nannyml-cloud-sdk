@@ -303,6 +303,24 @@ class Schema:
         return schema
 
     @classmethod
+    def set_segment(cls, schema: ModelSchema, column_name: str) -> ModelSchema:
+        """Sets the SEGMENT column flag for a column in a schema.
+
+        Args:
+            schema: The schema to modify.
+            column_name: The name of the column to mark as a segment column. The column will keep its original type.
+
+        Returns:
+            The modified schema.
+        """
+        column_name = normalize(column_name)
+        for column in schema['columns']:
+            if column['name'] == column_name:
+                column['columnFlags'].append('SEGMENT')
+
+        return schema
+
+    @classmethod
     def _guess_feature_type(cls, column: ColumnDetails) -> ColumnType:
         """Guess feature type from column details."""
         return (
