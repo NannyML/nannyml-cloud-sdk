@@ -32,6 +32,7 @@ class Schema:
         identifier_column_name: Optional[str] = ...,
         feature_columns: Dict[str, FeatureType] = ...,
         ignore_column_names: Union[str, Collection[str]] = ...,
+        segment_column_names: Union[str, Collection[str]] = ...,
     ) -> ModelSchema:
         """First"""
         pass
@@ -49,6 +50,8 @@ class Schema:
         identifier_column_name: Optional[str] = ...,
         feature_columns: Dict[str, FeatureType] = ...,
         ignore_column_names: Union[str, Collection[str]] = ...,
+        segment_column_names: Union[str, Collection[str]] = ...,
+
     ) -> ModelSchema:
         """Create a schema from a pandas dataframe.
 
@@ -69,6 +72,7 @@ class Schema:
         identifier_column_name: Optional[str] = None,
         feature_columns: Dict[str, FeatureType] = {},
         ignore_column_names: Union[str, Collection[str]] = (),
+        segment_column_names: Union[str, Collection[str]] = (),
     ) -> ModelSchema:
         """Create a schema from a pandas dataframe.
 
@@ -95,6 +99,8 @@ class Schema:
             feature_columns: A dictionary specifying whether features are `CATEGORICAL` or `CONTINUOUS`. Feature columns
                 that are not specified will retain their original [type][nannyml_cloud_sdk.enums.FeatureType].
             ignore_column_names: The names of columns to ignore.
+            segment_column_names: The names of columns to mark as segment sources. Their values will be used
+                to segment the data. The column will keep its original type.
 
         Returns:
             The inspected schema with any modifications applied.
@@ -126,6 +132,8 @@ class Schema:
         for column_name, feature_type in feature_columns.items():
             schema = cls.set_feature(schema, column_name, feature_type)
         schema = cls.set_ignored(schema, ignore_column_names)
+        for column_name in segment_column_names:
+            schema = cls.set_segment(schema, column_name)
 
         return schema
 
