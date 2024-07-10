@@ -99,6 +99,7 @@ class ColumnDetails(TypedDict):
     columnType: ColumnType
     dataType: str
     className: Optional[str]
+    columnFlags: List[str]
 
 
 class DataSourceSummary(TypedDict):
