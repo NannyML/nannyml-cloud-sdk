@@ -209,6 +209,11 @@ class Model:
                 'storageInfo': Data.upload(analysis_data),
             },
         ]
+
+        target_column = next((col['name'] for col in schema['columns'] if col['columnType'] == 'TARGET'), None)
+        if target_column is None:
+            raise ValueError("Schema must contain a target column")
+        # Add target data source if target data is provided
         if target_data is not None:
             data_sources.append({
                 'name': 'target',
@@ -219,6 +224,18 @@ class Model:
                     if column['name'] in map(normalize, target_data.columns)
                 ],
                 'storageInfo': Data.upload(target_data),
+            })
+        # Add empty target data source if target data is not provided in analysis
+        elif target_column not in map(normalize, analysis_data.columns):
+            data_sources.append({
+                'name': 'target',
+                'hasReferenceData': False,
+                'hasAnalysisData': True,
+                'columns': [
+                    column for column in schema['columns']
+                    if column['columnType'] in ('TARGET', 'IDENTIFIER')
+                ],
+                'storageInfo': None,
             })
 
         runtime_config = RuntimeConfiguration.default(
