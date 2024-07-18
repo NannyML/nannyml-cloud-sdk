@@ -262,12 +262,16 @@ class RuntimeConfiguration:
 
     @staticmethod
     def default(
-        problem_type: ProblemType, chunking: Chunking, data_sources: List[dict[str, Any]]
+        problem_type: ProblemType,
+        chunking: Chunking,
+        data_sources: List[dict[str, Any]],
+        nr_of_rows: Optional[int] = None
     ) -> dict[str, Any]:
         rc = execute(_GET_DEFAULT_RUNTIME_CONFIGURATION, {
             'input': {
                 'problemType': problem_type,
                 'chunking': chunking,
+                'nrOfRows': nr_of_rows,
                 'dataSources': data_sources
             }
         })['get_default_monitoring_runtime_config']

@@ -239,14 +239,16 @@ class Model:
             })
 
         runtime_config = RuntimeConfiguration.default(
-            schema['problemType'], chunk_period if chunk_period is not None else 'NUMBER_OF_ROWS', data_sources)
+            problem_type=schema['problemType'],
+            chunking=chunk_period if chunk_period is not None else 'NUMBER_OF_ROWS',
+            data_sources=data_sources,
+            nr_of_rows=chunk_size
+        )
 
         return execute(_CREATE_MODEL, {
             'input': {
                 'name': name,
                 'problemType': schema['problemType'],
-                'chunkAggregation': chunk_period if chunk_period is not None else 'NUMBER_OF_ROWS',
-                'numberOfRows': chunk_size,
                 'dataSources': data_sources,
                 'kpm': {
                     'metric': key_performance_metric,
