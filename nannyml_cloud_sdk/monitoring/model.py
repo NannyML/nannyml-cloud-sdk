@@ -120,6 +120,28 @@ _DELETE_MODEL = gql("""
     }
 """)
 
+_ADD_CUSTOM_METRIC_TO_MODEL = gql("""
+    mutation addCustomMetricToModel($modelId: Int!, $metricId: Int!) {
+        add_custom_metric_to_monitoring_model(input: {
+            modelId: $modelId
+            metricId: $metricId
+        }) {
+            id
+        }
+    }
+""")
+
+_REMOVE_CUSTOM_METRIC_TO_MODEL = gql("""
+    mutation addCustomMetricToModel($modelId: Int!, $metricId: Int!) {
+        remove_custom_metric_from_monitoring_model(input: {
+            modelId: $modelId
+            metricId: $metricId
+        }) {
+            id
+        }
+    }
+""")
+
 
 class Model:
     """Operations for working with machine learning models."""
@@ -457,3 +479,19 @@ class Model:
                 f"Model '{model_id}' has no target data source. If targets are present, they are stored in the "
                 "analysis data source. Use `delete_analysis_data` instead."
             )
+
+    @classmethod
+    def add_custom_metric(cls, model_id: str, metric_id: str) -> None:
+        """Add a custom metric to a monitoring model."""
+        return execute(_ADD_CUSTOM_METRIC_TO_MODEL, {
+            'modelId': int(model_id),
+            'metricId': int(metric_id),
+        })
+
+    @classmethod
+    def remove_custom_metric(cls, model_id: str, metric_id: str) -> None:
+        """Remove a custom metric from a monitoring model."""
+        return execute(_REMOVE_CUSTOM_METRIC_TO_MODEL, {
+            'modelId': int(model_id),
+            'metricId': int(metric_id),
+        })
