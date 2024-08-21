@@ -53,3 +53,10 @@ SummaryStatsMetric = Literal[
     'SUMMARY_STATS_STD',
     'SUMMARY_STATS_SUM',
 ]
+
+ClassificationRuleType = Literal[
+    'ANY',
+    'EQUALS',
+    'NOT_EQUALS',
+    'CLASS',
+]
