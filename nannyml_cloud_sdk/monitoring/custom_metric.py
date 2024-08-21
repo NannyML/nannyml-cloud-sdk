@@ -48,7 +48,7 @@ _CUSTOM_METRIC_SUMMARY_FRAGMENT = f"""
 """
 
 
-_CUSTOM_METRIC_DETAILS_FRAGMENT = f"""
+_CUSTOM_METRIC_DETAILS_FRAGMENT = """
     fragment MetricDetails on Metric {{
         ...MetricSummary
         description
