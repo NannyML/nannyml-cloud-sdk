@@ -33,6 +33,7 @@ class CustomMetricDetails(TypedDict):
 
     description: str
 
+
 class CustomClassificationMetricDetails(CustomMetricDetails):
     calculateFn: str
     estimateFn: str
@@ -203,7 +204,7 @@ class CustomMetric:
 
             classification_params = {
                 'calculateFn': _get_source_str(calculate_function),
-                'estimateFn': _get_source_str(estimate_function),
+                'estimateFn': _get_source_str(estimate_function) if estimate_function is not None else None,
             }
 
         return execute(_CREATE_CUSTOM_METRIC, {
