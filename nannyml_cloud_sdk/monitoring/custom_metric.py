@@ -73,9 +73,9 @@ _LIST_CUSTOM_METRICS = gql("""
 """ + _CUSTOM_METRIC_SUMMARY_FRAGMENT)
 
 
-_READ_CUSTOM_MODEL = gql("""
+_READ_CUSTOM_METRIC = gql("""
     query readMetric($id: Int!) {
-        monitoring_metric(id: $id) {
+        monitoring_metric(metricId: $id) {
             ...MetricDetails
         }
     }
@@ -122,6 +122,18 @@ class CustomMetric:
         })['monitoring_metrics']
 
         return res
+
+    @classmethod
+    def get(cls, metric_id: str) -> CustomMetricDetails:
+        """Get details of a custom metric.
+
+        Args:
+            metric_id: Unique identifier of the custom metric.
+
+        Returns:
+            Details of the custom metric.
+        """
+        return execute(_READ_CUSTOM_METRIC, {'id': metric_id})['monitoring_metric']
 
     @classmethod
     def create(
