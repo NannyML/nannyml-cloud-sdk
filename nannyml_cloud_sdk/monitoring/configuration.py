@@ -4,6 +4,7 @@ from gql import gql
 
 from .enums import Chunking, PerformanceType, UnivariateDriftMethod, MultivariateDriftMethod, DataQualityMetric, \
     ConceptShiftMetric, SummaryStatsMetric
+from .schema import ModelSchema
 from .._typing import GraphQLObject, TypedDict, is_gql_type
 from ..client import execute
 from ..enums import ProblemType, PerformanceMetric
@@ -264,7 +265,8 @@ class RuntimeConfiguration:
     def default(
         problem_type: ProblemType,
         chunking: Chunking,
-        data_sources: List[dict[str, Any]],
+        schema: ModelSchema,
+        has_analysis_targets: bool,
         nr_of_rows: Optional[int] = None
     ) -> dict[str, Any]:
         rc = execute(_GET_DEFAULT_RUNTIME_CONFIGURATION, {
@@ -272,7 +274,13 @@ class RuntimeConfiguration:
                 'problemType': problem_type,
                 'chunking': chunking,
                 'nrOfRows': nr_of_rows,
-                'dataSources': data_sources
+                'schema': {
+                    'columns': [{
+                        'name': column['name'],
+                        'columnType': column['columnType']
+                    } for column in schema['columns']],
+                    'hasAnalysisTargets': has_analysis_targets,
+                },
             }
         })['get_default_monitoring_runtime_config']
         return _to_input(rc)

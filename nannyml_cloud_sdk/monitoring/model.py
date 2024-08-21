@@ -235,7 +235,9 @@ class Model:
         target_column = next((col['name'] for col in schema['columns'] if col['columnType'] == 'TARGET'), None)
         if target_column is None:
             raise ValueError("Schema must contain a target column")
+
         # Add target data source if target data is provided
+        has_targets = True
         if target_data is not None:
             data_sources.append({
                 'name': 'target',
@@ -249,6 +251,7 @@ class Model:
             })
         # Add empty target data source if target data is not provided in analysis
         elif target_column not in map(normalize, analysis_data.columns):
+            has_targets = False
             data_sources.append({
                 'name': 'target',
                 'hasReferenceData': False,
@@ -263,7 +266,8 @@ class Model:
         runtime_config = RuntimeConfiguration.default(
             problem_type=schema['problemType'],
             chunking=chunk_period if chunk_period is not None else 'NUMBER_OF_ROWS',
-            data_sources=data_sources,
+            schema=schema,
+            has_analysis_targets=has_targets,
             nr_of_rows=chunk_size
         )
 
