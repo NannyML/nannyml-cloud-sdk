@@ -49,18 +49,18 @@ _CUSTOM_METRIC_SUMMARY_FRAGMENT = f"""
 
 
 _CUSTOM_METRIC_DETAILS_FRAGMENT = """
-    fragment MetricDetails on Metric {{
+    fragment MetricDetails on Metric {
         ...MetricSummary
         description
-        ... on ClassificationMetric {{
+        ... on ClassificationMetric {
             calculateFn
             estimateFn
-        }}
-        ... on RegressionMetric {{
+        }
+        ... on RegressionMetric {
             lossFn
             aggregateFn
-        }}
-    }}
+        }
+    }
 """ + _CUSTOM_METRIC_SUMMARY_FRAGMENT
 
 
