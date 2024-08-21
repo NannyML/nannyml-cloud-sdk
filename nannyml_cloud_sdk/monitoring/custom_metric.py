@@ -150,8 +150,8 @@ class CustomMetric:
         description: str,
         problem_type: Literal["REGRESSION"],
         *,
-        loss_function: str,
-        aggregation_function: str,
+        loss_function: TCustomMetricSource,
+        aggregation_function: TCustomMetricSource,
         lower_value_limit: Optional[float] = None,
         upper_value_limit: Optional[float] = None,
     ) -> CustomRegressionMetricDetails:
@@ -165,8 +165,8 @@ class CustomMetric:
         description: str,
         problem_type: Literal["BINARY_CLASSIFICATION", "MULTICLASS_CLASSIFICATION"],
         *,
-        calculate_function: str,
-        estimate_function: Optional[str] = None,
+        calculate_function: TCustomMetricSource,
+        estimate_function: Optional[TCustomMetricSource] = None,
         lower_value_limit: Optional[float] = None,
         upper_value_limit: Optional[float] = None,
     ) -> CustomClassificationMetricDetails:
