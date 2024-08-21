@@ -40,7 +40,7 @@ class PerformanceMetricsConfiguration(GraphQLObject):
     realized: SupportConfig
 
 
-class BusinessValueMetricConfiguration(PerformanceMetricsConfiguration):
+class BusinessValueMetricConfig(PerformanceMetricsConfiguration):
     truePositiveWeight: float
     falsePositiveWeight: float
     trueNegativeWeight: float
@@ -358,12 +358,12 @@ def _convert_segment_threshold(st: dict) -> dict:
     }
 
 
-def _convert_performance_metric(m: PerformanceMetricsConfiguration | BusinessValueMetricConfiguration) -> dict:
+def _convert_performance_metric(m: PerformanceMetricsConfiguration | BusinessValueMetricConfig) -> dict:
     return {
         'metric': m['metric'],
         'enabledEstimated': _convert_supports_config(m['estimated']),
         'enabledRealized': _convert_supports_config(m['realized']),
-        'businessValue': None if not is_gql_type(m, BusinessValueMetricConfiguration) else {
+        'businessValue': None if not is_gql_type(m, BusinessValueMetricConfig) else {
             'truePositiveWeight': m['truePositiveWeight'],
             'falsePositiveWeight': m['falsePositiveWeight'],
             'trueNegativeWeight': m['trueNegativeWeight'],
