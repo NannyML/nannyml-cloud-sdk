@@ -120,6 +120,28 @@ _DELETE_MODEL = gql("""
     }
 """)
 
+_ADD_CUSTOM_METRIC_TO_MODEL = gql("""
+    mutation addCustomMetricToModel($modelId: Int!, $metricId: Int!) {
+        add_custom_metric_to_monitoring_model(input: {
+            modelId: $modelId
+            metricId: $metricId
+        }) {
+            id
+        }
+    }
+""")
+
+_REMOVE_CUSTOM_METRIC_FROM_MODEL = gql("""
+    mutation removeCustomMetricFromModel($modelId: Int!, $metricId: Int!) {
+        remove_custom_metric_from_monitoring_model(input: {
+            modelId: $modelId
+            metricId: $metricId
+        }) {
+            id
+        }
+    }
+""")
+
 
 class Model:
     """Operations for working with machine learning models."""
@@ -213,7 +235,9 @@ class Model:
         target_column = next((col['name'] for col in schema['columns'] if col['columnType'] == 'TARGET'), None)
         if target_column is None:
             raise ValueError("Schema must contain a target column")
+
         # Add target data source if target data is provided
+        has_targets = True
         if target_data is not None:
             data_sources.append({
                 'name': 'target',
@@ -227,6 +251,7 @@ class Model:
             })
         # Add empty target data source if target data is not provided in analysis
         elif target_column not in map(normalize, analysis_data.columns):
+            has_targets = False
             data_sources.append({
                 'name': 'target',
                 'hasReferenceData': False,
@@ -241,7 +266,8 @@ class Model:
         runtime_config = RuntimeConfiguration.default(
             problem_type=schema['problemType'],
             chunking=chunk_period if chunk_period is not None else 'NUMBER_OF_ROWS',
-            data_sources=data_sources,
+            schema=schema,
+            has_analysis_targets=has_targets,
             nr_of_rows=chunk_size
         )
 
@@ -457,3 +483,19 @@ class Model:
                 f"Model '{model_id}' has no target data source. If targets are present, they are stored in the "
                 "analysis data source. Use `delete_analysis_data` instead."
             )
+
+    @classmethod
+    def add_custom_metric(cls, model_id: str, metric_id: str) -> None:
+        """Add a custom metric to a monitoring model."""
+        execute(_ADD_CUSTOM_METRIC_TO_MODEL, {
+            'modelId': int(model_id),
+            'metricId': int(metric_id),
+        })
+
+    @classmethod
+    def remove_custom_metric(cls, model_id: str, metric_id: str) -> None:
+        """Remove a custom metric from a monitoring model."""
+        execute(_REMOVE_CUSTOM_METRIC_FROM_MODEL, {
+            'modelId': int(model_id),
+            'metricId': int(metric_id),
+        })

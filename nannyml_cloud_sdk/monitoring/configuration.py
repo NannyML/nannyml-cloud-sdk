@@ -2,8 +2,10 @@ from typing import Any, Dict, List, Optional, Union
 
 from gql import gql
 
+from .custom_metric import CustomMetricSummary, _CUSTOM_METRIC_SUMMARY_FRAGMENT
 from .enums import Chunking, PerformanceType, UnivariateDriftMethod, MultivariateDriftMethod, DataQualityMetric, \
     ConceptShiftMetric, SummaryStatsMetric
+from .schema import ModelSchema
 from .._typing import GraphQLObject, TypedDict, is_gql_type
 from ..client import execute
 from ..enums import ProblemType, PerformanceMetric
@@ -115,6 +117,14 @@ class SummaryStatsColumnMetricConfig(SummaryStatsMetricConfiguration):
     targets: SupportConfig
     predictions: SupportConfig
     predictedProbabilities: SupportConfig
+
+
+class CustomMetricConfig(GraphQLObject):
+    metric: CustomMetricSummary
+    estimated: SupportConfig
+    realized: SupportConfig
+    threshold: Dict[str, Any]
+    segmentThresholds: List
 
 
 _THRESHOLD_FRAGMENT = """
@@ -241,9 +251,21 @@ _GET_DEFAULT_RUNTIME_CONFIGURATION = gql("""
               metric
               __typename
             }
+            customMetrics {
+                ...MetricThresholdConfig
+                metric {
+                    ...MetricSummary
+                }
+                estimated {
+                    enabled
+                }
+                realized {
+                    enabled
+                }
+            }
         }
     }
-""" + _THRESHOLD_FRAGMENT + _THRESHOLD_DETAILS_FRAGMENT)
+""" + _THRESHOLD_FRAGMENT + _THRESHOLD_DETAILS_FRAGMENT + _CUSTOM_METRIC_SUMMARY_FRAGMENT)
 
 
 class RuntimeConfigurationDict(TypedDict):
@@ -255,6 +277,7 @@ class RuntimeConfigurationDict(TypedDict):
     dataQualityMetrics: List[DataQualityMetricConfiguration]
     conceptShiftMetrics: List[ConceptShiftMetricConfiguration]
     summaryStatsMetrics: List[Union[SummaryStatsSimpleMetricConfig, SummaryStatsColumnMetricConfig]]
+    customMetrics: list[CustomMetricConfig]
 
 
 class RuntimeConfiguration:
@@ -264,7 +287,8 @@ class RuntimeConfiguration:
     def default(
         problem_type: ProblemType,
         chunking: Chunking,
-        data_sources: List[dict[str, Any]],
+        schema: ModelSchema,
+        has_analysis_targets: bool,
         nr_of_rows: Optional[int] = None
     ) -> dict[str, Any]:
         rc = execute(_GET_DEFAULT_RUNTIME_CONFIGURATION, {
@@ -272,7 +296,13 @@ class RuntimeConfiguration:
                 'problemType': problem_type,
                 'chunking': chunking,
                 'nrOfRows': nr_of_rows,
-                'dataSources': data_sources
+                'schema': {
+                    'columns': [{
+                        'name': column['name'],
+                        'columnType': column['columnType']
+                    } for column in schema['columns']],
+                    'hasAnalysisTargets': has_analysis_targets,
+                },
             }
         })['get_default_monitoring_runtime_config']
         return _to_input(rc)
@@ -291,6 +321,7 @@ def _to_input(rc: RuntimeConfigurationDict) -> dict[str, Any]:
         'dataQualityMetrics': [_convert_data_quality_metric(m) for m in rc['dataQualityMetrics']],
         'conceptShiftMetrics': [_convert_concept_drift_metric(m) for m in rc['conceptShiftMetrics']],
         'summaryStatsMetrics': [_convert_summary_stats_metric(m) for m in rc['summaryStatsMetrics']],
+        'customMetrics': [_convert_custom_metric(m) for m in rc['customMetrics']],
     }
 
 
@@ -407,3 +438,13 @@ def _convert_summary_stats_metric(m: SummaryStatsMetricConfiguration) -> dict:
         raise ValueError(f"Unknown summary stats metric configuration type: {m['__typename']}")
 
     return res
+
+
+def _convert_custom_metric(config: CustomMetricConfig) -> dict:
+    return {
+        'metricId': config['metric']['id'],
+        'enabledEstimated': _convert_supports_config(config['estimated']),
+        'enabledRealized': _convert_supports_config(config['realized']),
+        'threshold': _convert_threshold(config['threshold']),
+        'segmentThresholds': [_convert_segment_threshold(st) for st in config['segmentThresholds']],
+    }
