@@ -1,5 +1,6 @@
 import datetime
-from typing import TypedDict, Optional, List, Literal, overload
+import inspect
+from typing import TypedDict, Optional, List, Literal, overload, Union, Callable
 
 from gql import gql
 
@@ -32,13 +33,18 @@ class CustomMetricDetails(TypedDict):
 
     description: str
 
-    # Classification functions
-    calculateFn: Optional[str]
-    estimateFn: Optional[str]
+class CustomClassificationMetricDetails(CustomMetricDetails):
+    calculateFn: str
+    estimateFn: str
 
-    # Regression functions
-    lossFn: Optional[str]
-    aggregateFn: Optional[str]
+
+class CustomRegressionMetricDetails(CustomMetricDetails):
+    lossFn: str
+    aggregateFn: str
+
+
+TCustomMetricDetails = Union[CustomClassificationMetricDetails, CustomRegressionMetricDetails]
+TCustomMetricSource = Union[str, Callable]
 
 
 _CUSTOM_METRIC_SUMMARY_FRAGMENT = f"""
@@ -124,7 +130,7 @@ class CustomMetric:
         return res
 
     @classmethod
-    def get(cls, metric_id: int) -> CustomMetricDetails:
+    def get(cls, metric_id: int) -> TCustomMetricDetails:
         """Get details of a custom metric.
 
         Args:
@@ -147,7 +153,7 @@ class CustomMetric:
         aggregation_function: str,
         lower_value_limit: Optional[float] = None,
         upper_value_limit: Optional[float] = None,
-    ) -> CustomMetricDetails:
+    ) -> CustomRegressionMetricDetails:
         ...
 
     @overload
@@ -162,7 +168,7 @@ class CustomMetric:
         estimate_function: Optional[str] = None,
         lower_value_limit: Optional[float] = None,
         upper_value_limit: Optional[float] = None,
-    ) -> CustomMetricDetails:
+    ) -> CustomClassificationMetricDetails:
         ...
 
     @classmethod
@@ -171,13 +177,13 @@ class CustomMetric:
         name: str,
         description: str,
         problem_type: ProblemType,
-        calculate_function: Optional[str] = None,
-        estimate_function: Optional[str] = None,
-        loss_function: Optional[str] = None,
-        aggregation_function: Optional[str] = None,
+        calculate_function: Optional[TCustomMetricSource] = None,
+        estimate_function: Optional[TCustomMetricSource] = None,
+        loss_function: Optional[TCustomMetricSource] = None,
+        aggregation_function: Optional[TCustomMetricSource] = None,
         lower_value_limit: Optional[float] = None,
         upper_value_limit: Optional[float] = None,
-    ) -> CustomMetricDetails:
+    ) -> TCustomMetricDetails:
         """Create a new custom metric."""
 
         classification_params, regression_params = None, None
@@ -188,16 +194,16 @@ class CustomMetric:
                                  'for custom regression metrics')
 
             regression_params = {
-                'lossFn': loss_function,
-                'aggregateFn': aggregation_function,
+                'lossFn': _get_source_str(loss_function),
+                'aggregateFn': _get_source_str(aggregation_function),
             }
         else:
             if calculate_function is None:
                 raise ValueError('`calculate_function` must be provided for custom classification metrics')
 
             classification_params = {
-                'calculateFn': calculate_function,
-                'estimateFn': estimate_function,
+                'calculateFn': _get_source_str(calculate_function),
+                'estimateFn': _get_source_str(estimate_function),
             }
 
         return execute(_CREATE_CUSTOM_METRIC, {
@@ -213,6 +219,12 @@ class CustomMetric:
         })['create_monitoring_metric']
 
     @classmethod
-    def delete(cls, metric_id: str) -> CustomMetricDetails:
+    def delete(cls, metric_id: str) -> TCustomMetricDetails:
         """Delete a custom metric."""
         return execute(_DELETE_MONITORING_METRIC, {'id': metric_id})['delete_monitoring_metric']
+
+
+def _get_source_str(source: TCustomMetricSource) -> str:
+    if callable(source):
+        return inspect.getsource(source)
+    return source
