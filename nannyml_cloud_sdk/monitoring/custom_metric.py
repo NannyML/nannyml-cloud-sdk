@@ -1,5 +1,5 @@
 import datetime
-from typing import TypedDict, Optional, List
+from typing import TypedDict, Optional, List, Literal, overload
 
 from gql import gql
 
@@ -134,6 +134,36 @@ class CustomMetric:
             Details of the custom metric.
         """
         return execute(_READ_CUSTOM_METRIC, {'id': metric_id})['monitoring_metric']
+
+    @overload
+    @classmethod
+    def create(
+        cls,
+        name: str,
+        description: str,
+        problem_type: Literal["REGRESSION"],
+        *,
+        loss_function: str,
+        aggregation_function: str,
+        lower_value_limit: Optional[float] = None,
+        upper_value_limit: Optional[float] = None,
+    ) -> CustomMetricDetails:
+        ...
+
+    @overload
+    @classmethod
+    def create(
+        cls,
+        name: str,
+        description: str,
+        problem_type: Literal["BINARY_CLASSIFICATION", "MULTICLASS_CLASSIFICATION"],
+        *,
+        calculate_function: str,
+        estimate_function: Optional[str] = None,
+        lower_value_limit: Optional[float] = None,
+        upper_value_limit: Optional[float] = None,
+    ) -> CustomMetricDetails:
+        ...
 
     @classmethod
     def create(
