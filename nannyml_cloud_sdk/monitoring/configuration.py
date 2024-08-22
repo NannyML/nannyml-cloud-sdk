@@ -3,8 +3,10 @@ from typing import Any, Dict, List, Optional, Union
 from gql import gql
 
 from .custom_metric import CustomMetricSummary, _CUSTOM_METRIC_SUMMARY_FRAGMENT
-from .enums import Chunking, PerformanceType, UnivariateDriftMethod, MultivariateDriftMethod, DataQualityMetric, \
-    ConceptShiftMetric, SummaryStatsMetric
+from .enums import (
+    Chunking, ClassificationRuleType, PerformanceType, UnivariateDriftMethod, MultivariateDriftMethod,
+    DataQualityMetric, ConceptShiftMetric, SummaryStatsMetric
+)
 from .schema import ModelSchema
 from .._typing import GraphQLObject, TypedDict, is_gql_type
 from ..client import execute
@@ -40,11 +42,21 @@ class PerformanceMetricsConfiguration(GraphQLObject):
     realized: SupportConfig
 
 
-class BusinessValueMetricConfiguration(PerformanceMetricsConfiguration):
+class BusinessValueRuleConfig(TypedDict):
+    trueClass: ClassificationRuleType
+    trueClassName: Optional[str]
+    predictedClass: ClassificationRuleType
+    predictedClassName: Optional[str]
+    weight: float
+    isDefaultRule: bool
+
+
+class BusinessValueMetricConfig(PerformanceMetricsConfiguration):
     truePositiveWeight: float
     falsePositiveWeight: float
     trueNegativeWeight: float
     falseNegativeWeight: float
+    rules: list[BusinessValueRuleConfig]
 
 
 class UnivariateDriftConfiguration(GraphQLObject):
@@ -176,6 +188,14 @@ _GET_DEFAULT_RUNTIME_CONFIGURATION = gql("""
                 falsePositiveWeight
                 trueNegativeWeight
                 falseNegativeWeight
+                rules {
+                    trueClass
+                    trueClassName
+                    predictedClass
+                    predictedClassName
+                    weight
+                    isDefaultRule
+                }
               }
               __typename
             }
@@ -358,16 +378,25 @@ def _convert_segment_threshold(st: dict) -> dict:
     }
 
 
-def _convert_performance_metric(m: PerformanceMetricsConfiguration | BusinessValueMetricConfiguration) -> dict:
+def _convert_performance_metric(m: PerformanceMetricsConfiguration | BusinessValueMetricConfig) -> dict:
     return {
         'metric': m['metric'],
         'enabledEstimated': _convert_supports_config(m['estimated']),
         'enabledRealized': _convert_supports_config(m['realized']),
-        'businessValue': None if not is_gql_type(m, BusinessValueMetricConfiguration) else {
+        'businessValue': None if not is_gql_type(m, BusinessValueMetricConfig) else {
             'truePositiveWeight': m['truePositiveWeight'],
             'falsePositiveWeight': m['falsePositiveWeight'],
             'trueNegativeWeight': m['trueNegativeWeight'],
             'falseNegativeWeight': m['falseNegativeWeight'],
+            'rules': [{
+                    'trueClass': rule['trueClass'],
+                    'trueClassName': rule['trueClassName'],
+                    'predictedClass': rule['predictedClass'],
+                    'predictedClassName': rule['predictedClassName'],
+                    'weight': rule['weight'],
+                    'isDefaultRule': rule['isDefaultRule'],
+                } for rule in m['rules']
+            ],
         },
         'threshold': _convert_threshold(m['threshold']),
         'segmentThresholds': [_convert_segment_threshold(st) for st in m['segmentThresholds']],
