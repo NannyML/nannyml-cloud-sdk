@@ -281,6 +281,7 @@ class Model:
                     'component': key_performance_metric_component,
                 },
                 'runtimeConfig': runtime_config,
+                'runOnCreate': False,
             },
         })['create_monitoring_model']
 
