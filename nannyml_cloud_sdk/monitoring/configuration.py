@@ -305,7 +305,6 @@ class RuntimeConfiguration:
 
     @staticmethod
     def default(
-        problem_type: ProblemType,
         chunking: Chunking,
         schema: ModelSchema,
         has_analysis_targets: bool,
@@ -313,7 +312,7 @@ class RuntimeConfiguration:
     ) -> dict[str, Any]:
         rc = execute(_GET_DEFAULT_RUNTIME_CONFIGURATION, {
             'input': {
-                'problemType': problem_type,
+                'problemType': schema['problemType'],
                 'chunking': chunking,
                 'nrOfRows': nr_of_rows,
                 'schema': {
