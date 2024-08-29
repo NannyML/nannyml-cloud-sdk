@@ -83,3 +83,6 @@ RunState = Literal['SCHEDULED', 'RUNNING', 'CANCELLING', 'COMPLETED']
 
 DataSourceEventType = Literal['CREATED', 'DATA_ADDED', 'DATA_REMOVED', 'DATA_UPDATED']
 """Events recorded for model data sources."""
+
+ThresholdType = Literal['CONSTANT', 'STANDARD_DEVIATION']
+"""Threshold types supported by NannyML Cloud."""
