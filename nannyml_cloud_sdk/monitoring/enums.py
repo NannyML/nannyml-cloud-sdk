@@ -28,6 +28,7 @@ UnivariateDriftMethod = Literal[
 
 MultivariateDriftMethod = Literal[
     'PCA_RECONSTRUCTION_ERROR',
+    'DOMAIN_CLASSIFIER_AUROC'
 ]
 
 DataQualityMetric = Literal[
