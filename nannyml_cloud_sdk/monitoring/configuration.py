@@ -336,23 +336,33 @@ class _MetricConfigurationMixin:
     _d: dict[str, Any]
 
     @overload
-    def set_threshold(self, threshold_type: Literal['CONSTANT'], lower: float, upper: float):
+    def set_threshold(
+        self,
+        *,
+        threshold_type: Literal['CONSTANT'],
+        lower: float,
+        upper: float
+    ):
         ...
 
     @overload
     def set_threshold(
-            self, threshold_type: Literal['STANDARD_DEVIATION'], std_lower_multiplier: float,
-            std_upper_multiplier: float
+        self,
+        *,
+        threshold_type: Literal['STANDARD_DEVIATION'],
+        std_lower_multiplier: float,
+        std_upper_multiplier: float
     ):
         ...
 
     def set_threshold(
-            self,
-            threshold_type: ThresholdType,
-            lower: Optional[float] = None,
-            upper: Optional[float] = None,
-            std_lower_multiplier: Optional[float] = None,
-            std_upper_multiplier: Optional[float] = None,
+        self,
+        *,
+        threshold_type: ThresholdType,
+        lower: Optional[float] = None,
+        upper: Optional[float] = None,
+        std_lower_multiplier: Optional[float] = None,
+        std_upper_multiplier: Optional[float] = None,
     ) -> Self:
         if threshold_type == 'CONSTANT':
             self._d['threshold'] = {
@@ -393,7 +403,7 @@ class _MetricConfigurationMixin:
 
     def _set_default_threshold(self):
         if self._d['threshold'] is None:
-            self.set_threshold('STANDARD_DEVIATION', 3, 3)
+            self.set_threshold(threshold_type='STANDARD_DEVIATION', std_lower_multiplier=3, std_upper_multiplier=3)
 
 
 class _SimpleMetricConfigurationMixin(_MetricConfigurationMixin):
