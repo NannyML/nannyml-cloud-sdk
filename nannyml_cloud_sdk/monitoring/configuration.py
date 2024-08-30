@@ -1,3 +1,4 @@
+import typing
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union, overload, Literal, Self, Generic, TypeVar
 
@@ -333,8 +334,6 @@ class RuntimeConfigurationDict(TypedDict):
 
 
 class _MetricConfigurationMixin:
-    _d: dict[str, Any]
-
     @overload
     def set_threshold(
         self,
@@ -364,14 +363,16 @@ class _MetricConfigurationMixin:
         std_lower_multiplier: Optional[float] = None,
         std_upper_multiplier: Optional[float] = None,
     ) -> Self:
+        self._check_for_requirements()
+
         if threshold_type == 'CONSTANT':
-            self._d['threshold'] = {
+            self._d['threshold'] = {  # type: ignore[attr-defined]
                 '__typename': 'ConstantThreshold',
                 'lower': lower,
                 'upper': upper,
             }
         elif threshold_type == 'STANDARD_DEVIATION':
-            self._d['threshold'] = {
+            self._d['threshold'] = {  # type: ignore[attr-defined]
                 '__typename': 'StandardDeviationThreshold',
                 'stdLowerMultiplier': std_lower_multiplier,
                 'stdUpperMultiplier': std_upper_multiplier,
@@ -383,105 +384,131 @@ class _MetricConfigurationMixin:
 
     @property
     def threshold(self) -> Optional[dict[str, Any]]:
-        return self._d['threshold']
+        self._check_for_requirements()
+        return self._d['threshold']  # type: ignore[attr-defined]
 
     def set_lower_value_limit(self, value: float) -> Self:
-        self._d['lowerValueLimit'] = value
+        self._check_for_requirements()
+        self._d['lowerValueLimit'] = value  # type: ignore[attr-defined]
         return self
 
     @property
     def lower_value_limit(self) -> Optional[float]:
-        return self._d.get('lowerValueLimit')
+        self._check_for_requirements()
+        return self._d.get('lowerValueLimit')  # type: ignore[attr-defined]
 
     def set_upper_value_limit(self, value: float) -> Self:
-        self._d['upperValueLimit'] = value
+        self._check_for_requirements()
+        self._d['upperValueLimit'] = value  # type: ignore[attr-defined]
         return self
 
     @property
     def upper_value_limit(self) -> Optional[float]:
-        return self._d.get('upperValueLimit')
+        self._check_for_requirements()
+        return self._d.get('upperValueLimit')  # type: ignore[attr-defined]
 
     def _set_default_threshold(self):
-        if self._d['threshold'] is None:
+        self._check_for_requirements()
+        if self._d['threshold'] is None:  # type: ignore[attr-defined]
             self.set_threshold(threshold_type='STANDARD_DEVIATION', std_lower_multiplier=3, std_upper_multiplier=3)
+
+    def _check_for_requirements(self):
+        if not hasattr(self, '_d'):
+            raise AttributeError("This method must be called on a subclass of _MetricConfigurationMixin")
 
 
 class _SimpleMetricConfigurationMixin(_MetricConfigurationMixin):
     def enable(self) -> Self:
-        self._d['enabled'] = True
+        self._check_for_requirements()
+        self._d['enabled'] = True  # type: ignore[attr-defined]
         self._set_default_threshold()
         return self
 
     def disable(self) -> Self:
-        self._d['enabled'] = False
+        self._check_for_requirements()
+        self._d['enabled'] = False  # type: ignore[attr-defined]
         return self
 
 
 class _ColumnMetricConfigurationMixin(_MetricConfigurationMixin):
     def enable_categorical(self) -> Self:
-        self._d['categorical']['enabled'] = True
+        self._check_for_requirements()
+        self._d['categorical']['enabled'] = True  # type: ignore[attr-defined]
         self._set_default_threshold()
         return self
 
     def disable_categorical(self) -> Self:
-        self._d['categorical']['enabled'] = False
+        self._check_for_requirements()
+        self._d['categorical']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
     def enable_continuous(self) -> Self:
-        self._d['continuous']['enabled'] = True
+        self._check_for_requirements()
+        self._d['continuous']['enabled'] = True  # type: ignore[attr-defined]
         self._set_default_threshold()
         return self
 
     def disable_continuous(self) -> Self:
-        self._d['continuous']['enabled'] = False
+        self._check_for_requirements()
+        self._d['continuous']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
     def enable_targets(self) -> Self:
-        self._d['targets']['enabled'] = True
+        self._check_for_requirements()
+        self._d['targets']['enabled'] = True  # type: ignore[attr-defined]
         self._set_default_threshold()
         return self
 
     def disable_targets(self) -> Self:
-        self._d['targets']['enabled'] = False
+        self._check_for_requirements()
+        self._d['targets']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
     def enable_predictions(self) -> Self:
-        self._d['predictions']['enabled'] = True
+        self._check_for_requirements()
+        self._d['predictions']['enabled'] = True  # type: ignore[attr-defined]
         self._set_default_threshold()
         return self
 
     def disable_predictions(self) -> Self:
-        self._d['predictions']['enabled'] = False
+        self._check_for_requirements()
+        self._d['predictions']['enabled'] = False  # type: ignore[attr-defined]
         self._set_default_threshold()
         return self
 
     def enable_predicted_probabilities(self) -> Self:
-        self._d['predictedProbabilities']['enabled'] = True
+        self._check_for_requirements()
+        self._d['predictedProbabilities']['enabled'] = True  # type: ignore[attr-defined]
         self._set_default_threshold()
         return self
 
     def disable_predicted_probabilities(self) -> Self:
-        self._d['predictedProbabilities']['enabled'] = False
+        self._check_for_requirements()
+        self._d['predictedProbabilities']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
 
 class _PerformanceMetricConfigurationMixin(_MetricConfigurationMixin):
     def enable_realized(self) -> Self:
-        self._d['realized']['enabled'] = True
+        self._check_for_requirements()
+        self._d['realized']['enabled'] = True  # type: ignore[attr-defined]
         self._set_default_threshold()
         return self
 
     def disable_realized(self) -> Self:
-        self._d['realized']['enabled'] = False
+        self._check_for_requirements()
+        self._d['realized']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
     def enable_estimated(self) -> Self:
-        self._d['estimated']['enabled'] = True
+        self._check_for_requirements()
+        self._d['estimated']['enabled'] = True  # type: ignore[attr-defined]
         self._set_default_threshold()
         return self
 
     def disable_estimated(self) -> Self:
-        self._d['estimated']['enabled'] = False
+        self._check_for_requirements()
+        self._d['estimated']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
 
@@ -613,9 +640,9 @@ class _RuntimeConfiguration(_BaseConfiguration[RuntimeConfigurationDict]):
     ) -> Union[_SummaryStatSimpleMetricConfiguration, _SummaryStatColumnMetricConfiguration]:
         m = next(m for m in self._d['summaryStatsMetrics'] if m['metric'] == name)
         if m['__typename'] == SummaryStatsSimpleMetricConfig.__name__:
-            return _SummaryStatSimpleMetricConfiguration(m)
+            return _SummaryStatSimpleMetricConfiguration(typing.cast(SummaryStatsSimpleMetricConfig, m))
         else:
-            return _SummaryStatColumnMetricConfiguration(m)
+            return _SummaryStatColumnMetricConfiguration(typing.cast(SummaryStatsColumnMetricConfig, m))
 
     def custom_metric(self, name: str) -> _CustomMetricConfiguration:
         m = next(m for m in self._d['customMetrics'] if m['metric']['name'] == name)
