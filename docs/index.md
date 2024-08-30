@@ -76,7 +76,19 @@ model = nml_sdk.monitoring.Model.create(
     target_data=target_data,
     key_performance_metric='F1',
 )
+
+# Tweak some settings
+config = nml_sdk.monitoring.RuntimeConfiguration.get(model['id'])
+config.performance_metric('ACCURACY').enable_realized().enable_estimated()
+config.performance_metric('ROC_AUC').set_threshold(threshold_type='CONSTANT', lower=0.7, upper=0.9)
+config.univariate_drift_method('WASSERSTEIN').enable_targets()
+
+nml_sdk.monitoring.RuntimeConfiguration.set(model['id'], config)
+
 print("Model", model['id'], "created at", model['createdAt'])
+
+# Start running the model
+nml_sdk.monitoring.Run.trigger(model['id'])
 ```
 
 !!! note

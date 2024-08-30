@@ -16,14 +16,12 @@ from ..enums import PerformanceMetric, ThresholdType
 
 
 class SupportConfig(TypedDict):
-    """Utility class"""
     enabled: bool
     is_supported: bool
     support_reason: Optional[str]
 
 
 class ChunkingConfiguration(TypedDict):
-    """Chunking configuration"""
     chunking: Chunking
     number_of_rows: Optional[int]
     enabled: bool
@@ -62,7 +60,6 @@ class BusinessValueMetricConfig(PerformanceMetricsConfiguration):
 
 
 class UnivariateDriftConfiguration(GraphQLObject):
-    """Univariate drift configuration"""
     lowerValueLimit: Optional[float]
     upperValueLimit: Optional[float]
     threshold: Dict[str, Any]
@@ -611,6 +608,10 @@ class _CustomMetricConfiguration(
 
 @dataclass
 class _RuntimeConfiguration(_BaseConfiguration[RuntimeConfigurationDict]):
+    """A wrapper for the return object of the API call.
+
+    The wrapper provides utility methods to access and modify specific parts of the configuration.
+    """
     def performance_type(self, name: PerformanceType) -> _PerformanceTypeConfiguration:
         t = next(t for t in self._d['performanceTypes'] if t['type'] == name)
         return _PerformanceTypeConfiguration(t)
@@ -650,7 +651,11 @@ class _RuntimeConfiguration(_BaseConfiguration[RuntimeConfigurationDict]):
 
 
 class RuntimeConfiguration:
-    """Configuration of a monitoring model"""
+    """Configuration of a monitoring model.
+
+    Use the `get` method to retrieve the current configuration of a model, and the `set` method to update it.
+    Use the `default` method to get the default configuration for a given schema and chunking.
+    """
 
     @staticmethod
     def default(
@@ -659,6 +664,14 @@ class RuntimeConfiguration:
         has_analysis_targets: bool,
         nr_of_rows: Optional[int] = None
     ) -> dict[str, Any]:
+        """Get the default runtime configuration for a given schema and chunking.
+
+        Args:
+            chunking: The chunking to use.
+            schema: The schema of the model.
+            has_analysis_targets: Whether the schema has analysis targets.
+            nr_of_rows: The number of rows to use if chunking is 'NUMBER_OF_ROWS'.
+        """
         rc = execute(_GET_DEFAULT_RUNTIME_CONFIGURATION, {
             'input': {
                 'problemType': schema['problemType'],
@@ -684,10 +697,24 @@ class RuntimeConfiguration:
 
     @staticmethod
     def get(model_id: int) -> _RuntimeConfiguration:
+        """Get the runtime configuration of a model.
+
+        Args:
+            model_id: The ID of the model.
+        """
         return _RuntimeConfiguration(RuntimeConfiguration._get_config(model_id))
 
     @staticmethod
     def set(model_id: int, config: _RuntimeConfiguration):
+        """Set the runtime configuration of a model.
+
+        This method will send the updated configuration back to the server.
+
+        Args:
+            model_id: The ID of the model.
+            config: The new runtime configuration
+
+        """
         _ = execute(_SET_MODEL_RUNTIME_CONFIGURATION, {
             'modelId': model_id,
             'runtimeConfig': _to_input(config.to_dict())
