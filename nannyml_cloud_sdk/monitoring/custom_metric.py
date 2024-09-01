@@ -227,5 +227,5 @@ class CustomMetric:
 
 def _get_source_str(source: TCustomMetricSource) -> str:
     if callable(source):
-        return inspect.getsource(source)
+        return f'import pandas as pd\nimport numpy as np\n\n{inspect.getsource(source)}'
     return source
