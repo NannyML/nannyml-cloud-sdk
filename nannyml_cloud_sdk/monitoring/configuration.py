@@ -21,6 +21,42 @@ class SupportConfig(TypedDict):
     support_reason: Optional[str]
 
 
+class _SimpleEnablingConfig(TypedDict):
+    enabled: bool
+    is_supported: bool
+    support_reason: Optional[str]
+
+
+class _MetricEnablingConfig(TypedDict):
+    realized: SupportConfig
+    estimated: SupportConfig
+
+
+class _ColumnEnablingConfig(TypedDict):
+    categorical: SupportConfig
+    continuous: SupportConfig
+    targets: SupportConfig
+    predictions: SupportConfig
+    predictedProbabilities: SupportConfig
+
+
+class _ThresholdConfig(TypedDict):
+    threshold: Dict[str, Any]
+    segmentThresholds: List
+
+
+class _ValueLimitConfig(TypedDict):
+    lowerValueLimit: Optional[float]
+    upperValueLimit: Optional[float]
+
+
+_TSimpleEnablingConfig = TypeVar('_TSimpleEnablingConfig', bound=_SimpleEnablingConfig)
+_TColumnEnablingConfig = TypeVar('_TColumnEnablingConfig', bound=_ColumnEnablingConfig)
+_TMetricEnablingConfig = TypeVar('_TMetricEnablingConfig', bound=_MetricEnablingConfig)
+_TThresholdConfig = TypeVar('_TThresholdConfig', bound=_ThresholdConfig)
+_TValueLimitConfig = TypeVar('_TValueLimitConfig', bound=_ValueLimitConfig)
+
+
 class ChunkingConfiguration(TypedDict):
     chunking: Chunking
     number_of_rows: Optional[int]
@@ -32,14 +68,8 @@ class PerformanceTypesConfiguration(TypedDict):
     type: PerformanceType
 
 
-class PerformanceMetricsConfiguration(GraphQLObject):
-    lowerValueLimit: Optional[float]
-    upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]
-    segmentThresholds: List
+class PerformanceMetricsConfiguration(_ThresholdConfig, _ValueLimitConfig, _MetricEnablingConfig, GraphQLObject):
     metric: PerformanceMetric
-    estimated: SupportConfig
-    realized: SupportConfig
 
 
 class BusinessValueRuleConfig(TypedDict):
@@ -59,83 +89,37 @@ class BusinessValueMetricConfig(PerformanceMetricsConfiguration):
     rules: list[BusinessValueRuleConfig]
 
 
-class UnivariateDriftConfiguration(GraphQLObject):
-    lowerValueLimit: Optional[float]
-    upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]
-    segmentThresholds: List
-    categorical: SupportConfig
-    continuous: SupportConfig
-    targets: SupportConfig
-    predictions: SupportConfig
-    predictedProbabilities: SupportConfig
+class UnivariateDriftConfiguration(_ThresholdConfig, _ValueLimitConfig, _ColumnEnablingConfig, GraphQLObject):
     method: UnivariateDriftMethod
 
 
-class MultivariateDriftConfiguration(GraphQLObject):
-    lowerValueLimit: Optional[float]
-    upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]
-    segmentThresholds: List
-    enabled: bool
-    is_supported: bool
-    support_reason: Optional[str]
+class MultivariateDriftConfiguration(_ThresholdConfig, _ValueLimitConfig, _SimpleEnablingConfig, GraphQLObject):
     method: MultivariateDriftMethod
 
 
-class DataQualityMetricConfiguration(GraphQLObject):
-    lowerValueLimit: Optional[float]
-    upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]
-    segmentThresholds: List
-    categorical: SupportConfig
-    continuous: SupportConfig
-    targets: SupportConfig
-    predictions: SupportConfig
-    predictedProbabilities: SupportConfig
+class DataQualityMetricConfiguration(_ThresholdConfig, _ValueLimitConfig, _ColumnEnablingConfig, GraphQLObject):
     metric: DataQualityMetric
     normalize: bool
 
 
-class ConceptShiftMetricConfiguration(GraphQLObject):
-    lowerValueLimit: Optional[float]
-    upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]
-    segmentThresholds: List
-    enabled: bool
-    is_supported: bool
-    support_reason: Optional[str]
+class ConceptShiftMetricConfiguration(_ThresholdConfig, _ValueLimitConfig, _SimpleEnablingConfig, GraphQLObject):
     metric: ConceptShiftMetric
 
 
-class SummaryStatsMetricConfiguration(GraphQLObject):
-    lowerValueLimit: Optional[float]
-    upperValueLimit: Optional[float]
-    threshold: Dict[str, Any]
-    segmentThresholds: List
+class SummaryStatsMetricConfiguration(_ThresholdConfig, _ValueLimitConfig, GraphQLObject):
     metric: SummaryStatsMetric
 
 
-class SummaryStatsSimpleMetricConfig(SummaryStatsMetricConfiguration):
-    enabled: bool
-    is_supported: bool
-    support_reason: Optional[str]
+class SummaryStatsSimpleMetricConfig(_SimpleEnablingConfig, SummaryStatsMetricConfiguration):
+    ...
 
 
-class SummaryStatsColumnMetricConfig(SummaryStatsMetricConfiguration):
-    categorical: SupportConfig
-    continuous: SupportConfig
-    targets: SupportConfig
-    predictions: SupportConfig
-    predictedProbabilities: SupportConfig
+class SummaryStatsColumnMetricConfig(_ColumnEnablingConfig, SummaryStatsMetricConfiguration):
+    ...
 
 
-class CustomMetricConfig(GraphQLObject):
+class CustomMetricConfig(_ThresholdConfig, _MetricEnablingConfig, GraphQLObject):
     metric: CustomMetricSummary
-    estimated: SupportConfig
-    realized: SupportConfig
-    threshold: Dict[str, Any]
-    segmentThresholds: List
 
 
 _THRESHOLD_FRAGMENT = """
@@ -155,6 +139,7 @@ _THRESHOLD_FRAGMENT = """
     }
 """
 
+
 _THRESHOLD_DETAILS_FRAGMENT = """
     fragment ThresholdDetails on Threshold {
         __typename
@@ -168,6 +153,7 @@ _THRESHOLD_DETAILS_FRAGMENT = """
         }
     }
 """
+
 
 _RUNTIME_CONFIGURATION_DETAILS_FRAGMENT = """
     fragment RuntimeConfigDetails on RuntimeConfig{
@@ -305,6 +291,7 @@ _GET_MODEL_RUNTIME_CONFIGURATION = gql("""
 """ + _THRESHOLD_FRAGMENT + _THRESHOLD_DETAILS_FRAGMENT + _CUSTOM_METRIC_SUMMARY_FRAGMENT
                                        + _RUNTIME_CONFIGURATION_DETAILS_FRAGMENT)
 
+
 _SET_MODEL_RUNTIME_CONFIGURATION = gql("""
     mutation setRuntimeConfiguration($modelId: Int!, $runtimeConfig: EditRuntimeConfigInput) {
       edit_monitoring_model(input: {
@@ -330,7 +317,10 @@ class RuntimeConfigurationDict(TypedDict):
     customMetrics: list[CustomMetricConfig]
 
 
-class _MetricConfigurationMixin:
+@dataclass
+class _ThresholdConfigurationMixin(Generic[_TThresholdConfig]):
+    _d: _TThresholdConfig
+
     @overload
     def set_threshold(
         self,
@@ -360,16 +350,14 @@ class _MetricConfigurationMixin:
         std_lower_multiplier: Optional[float] = None,
         std_upper_multiplier: Optional[float] = None,
     ) -> Self:
-        self._check_for_requirements()
-
         if threshold_type == 'CONSTANT':
-            self._d['threshold'] = {  # type: ignore[attr-defined]
+            self._d['threshold'] = {
                 '__typename': 'ConstantThreshold',
                 'lower': lower,
                 'upper': upper,
             }
         elif threshold_type == 'STANDARD_DEVIATION':
-            self._d['threshold'] = {  # type: ignore[attr-defined]
+            self._d['threshold'] = {
                 '__typename': 'StandardDeviationThreshold',
                 'stdLowerMultiplier': std_lower_multiplier,
                 'stdUpperMultiplier': std_upper_multiplier,
@@ -381,130 +369,110 @@ class _MetricConfigurationMixin:
 
     @property
     def threshold(self) -> Optional[dict[str, Any]]:
-        self._check_for_requirements()
-        return self._d['threshold']  # type: ignore[attr-defined]
+        return self._d['threshold']
 
+    def _set_default_threshold(self):
+        if self._d['threshold'] is None:
+            self.set_threshold(threshold_type='STANDARD_DEVIATION', std_lower_multiplier=3, std_upper_multiplier=3)
+
+
+@dataclass
+class _ValueLimitConfigurationMixin(Generic[_TValueLimitConfig]):
     def set_lower_value_limit(self, value: float) -> Self:
-        self._check_for_requirements()
         self._d['lowerValueLimit'] = value  # type: ignore[attr-defined]
         return self
 
     @property
     def lower_value_limit(self) -> Optional[float]:
-        self._check_for_requirements()
         return self._d.get('lowerValueLimit')  # type: ignore[attr-defined]
 
     def set_upper_value_limit(self, value: float) -> Self:
-        self._check_for_requirements()
         self._d['upperValueLimit'] = value  # type: ignore[attr-defined]
         return self
 
     @property
     def upper_value_limit(self) -> Optional[float]:
-        self._check_for_requirements()
         return self._d.get('upperValueLimit')  # type: ignore[attr-defined]
 
-    def _set_default_threshold(self):
-        self._check_for_requirements()
-        if self._d['threshold'] is None:  # type: ignore[attr-defined]
-            self.set_threshold(threshold_type='STANDARD_DEVIATION', std_lower_multiplier=3, std_upper_multiplier=3)
 
-    def _check_for_requirements(self):
-        if not hasattr(self, '_d'):
-            raise AttributeError("This method must be called on a subclass of _MetricConfigurationMixin")
-
-
-class _SimpleMetricConfigurationMixin(_MetricConfigurationMixin):
+@dataclass
+class _SimpleMetricConfigurationMixin(Generic[_TSimpleEnablingConfig]):
     def enable(self) -> Self:
-        self._check_for_requirements()
         self._d['enabled'] = True  # type: ignore[attr-defined]
-        self._set_default_threshold()
+        # self._set_default_threshold()
         return self
 
     def disable(self) -> Self:
-        self._check_for_requirements()
         self._d['enabled'] = False  # type: ignore[attr-defined]
         return self
 
 
-class _ColumnMetricConfigurationMixin(_MetricConfigurationMixin):
+@dataclass
+class _ColumnMetricConfigurationMixin(Generic[_TColumnEnablingConfig]):
     def enable_categorical(self) -> Self:
-        self._check_for_requirements()
         self._d['categorical']['enabled'] = True  # type: ignore[attr-defined]
-        self._set_default_threshold()
+        # self._set_default_threshold()
         return self
 
     def disable_categorical(self) -> Self:
-        self._check_for_requirements()
         self._d['categorical']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
     def enable_continuous(self) -> Self:
-        self._check_for_requirements()
         self._d['continuous']['enabled'] = True  # type: ignore[attr-defined]
-        self._set_default_threshold()
+        # self._set_default_threshold()
         return self
 
     def disable_continuous(self) -> Self:
-        self._check_for_requirements()
         self._d['continuous']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
     def enable_targets(self) -> Self:
-        self._check_for_requirements()
         self._d['targets']['enabled'] = True  # type: ignore[attr-defined]
-        self._set_default_threshold()
+        # self._set_default_threshold()
         return self
 
     def disable_targets(self) -> Self:
-        self._check_for_requirements()
         self._d['targets']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
     def enable_predictions(self) -> Self:
-        self._check_for_requirements()
         self._d['predictions']['enabled'] = True  # type: ignore[attr-defined]
-        self._set_default_threshold()
+        # self._set_default_threshold()
         return self
 
     def disable_predictions(self) -> Self:
-        self._check_for_requirements()
         self._d['predictions']['enabled'] = False  # type: ignore[attr-defined]
-        self._set_default_threshold()
+        # self._set_default_threshold()
         return self
 
     def enable_predicted_probabilities(self) -> Self:
-        self._check_for_requirements()
         self._d['predictedProbabilities']['enabled'] = True  # type: ignore[attr-defined]
-        self._set_default_threshold()
+        # self._set_default_threshold()
         return self
 
     def disable_predicted_probabilities(self) -> Self:
-        self._check_for_requirements()
         self._d['predictedProbabilities']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
 
-class _PerformanceMetricConfigurationMixin(_MetricConfigurationMixin):
+@dataclass
+class _PerformanceMetricConfigurationMixin(Generic[_TMetricEnablingConfig]):
     def enable_realized(self) -> Self:
-        self._check_for_requirements()
         self._d['realized']['enabled'] = True  # type: ignore[attr-defined]
-        self._set_default_threshold()
+        # self._set_default_threshold()
         return self
 
     def disable_realized(self) -> Self:
-        self._check_for_requirements()
         self._d['realized']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
     def enable_estimated(self) -> Self:
-        self._check_for_requirements()
         self._d['estimated']['enabled'] = True  # type: ignore[attr-defined]
-        self._set_default_threshold()
+        # self._set_default_threshold()
         return self
 
     def disable_estimated(self) -> Self:
-        self._check_for_requirements()
         self._d['estimated']['enabled'] = False  # type: ignore[attr-defined]
         return self
 
@@ -535,32 +503,36 @@ class _PerformanceTypeConfiguration(_BaseConfiguration[PerformanceTypesConfigura
 
 
 @dataclass
-class _PerformanceMetricConfiguration(
-    _PerformanceMetricConfigurationMixin,
+class _PerformanceMetricConfiguration(  # type: ignore[misc]
+    _ThresholdConfigurationMixin[PerformanceMetricsConfiguration],
+    _PerformanceMetricConfigurationMixin[PerformanceMetricsConfiguration],
     _BaseConfiguration[PerformanceMetricsConfiguration]
 ):
     """Configuration of a performance metric."""
 
 
 @dataclass
-class _UnivariateDriftMethodConfiguration(
-    _ColumnMetricConfigurationMixin,
+class _UnivariateDriftMethodConfiguration(  # type: ignore[misc]
+    _ThresholdConfigurationMixin[UnivariateDriftConfiguration],
+    _ColumnMetricConfigurationMixin[UnivariateDriftConfiguration],
     _BaseConfiguration[UnivariateDriftConfiguration]
 ):
     """Configuration of a univariate drift method."""
 
 
 @dataclass
-class _MultivariateDriftMethodConfiguration(
-    _SimpleMetricConfigurationMixin,
+class _MultivariateDriftMethodConfiguration(  # type: ignore[misc]
+    _ThresholdConfigurationMixin[MultivariateDriftConfiguration],
+    _SimpleMetricConfigurationMixin[MultivariateDriftConfiguration],
     _BaseConfiguration[MultivariateDriftConfiguration]
 ):
     """Configuration of a multivariate drift method."""
 
 
 @dataclass
-class _DataQualityMetricConfiguration(
-    _ColumnMetricConfigurationMixin,
+class _DataQualityMetricConfiguration(  # type: ignore[misc]
+    _ThresholdConfigurationMixin[DataQualityMetricConfiguration],
+    _ColumnMetricConfigurationMixin[DataQualityMetricConfiguration],
     _BaseConfiguration[DataQualityMetricConfiguration]
 ):
     """Configuration of a data quality metric."""
@@ -575,32 +547,36 @@ class _DataQualityMetricConfiguration(
 
 
 @dataclass
-class _ConceptShiftMetricConfiguration(
-    _SimpleMetricConfigurationMixin,
+class _ConceptShiftMetricConfiguration(  # type: ignore[misc]
+    _ThresholdConfigurationMixin[ConceptShiftMetricConfiguration],
+    _SimpleMetricConfigurationMixin[ConceptShiftMetricConfiguration],
     _BaseConfiguration[ConceptShiftMetricConfiguration]
 ):
     """Configuration of a concept shift metric."""
 
 
 @dataclass
-class _SummaryStatSimpleMetricConfiguration(
-    _SimpleMetricConfigurationMixin,
+class _SummaryStatSimpleMetricConfiguration(  # type: ignore[misc]
+    _ThresholdConfigurationMixin[SummaryStatsSimpleMetricConfig],
+    _SimpleMetricConfigurationMixin[SummaryStatsSimpleMetricConfig],
     _BaseConfiguration[SummaryStatsSimpleMetricConfig]
 ):
     """Configuration of a summary statistics metric."""
 
 
 @dataclass
-class _SummaryStatColumnMetricConfiguration(
-    _ColumnMetricConfigurationMixin,
+class _SummaryStatColumnMetricConfiguration(  # type: ignore[misc]
+    _ThresholdConfigurationMixin[SummaryStatsColumnMetricConfig],
+    _ColumnMetricConfigurationMixin[SummaryStatsColumnMetricConfig],
     _BaseConfiguration[SummaryStatsColumnMetricConfig]
 ):
     """Configuration of a summary statistics metric."""
 
 
 @dataclass
-class _CustomMetricConfiguration(
-    _PerformanceMetricConfigurationMixin,
+class _CustomMetricConfiguration(  # type: ignore[misc]
+    _ThresholdConfigurationMixin[CustomMetricConfig],
+    _PerformanceMetricConfigurationMixin[CustomMetricConfig],
     _BaseConfiguration[CustomMetricConfig]
 ):
     """Configuration of a custom metric."""
