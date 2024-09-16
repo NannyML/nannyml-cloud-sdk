@@ -165,8 +165,8 @@ class CustomMetric:
         description: str,
         problem_type: Literal["BINARY_CLASSIFICATION", "MULTICLASS_CLASSIFICATION"],
         *,
-        calculate_function: TCustomMetricSource,
-        estimate_function: Optional[TCustomMetricSource] = None,
+        calculation_function: TCustomMetricSource,
+        estimation_function: Optional[TCustomMetricSource] = None,
         lower_value_limit: Optional[float] = None,
         upper_value_limit: Optional[float] = None,
     ) -> CustomClassificationMetricDetails:
@@ -178,8 +178,8 @@ class CustomMetric:
         name: str,
         description: str,
         problem_type: ProblemType,
-        calculate_function: Optional[TCustomMetricSource] = None,
-        estimate_function: Optional[TCustomMetricSource] = None,
+        calculation_function: Optional[TCustomMetricSource] = None,
+        estimation_function: Optional[TCustomMetricSource] = None,
         loss_function: Optional[TCustomMetricSource] = None,
         aggregation_function: Optional[TCustomMetricSource] = None,
         lower_value_limit: Optional[float] = None,
@@ -199,12 +199,12 @@ class CustomMetric:
                 'aggregateFn': _get_source_str(aggregation_function),
             }
         else:
-            if calculate_function is None:
+            if calculation_function is None:
                 raise ValueError('`calculate_function` must be provided for custom classification metrics')
 
             classification_params = {
-                'calculateFn': _get_source_str(calculate_function),
-                'estimateFn': _get_source_str(estimate_function) if estimate_function is not None else None,
+                'calculateFn': _get_source_str(calculation_function),
+                'estimateFn': _get_source_str(estimation_function) if estimation_function is not None else None,
             }
 
         return execute(_CREATE_CUSTOM_METRIC, {
