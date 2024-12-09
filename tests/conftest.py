@@ -4,9 +4,9 @@ from gql import Client
 import nannyml_cloud_sdk
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def gql_schema():
-    with open('schema.graphql') as f:
+    with open("schema.graphql") as f:
         return f.read()
 
 

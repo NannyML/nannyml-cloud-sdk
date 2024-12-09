@@ -820,7 +820,7 @@ def _convert_segment_threshold(st: dict) -> dict:
 
 
 def _convert_performance_metric(
-    m: PerformanceMetricsConfiguration | BusinessValueMetricConfig,
+    m: Union[PerformanceMetricsConfiguration, BusinessValueMetricConfig],
 ) -> dict:
     return {
         "metric": m["metric"],
