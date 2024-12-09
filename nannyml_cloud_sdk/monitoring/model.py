@@ -264,7 +264,6 @@ class Model:
             })
 
         runtime_config = RuntimeConfiguration.default(
-            problem_type=schema['problemType'],
             chunking=chunk_period if chunk_period is not None else 'NUMBER_OF_ROWS',
             schema=schema,
             has_analysis_targets=has_targets,
@@ -281,6 +280,7 @@ class Model:
                     'component': key_performance_metric_component,
                 },
                 'runtimeConfig': runtime_config,
+                'runOnCreate': False,
             },
         })['create_monitoring_model']
 
