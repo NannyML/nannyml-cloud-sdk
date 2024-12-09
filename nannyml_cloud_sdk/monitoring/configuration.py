@@ -140,12 +140,12 @@ class SummaryStatsMetricConfiguration(
 
 class SummaryStatsSimpleMetricConfig(
     _SimpleEnablingConfig, SummaryStatsMetricConfiguration
-): ...
+): ...  # noqa: E701
 
 
 class SummaryStatsColumnMetricConfig(
     _ColumnEnablingConfig, SummaryStatsMetricConfiguration
-): ...
+): ...  # noqa: E701
 
 
 class CustomMetricConfig(_ThresholdConfig, _MetricEnablingConfig, GraphQLObject):
