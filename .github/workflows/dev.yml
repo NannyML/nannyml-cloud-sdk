@@ -13,7 +13,11 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
     - name: Install just
@@ -23,12 +27,14 @@ jobs:
       with:
         enable-cache: true
         cache-dependency-glob: "uv.lock"
-    - name: Install python 3.12
+    - name: Install python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version-file: ".python-version"
+        python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: just install
+      env:
+        UV_PYTHON: ${{ matrix.python-version }}
     - name: Test
       run: just test
     - name: Build
