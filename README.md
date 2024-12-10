@@ -16,11 +16,11 @@ NannyML Cloud SDK is a python package that enables programatic interaction with 
 
 ### Install NannyML Cloud SDK
 
-Currently the package is private, which means you cannot install it via the regular python channels. Instead, you'll have to install directly from the github repository.
+The nannyml-cloud-sdk package is available on PyPi and can be installed using your favorite package manager. 
 
-```bash
-pip install git+https://github.com/NannyML/nannyml-cloud-sdk.git
-```
+### Compatibility
+
+You can check which SDK version support which NannyML Cloud versions over on the [dedicated cloud documentation page](https://docs.nannyml.com/cloud/nannyml-cloud-sdk/getting-started#compatibility).
 
 ### Authentication
 

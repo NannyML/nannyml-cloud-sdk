@@ -2,15 +2,13 @@
 
 This page provides an [API reference](api_reference/monitoring/model.md) for the NannyML Cloud SDK, generated directly from the code. For tutorials and guides, please refer to [our gitbook pages](https://nannyml.gitbook.io/).
 
-## Installing
+### Install NannyML Cloud SDK
 
-Currently the package is private, which means you cannot install it via the regular python channels. Instead, you'll have to clone the [repository](https://github.com/NannyML/nannyml-cloud-sdk) and install it from your local copy.
+The nannyml-cloud-sdk package is available on PyPi and can be installed using your favorite package manager. 
 
-```bash
-git clone https://github.com/NannyML/nannyml-cloud-sdk.git
-cd nannyml-cloud-sdk
-pip install .
-```
+### Compatibility
+
+You can check which SDK version support which NannyML Cloud versions over on the [dedicated cloud documentation page](https://docs.nannyml.com/cloud/nannyml-cloud-sdk/getting-started#compatibility).
 
 ## Authentication
 
