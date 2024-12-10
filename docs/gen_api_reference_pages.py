@@ -5,13 +5,14 @@ from pathlib import Path
 import mkdocs_gen_files
 
 ROOT_PATH = "nannyml_cloud_sdk"
+SRC_PATH = Path("src").joinpath(ROOT_PATH)
 
 nav = mkdocs_gen_files.Nav()
 
 
-for path in sorted(Path(ROOT_PATH).rglob("*.py")):
-    module_path = path.relative_to(ROOT_PATH).with_suffix("")
-    doc_path = path.relative_to(ROOT_PATH).with_suffix(".md")
+for path in sorted(Path(SRC_PATH).rglob("*.py")):
+    module_path = path.relative_to(SRC_PATH).with_suffix("")
+    doc_path = path.relative_to(SRC_PATH).with_suffix(".md")
     full_doc_path = Path("api_reference", doc_path)
 
     parts = tuple(module_path.parts)
