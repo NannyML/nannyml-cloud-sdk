@@ -30,4 +30,4 @@ serve-docs:
 	uv run mkdocs serve
 
 publish-docs:
-	uv run mkdocs gh-deploy --strict
+	uv run mkdocs gh-deploy --strict --force
