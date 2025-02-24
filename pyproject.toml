@@ -1,6 +1,6 @@
 [project]
 name = "nannyml-cloud-sdk"
-version = "0.1.7"
+version = "0.1.8"
 authors = [
   { name="Michael Van de Steene", email="michael@nannyml.com" },
   { name="Niels Nuyttens", email="niels@nannyml.com" },
